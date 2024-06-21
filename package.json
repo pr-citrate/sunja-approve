@@ -19,6 +19,7 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
+    "@xata.io/cli": "^0.15.15",
     "eslint": "^8",
     "eslint-config-next": "14.2.4",
     "postcss": "^8",
