@@ -2,7 +2,15 @@
 import { buildClient } from "@xata.io/client";
 /** @typedef { import('./types').SchemaTables } SchemaTables */
 /** @type { SchemaTables } */
-const tables = [];
+const tables = [
+  {
+    name: "requests",
+    columns: [
+      { name: "applicant", type: "json" },
+      { name: "isApproved", type: "bool", defaultValue: "false" },
+    ],
+  },
+];
 /** @type { import('@xata.io/client').ClientConstructor<{}> } */
 const DatabaseClient = buildClient();
 const defaultOptions = {
