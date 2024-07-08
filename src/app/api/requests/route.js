@@ -17,7 +17,7 @@ export async function POST(req) {
   return NextResponse.json(data);
 }
 
-export async function PATCH(req) {
+export async function PUT(req) {
   const { searchParams: params } = new URL(req.url);
   const { id } = await params;
   const data = await xata.db.requests.createOrReplace(id, body);
