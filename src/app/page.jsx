@@ -21,7 +21,7 @@ export default function Home() {
 
   return (
     <main className="grid justify-items-center items-center w-full h-full">
-      <Card className="min-w-screen grid justify-items-center items-center min-h-screen p-8">
+      <Card className="min-w-screen grid justify-items-center items-center p-8 m-12 min-h-screen">
         <Form>
           <Label className="text-xl mb-4">순자증 신청</Label>
           <div className="mb-4 w-full">
