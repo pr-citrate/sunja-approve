@@ -75,7 +75,7 @@ export default function Home() {
               id="reason"
               placeholder="사유"
               type="text"
-              className="text-lg w-full"
+              className="w-full"
             />
           </div>
           <div className="mb-4 w-full">
@@ -86,12 +86,36 @@ export default function Home() {
               id="phone"
               placeholder="전화번호 (대표자)"
               type="tel"
-              className="text-lg w-full"
+              className="w-full"
             />
           </div>
 
-          {[...Array(numOfParticipants)].map((_, i) => {
-            const isLeader = i === 0;
+          <div className="flex flex-row mb-4" key="representative">
+            <div className="mr-2 flex-1">
+              <Label htmlFor="representativeName" className="block mb-1">
+                대표자 이름
+              </Label>
+              <Input
+                id="representativeName"
+                placeholder="대표자 이름"
+                type="text"
+                className="text-g"
+              />
+            </div>
+            <div className="flex-1">
+              <Label htmlFor="representativeId" className="block mb-1">
+                대표자 학번
+              </Label>
+              <Input
+                id="representativeId"
+                placeholder="대표자 학번"
+                type="text"
+                className="text-g"
+              />
+            </div>
+          </div>
+
+          {[...Array(numParticipants - 1)].map((_, i) => {
             return (
               <div className="flex flex-row mb-4" key={i}>
                 <div className="mr-2 flex-1">
@@ -102,7 +126,7 @@ export default function Home() {
                     id={`name${i}`}
                     placeholder={`이름 ${isLeader ? "(대표자)" : i + 1}`}
                     type="text"
-                    className="text-lg"
+                    className="text-g"
                   />
                 </div>
                 <div className="flex-1">
@@ -113,7 +137,7 @@ export default function Home() {
                     id={`id${i}`}
                     placeholder={`학번 ${isLeader ? "(대표자)" : i + 1}`}
                     type="text"
-                    className="text-lg"
+                    className="text-g"
                   />
                 </div>
               </div>
