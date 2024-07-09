@@ -91,27 +91,27 @@ export default function Home() {
           </div>
 
           {[...Array(numParticipants)].map((_, i) => {
-            const isLeader = i === 0;
+            const number = `${i + 1}${i ? "" : " (대표자)"}`;
             return (
               <div className="flex flex-row mb-4" key={i}>
                 <div className="mr-2 flex-1">
                   <Label htmlFor={`name${i}`} className="block mb-1">
-                    {`이름 ${isLeader ? "(대표자)" : i + 1}`}
+                    {`이름 ${number}`}
                   </Label>
                   <Input
                     id={`name${i}`}
-                    placeholder={`이름 ${isLeader ? "(대표자)" : i + 1}`}
+                    placeholder={`이름 ${number}`}
                     type="text"
                     className="text-g"
                   />
                 </div>
                 <div className="flex-1">
                   <Label htmlFor={`id${i}`} className="block mb-1">
-                    {`학번 ${isLeader ? "(대표자)" : i + 1}`}
+                    {`학번 ${number}`}
                   </Label>
                   <Input
                     id={`id${i}`}
-                    placeholder={`학번 ${isLeader ? "(대표자)" : i + 1}`}
+                    placeholder={`학번 ${number}`}
                     type="text"
                     className="text-g"
                   />
