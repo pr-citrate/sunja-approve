@@ -4,7 +4,7 @@ import { getXataClient } from "@/xata";
 const xata = getXataClient();
 
 export async function GET(req) {
-  const { searchParams: params } = new URL(req.url);
+  const params = Object.fromEntries(req.nextUrl.searchParams);
   const data = await xata.db.requests.getMany(params);
 
   return NextResponse.json(data);
@@ -18,25 +18,22 @@ export async function POST(req) {
 }
 
 export async function PUT(req) {
-  const { searchParams: params } = new URL(req.url);
-  const { id } = await params;
-  const data = await xata.db.requests.createOrReplace(id, body);
+  const params = Object.fromEntries(req.nextUrl.searchParams);
+  const data = await xata.db.requests.createOrReplace(params.id, body);
 
   return NextResponse.json(data);
 }
 
 export async function PATCH(req) {
-  const { searchParams: params } = new URL(req.url);
-  const { id } = await params;
-  const data = await xata.db.requests.update(id, body);
+  const params = Object.fromEntries(req.nextUrl.searchParams);
+  const data = await xata.db.requests.update(params.id, body);
 
   return NextResponse.json(data);
 }
 
 export async function DELETE(req) {
-  const { searchParams: params } = new URL(req.url);
-  const { id } = await params;
+  const params = Object.fromEntries(req.nextUrl.searchParams);
 
-  const data = xata.db.requests.delete(id);
+  const data = xata.db.requests.delete(params.id);
   return NextResponse.json(data);
 }
