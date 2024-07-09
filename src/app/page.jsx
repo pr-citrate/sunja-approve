@@ -121,7 +121,7 @@ export default function Home() {
           })}
 
           <Button type="submit" className="text-lg mt-4">
-            Submit
+            제출
           </Button>
         </Form>
       </Card>
