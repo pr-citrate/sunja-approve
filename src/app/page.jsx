@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select";
 
 export default function Home() {
-  const [numParticipants, setNumParticipants] = useState(3);
+  const [numParticipants, setNumParticipants] = useState(2);
 
   return (
     <main className="grid justify-items-center items-center w-full h-full">
