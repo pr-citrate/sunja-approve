@@ -10,6 +10,13 @@ const tables = [
       { name: "isApproved", type: "bool", defaultValue: "false" },
     ],
   },
+  {
+    name: "password",
+    columns: [
+      { name: "name", type: "string" },
+      { name: "value", type: "string" },
+    ],
+  },
 ];
 /** @type { import('@xata.io/client').ClientConstructor<{}> } */
 const DatabaseClient = buildClient();
