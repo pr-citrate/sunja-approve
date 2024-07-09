@@ -1,18 +1,76 @@
 "use client";
 
-import { useState } from "react";
+import * as React from "react";
+import { useForm, FormProvider } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-table";
+
+const initialData = [
+  { id: 1, name: "윤석영", count: 2 },
+  { id: 2, name: "안채헌", count: 3 },
+];
+
+const Skeleton = () => (
+  <div className="animate-pulse flex space-x-4">
+    <div className="rounded-full bg-gray-400 h-12 w-12"></div>
+    <div className="flex-1 space-y-4 py-1">
+      <div className="h-4 bg-gray-400 rounded w-3/4"></div>
+      <div className="space-y-2">
+        <div className="h-4 bg-gray-400 rounded"></div>
+        <div className="h-4 bg-gray-400 rounded w-5/6"></div>
+      </div>
+    </div>
+  </div>
+);
+
+const columns = [
+  {
+    accessorKey: "id",
+    header: "신청 목록",
+  },
+  {
+    accessorKey: "name",
+    header: "대표자 이름",
+  },
+  {
+    accessorKey: "count",
+    header: "총 인원",
+  },
+  {
+    id: "approve",
+    header: "확인",
+    cell: ({ row }) => {
+      return (
+        <Button
+          onClick={() => {
+            alert(`${row.original.name} 외 ${row.original.count - 1}명 신청 확인 되었습니다.`);
+          }}
+        >
+          신청 확인
+        </Button>
+      );
+    },
+  },
+];
 
 export default function Home() {
-  const [password, setPassword] = useState("");
-  const [isPasswordCorrect, setIsPasswordCorrect] = useState(false);
+  const [password, setPassword] = React.useState("");
+  const [isPasswordCorrect, setIsPasswordCorrect] = React.useState(false);
+  const [data] = React.useState(initialData);
+  const methods = useForm();
+  const table = useReactTable({
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  });
 
   const handlePasswordSubmit = (e) => {
-    e.preventDefault();
+    e.preventDefault();    
     if (password === "000000") {
       setIsPasswordCorrect(true);
     } else {
@@ -20,27 +78,74 @@ export default function Home() {
     }
   };
 
+  const handleBack = () => {
+    setIsPasswordCorrect(false);
+  };
+
   return (
-    <main className="grid justify-items-center items-center w-full h-full">
-      {isPasswordCorrect || (
-        <Form onSubmit={handlePasswordSubmit}>
-          <Label htmlFor="password" className="text-xl mb-4">
-            Enter Password
-          </Label>
-          <Input
-            id="password"
-            type="password"
-            placeholder="Enter password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="mb-4 text-lg w-80"
-          />
-          <Button type="submit" className="text-lg mt-4">
-            Submit
-          </Button>
-        </Form>
-      )}
-      <Card className="min-w-96 grid justify-items-center items-center p-8 m-12 min-h-96"></Card>
-    </main>
+    <FormProvider {...methods}>
+      <main className="flex justify-center items-center w- h-screen">
+        {!isPasswordCorrect ? (
+          <Card className="w-96 grid justify-items-center items-center p-8">
+            <form onSubmit={handlePasswordSubmit} className="w-full grid justify-items-center">
+              <Label htmlFor="password" className="text-xl mb-4">
+                Enter Password
+              </Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="Enter password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="mb-4 text-lg w-full"
+              />
+              <Button type="submit" className="text-lg mt-4 w-full">
+                로그인
+              </Button>
+            </form>
+          </Card>
+        ) : (
+          <>
+            <Skeleton />
+            <Card className="min-w-screen grid justify-items-center items-center p-8 m-12 min-h-screen">
+              <div className="rounded-md border mb-4">
+                <Table>
+                  <TableHeader>
+                    {table.getHeaderGroups().map((headerGroup) => (
+                      <TableRow key={headerGroup.id}>
+                        {headerGroup.headers.map((header) => (
+                          <TableHead key={header.id}>
+                            {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                          </TableHead>
+                        ))}
+                      </TableRow>
+                    ))}
+                  </TableHeader>
+                  <TableBody>
+                    {table.getRowModel().rows.length ? (
+                      table.getRowModel().rows.map((row) => (
+                        <TableRow key={row.id}>
+                          {row.getVisibleCells().map((cell) => (
+                            <TableCell key={cell.id}>
+                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+              <Button type="button" onClick={handleBack} className="mt-4">
+                뒤로
+              </Button>
+            </Card>
+          </>
+        )}
+      </main>
+    </FormProvider>
   );
 }
