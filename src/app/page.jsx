@@ -76,7 +76,7 @@ export default function Home() {
               id="reason"
               placeholder="사유"
               type="text"
-              className="text-lg w-full"
+              className="w-full"
             />
           </div>
           <div className="mb-4 w-full">
@@ -87,7 +87,7 @@ export default function Home() {
               id="phone"
               placeholder="대표자 전화번호"
               type="tel"
-              className="text-lg w-full"
+              className="w-full"
             />
           </div>
 
@@ -100,7 +100,7 @@ export default function Home() {
                 id="representativeName"
                 placeholder="대표자 이름"
                 type="text"
-                className="text-lg"
+                className="text-g"
               />
             </div>
             <div className="flex-1">
@@ -111,7 +111,7 @@ export default function Home() {
                 id="representativeId"
                 placeholder="대표자 학번"
                 type="text"
-                className="text-lg"
+                className="text-g"
               />
             </div>
           </div>
@@ -127,7 +127,7 @@ export default function Home() {
                     id={`name${i + 2}`}
                     placeholder={`이름 ${i + 2}`}
                     type="text"
-                    className="text-lg"
+                    className="text-g"
                   />
                 </div>
                 <div className="flex-1">
@@ -138,7 +138,7 @@ export default function Home() {
                     id={`id${i + 2}`}
                     placeholder={`학번 ${i + 2}`}
                     type="text"
-                    className="text-lg"
+                    className="text-g"
                   />
                 </div>
               </div>
