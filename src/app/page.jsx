@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
-import { render } from "react-dom";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Home() {
   const [numParticipants, setNumParticipants] = useState(2);
@@ -142,56 +142,61 @@ export default function Home() {
                 </FormItem>
               )}
             />
-            {[...Array(numParticipants)].map((_, i) => {
-              const number = `${i + 1}${i ? "" : " (대표자)"}`;
-              return (
-                <div className="flex flex-row mb-4 space-y-0 space-x-2" key={i}>
-                  <FormField
+            <AnimatePresence>
+              {[...Array(numParticipants)].map((_, i) => {
+                const number = `${i + 1}${i ? "" : " (대표자)"}`;
+                return (
+                  <motion.div
+                    className="flex flex-row mb-4 space-y-0 space-x-2"
                     key={i}
-                    control={form.control}
-                    name={`participant${i}`}
-                    render={({ field }) => (
-                      <FormItem className="flex-1">
-                        <Label htmlFor={`name${i}`} className="block mb-1">
-                          {`이름 ${number}`}
-                        </Label>
-                        <FormControl>
-                          <Input
-                            id={`name${i}`}
-                            placeholder={`이름 ${number}`}
-                            type="text"
-                            className="text-g"
-                            {...field}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    key={i}
-                    control={form.control}
-                    name={`number${i}`}
-                    render={({ field }) => (
-                      <FormItem className="flex-1">
-                        <Label htmlFor={`id${i}`} className="block mb-1">
-                          {`학번 ${number}`}
-                        </Label>
-                        <FormControl>
-                          <Input
-                            id={`id${i}`}
-                            placeholder={`학번 ${number}`}
-                            type="text"
-                            className="text-g"
-                            {...field}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              );
-            })}
-
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 20 }}
+                  >
+                    <FormField
+                      control={form.control}
+                      name={`participant${i}`}
+                      render={({ field }) => (
+                        <FormItem className="flex-1">
+                          <Label htmlFor={`name${i}`} className="block mb-1">
+                            {`이름 ${number}`}
+                          </Label>
+                          <FormControl>
+                            <Input
+                              id={`name${i}`}
+                              placeholder={`이름 ${number}`}
+                              type="text"
+                              className="text-g"
+                              {...field}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name={`number${i}`}
+                      render={({ field }) => (
+                        <FormItem className="flex-1">
+                          <Label htmlFor={`id${i}`} className="block mb-1">
+                            {`학번 ${number}`}
+                          </Label>
+                          <FormControl>
+                            <Input
+                              id={`id${i}`}
+                              placeholder={`학번 ${number}`}
+                              type="text"
+                              className="text-g"
+                              {...field}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
             <Button type="submit" className="text-lg mt-4">
               제출
             </Button>
