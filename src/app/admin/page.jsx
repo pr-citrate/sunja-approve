@@ -23,33 +23,75 @@ import {
 
 const columns = [
   {
-    accessorKey: "id",
-    header: "ID",
+    accessorKey: "representative",
+    header: "대표자 이름",
   },
   {
-    accessorKey: "name",
-    header: "Name",
+    accessorKey: "count",
+    header: "총인원",
   },
   {
-    accessorKey: "number",
-    header: "Number",
+    accessorKey: "status",
+    header: "상태",
+  },
+  {
+    id: "details",
+    header: "총 신청자",
+    cell: ({ row }) => (
+      <Button
+        onClick={() => {
+          alert(
+            row.original.applicants
+              .map((applicant) => `${applicant.name} (${applicant.number})`)
+              .join("\n")
+          );
+        }}
+      >
+        더보기
+      </Button>
+    ),
   },
   {
     id: "approve",
-    header: "Approve",
-    cell: ({ row }) => {
-      return (
-        <Button
-          onClick={() => {
-            alert(
-              `${row.original.name} with number ${row.original.number} is approved.`
+    header: "신청 확인",
+    cell: ({ row, table }) => (
+      <Button
+        onClick={async () => {
+          try {
+            const isApproved = row.original.status === "승인";
+            const newStatus = isApproved ? "미승인" : "승인";
+
+            // 서버에 승인 상태 변경 요청
+            const response = await fetch(
+              `/api/requests?id=${row.original.id}`,
+              {
+                method: "PATCH",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  status: newStatus,
+                }),
+              }
             );
-          }}
-        >
-          Approve
-        </Button>
-      );
-    },
+
+            if (!response.ok) {
+              throw new Error("Status update failed");
+            }
+
+            // 로컬 상태 업데이트
+            const updatedData = table.options.data.map((d) =>
+              d.id === row.original.id ? { ...d, status: newStatus } : d
+            );
+            table.setOptions((prev) => ({ ...prev, data: updatedData }));
+          } catch (error) {
+            console.error("Error updating status:", error);
+          }
+        }}
+      >
+        {row.original.status === "승인" ? "승인 취소" : "승인"}
+      </Button>
+    ),
   },
 ];
 
@@ -59,8 +101,9 @@ export default function Home() {
   const [data, setData] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(false);
   const methods = useForm();
+
   const table = useReactTable({
-    data,
+    data: data || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
@@ -80,9 +123,20 @@ export default function Home() {
     try {
       const response = await fetch("/api/requests"); // 서버에서 데이터를 가져오는 API 엔드포인트
       const result = await response.json();
-      setData(result.requests); // 서버로부터 받아온 데이터를 상태로 설정
+
+      // 각 request의 applicant를 그룹화하여 변환
+      const groupedData = result.requests.map((request) => ({
+        id: request.id,
+        count: request.applicant.length,
+        representative: request.applicant[0]?.name, // 첫 번째 신청자의 이름을 대표자로 설정
+        applicants: request.applicant,
+        status: request.status || "미승인", // 상태를 기본적으로 미승인으로 설정하거나 서버에서 받아옴
+      }));
+
+      setData(groupedData); // 변환된 데이터를 상태로 설정
     } catch (error) {
       console.error("Error fetching data:", error);
+      setData([]); // 오류 발생 시 빈 배열로 설정
     } finally {
       setIsLoading(false);
     }
@@ -90,6 +144,7 @@ export default function Home() {
 
   const handleBack = () => {
     setIsPasswordCorrect(false);
+    setData([]);
   };
 
   return (
@@ -122,6 +177,8 @@ export default function Home() {
             <div className="rounded-md border mb-4">
               {isLoading ? (
                 <p>Loading...</p>
+              ) : !data || data.length === 0 ? (
+                <p>No data available</p>
               ) : (
                 <Table>
                   <TableHeader>
@@ -141,26 +198,18 @@ export default function Home() {
                     ))}
                   </TableHeader>
                   <TableBody>
-                    {data.length ? (
-                      table.getRowModel().rows.map((row) => (
-                        <TableRow key={row.id}>
-                          {row.getVisibleCells().map((cell) => (
-                            <TableCell key={cell.id}>
-                              {flexRender(
-                                cell.column.columnDef.cell,
-                                cell.getContext()
-                              )}
-                            </TableCell>
-                          ))}
-                        </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={columns.length}>
-                          No data available
-                        </TableCell>
+                    {table.getRowModel().rows.map((row) => (
+                      <TableRow key={row.id}>
+                        {row.getVisibleCells().map((cell) => (
+                          <TableCell key={cell.id}>
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )}
+                          </TableCell>
+                        ))}
                       </TableRow>
-                    )}
+                    ))}
                   </TableBody>
                 </Table>
               )}
