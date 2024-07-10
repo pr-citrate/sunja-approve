@@ -5,8 +5,8 @@ import { ThemeProvider } from "@/components/ui/theme-provider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "허가원 신청서",
-  description: "허가원 신청서",
+  title: "순자 신청서",
+  description: "순자 신청서",
 };
 
 export default function RootLayout({ children }) {
