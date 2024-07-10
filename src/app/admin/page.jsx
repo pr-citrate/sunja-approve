@@ -21,39 +21,32 @@ import {
   flexRender,
 } from "@tanstack/react-table";
 
-const initialData = [
-  { id: 1, name: "윤석영", count: 2 },
-  { id: 2, name: "안채헌", count: 3 },
-];
-
 const columns = [
   {
     accessorKey: "id",
-    header: "신청 목록",
+    header: "ID",
   },
   {
     accessorKey: "name",
-    header: "대표자 이름",
+    header: "Name",
   },
   {
-    accessorKey: "count",
-    header: "총 인원",
+    accessorKey: "number",
+    header: "Number",
   },
   {
     id: "approve",
-    header: "확인",
+    header: "Approve",
     cell: ({ row }) => {
       return (
         <Button
           onClick={() => {
             alert(
-              `${row.original.name} 외 ${
-                row.original.count - 1
-              }명 신청 확인 되었습니다.`
+              `${row.original.name} with number ${row.original.number} is approved.`
             );
           }}
         >
-          신청 확인
+          Approve
         </Button>
       );
     },
@@ -63,7 +56,8 @@ const columns = [
 export default function Home() {
   const [password, setPassword] = React.useState("");
   const [isPasswordCorrect, setIsPasswordCorrect] = React.useState(false);
-  const [data] = React.useState(initialData);
+  const [data, setData] = React.useState([]);
+  const [isLoading, setIsLoading] = React.useState(false);
   const methods = useForm();
   const table = useReactTable({
     data,
@@ -75,8 +69,22 @@ export default function Home() {
     e.preventDefault();
     if (password === "000000") {
       setIsPasswordCorrect(true);
+      fetchData();
     } else {
       alert("Incorrect password. Please try again.");
+    }
+  };
+
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/requests"); // 서버에서 데이터를 가져오는 API 엔드포인트
+      const result = await response.json();
+      setData(result.requests); // 서버로부터 받아온 데이터를 상태로 설정
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -86,7 +94,7 @@ export default function Home() {
 
   return (
     <FormProvider {...methods}>
-      <main className="flex justify-center items-center w- h-screen">
+      <main className="flex justify-center items-center w-full h-screen">
         {!isPasswordCorrect ? (
           <Card className="w-96 grid justify-items-center items-center p-8">
             <form
@@ -110,9 +118,11 @@ export default function Home() {
             </form>
           </Card>
         ) : (
-          <>
-            <Card className="min-w-screen grid justify-items-center items-center p-8 m-12 min-h-screen">
-              <div className="rounded-md border mb-4">
+          <Card className="min-w-screen grid justify-items-center items-center p-8 m-12 min-h-screen">
+            <div className="rounded-md border mb-4">
+              {isLoading ? (
+                <p>Loading...</p>
+              ) : (
                 <Table>
                   <TableHeader>
                     {table.getHeaderGroups().map((headerGroup) => (
@@ -131,7 +141,7 @@ export default function Home() {
                     ))}
                   </TableHeader>
                   <TableBody>
-                    {table.getRowModel().rows.length ? (
+                    {data.length ? (
                       table.getRowModel().rows.map((row) => (
                         <TableRow key={row.id}>
                           {row.getVisibleCells().map((cell) => (
@@ -145,16 +155,20 @@ export default function Home() {
                         </TableRow>
                       ))
                     ) : (
-                      <TableRow></TableRow>
+                      <TableRow>
+                        <TableCell colSpan={columns.length}>
+                          No data available
+                        </TableCell>
+                      </TableRow>
                     )}
                   </TableBody>
                 </Table>
-              </div>
-              <Button type="button" onClick={handleBack} className="mt-4">
-                뒤로
-              </Button>
-            </Card>
-          </>
+              )}
+            </div>
+            <Button type="button" onClick={handleBack} className="mt-4">
+              뒤로
+            </Button>
+          </Card>
         )}
       </main>
     </FormProvider>
