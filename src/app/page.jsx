@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation"; 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
@@ -18,66 +17,18 @@ import {
 } from "@/components/ui/select";
 
 export default function Home() {
-  const router = useRouter();
   const [numParticipants, setNumParticipants] = useState(2);
-  const [time, setTime] = useState("");
-  const [reason, setReason] = useState("");
-  const [phone, setPhone] = useState("");
-  const [participants, setParticipants] = useState(
-    Array(2).fill({ name: "", id: "" })
-  );
-
-  useEffect(() => {
-    setParticipants(Array(numParticipants).fill({ name: "", id: "" }));
-  }, [numParticipants]);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const data = {
-      time,
-      reason,
-      phone,
-      participants,
-    };
-
-    try {
-      const response = await fetch("/api/submit", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-
-      const result = await response.json();
-      console.log("Success:", result);
-      router.push("/success"); 
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  };
-
-  const handleParticipantChange = (index, field, value) => {
-    const updatedParticipants = participants.map((participant, i) =>
-      i === index ? { ...participant, [field]: value } : participant
-    );
-    setParticipants(updatedParticipants);
-  };
 
   return (
     <main className="grid justify-items-center items-center w-full h-full">
       <Card className="min-w-screen grid justify-items-center items-center p-8 m-12 min-h-screen">
-        <Form onSubmit={handleSubmit}>
+        <Form>
           <Label className="text-xl mb-4">순자증 신청</Label>
           <div className="mb-4 w-full">
             <Label htmlFor="time" className="block mb-1">
               사용 시간
             </Label>
-            <Select id="time" className="text-lg w-full" onValueChange={setTime}>
+            <Select id="time" className="text-lg w-full">
               <SelectTrigger>
                 <SelectValue placeholder="사용 시간" />
               </SelectTrigger>
@@ -125,8 +76,6 @@ export default function Home() {
               placeholder="사유"
               type="text"
               className="text-g w-full"
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
             />
           </div>
           <div className="mb-4 w-full">
@@ -138,8 +87,6 @@ export default function Home() {
               placeholder="전화번호 (대표자)"
               type="tel"
               className="text-g w-full"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
             />
           </div>
 
@@ -156,10 +103,6 @@ export default function Home() {
                     placeholder={`이름 ${number}`}
                     type="text"
                     className="text-g"
-                    value={participants[i]?.name || ""}
-                    onChange={(e) =>
-                      handleParticipantChange(i, "name", e.target.value)
-                    }
                   />
                 </div>
                 <div className="flex-1">
@@ -171,10 +114,6 @@ export default function Home() {
                     placeholder={`학번 ${number}`}
                     type="text"
                     className="text-g"
-                    value={participants[i]?.id || ""}
-                    onChange={(e) =>
-                      handleParticipantChange(i, "id", e.target.value)
-                    }
                   />
                 </div>
               </div>
