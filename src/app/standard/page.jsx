@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 export default function AdminPage() {
   const [fetchedData, setFetchedData] = useState(null);
@@ -8,21 +8,21 @@ export default function AdminPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/submit', {
-          method: 'GET',
+        const response = await fetch("/api/submit", {
+          method: "GET",
           headers: {
-            'Content-Type': 'application/json'
-          }
+            "Content-Type": "application/json",
+          },
         });
 
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error("Network response was not ok");
         }
 
         const result = await response.json();
         setFetchedData(result);
       } catch (error) {
-        console.error('Error:', error);
+        console.error("Error:", error);
       }
     };
 

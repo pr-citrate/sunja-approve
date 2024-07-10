@@ -7,8 +7,19 @@ import { Card } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  useReactTable,
+  getCoreRowModel,
+  flexRender,
+} from "@tanstack/react-table";
 
 const initialData = [
   { id: 1, name: "윤석영", count: 2 },
@@ -48,7 +59,11 @@ const columns = [
       return (
         <Button
           onClick={() => {
-            alert(`${row.original.name} 외 ${row.original.count - 1}명 신청 확인 되었습니다.`);
+            alert(
+              `${row.original.name} 외 ${
+                row.original.count - 1
+              }명 신청 확인 되었습니다.`
+            );
           }}
         >
           신청 확인
@@ -70,7 +85,7 @@ export default function Home() {
   });
 
   const handlePasswordSubmit = (e) => {
-    e.preventDefault();    
+    e.preventDefault();
     if (password === "000000") {
       setIsPasswordCorrect(true);
     } else {
@@ -87,7 +102,10 @@ export default function Home() {
       <main className="flex justify-center items-center w- h-screen">
         {!isPasswordCorrect ? (
           <Card className="w-96 grid justify-items-center items-center p-8">
-            <form onSubmit={handlePasswordSubmit} className="w-full grid justify-items-center">
+            <form
+              onSubmit={handlePasswordSubmit}
+              className="w-full grid justify-items-center"
+            >
               <Label htmlFor="password" className="text-xl mb-4">
                 Enter Password
               </Label>
@@ -115,7 +133,12 @@ export default function Home() {
                       <TableRow key={headerGroup.id}>
                         {headerGroup.headers.map((header) => (
                           <TableHead key={header.id}>
-                            {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                            {header.isPlaceholder
+                              ? null
+                              : flexRender(
+                                  header.column.columnDef.header,
+                                  header.getContext()
+                                )}
                           </TableHead>
                         ))}
                       </TableRow>
@@ -127,14 +150,16 @@ export default function Home() {
                         <TableRow key={row.id}>
                           {row.getVisibleCells().map((cell) => (
                             <TableCell key={cell.id}>
-                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                              {flexRender(
+                                cell.column.columnDef.cell,
+                                cell.getContext()
+                              )}
                             </TableCell>
                           ))}
                         </TableRow>
                       ))
                     ) : (
-                      <TableRow>
-                      </TableRow>
+                      <TableRow></TableRow>
                     )}
                   </TableBody>
                 </Table>
