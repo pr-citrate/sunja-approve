@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/router"; // next/navigation 대신 next/router 사용
+import { useRouter } from "next/navigation"; 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
@@ -55,7 +55,7 @@ export default function Home() {
 
       const result = await response.json();
       console.log("Success:", result);
-      router.push("/success"); // '/success' 페이지로 이동
+      router.push("/success"); 
     } catch (error) {
       console.error("Error:", error);
     }
