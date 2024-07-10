@@ -26,19 +26,6 @@ const initialData = [
   { id: 2, name: "안채헌", count: 3 },
 ];
 
-const Skeleton = () => (
-  <div className="animate-pulse flex space-x-4">
-    <div className="rounded-full bg-gray-400 h-12 w-12"></div>
-    <div className="flex-1 space-y-4 py-1">
-      <div className="h-4 bg-gray-400 rounded w-3/4"></div>
-      <div className="space-y-2">
-        <div className="h-4 bg-gray-400 rounded"></div>
-        <div className="h-4 bg-gray-400 rounded w-5/6"></div>
-      </div>
-    </div>
-  </div>
-);
-
 const columns = [
   {
     accessorKey: "id",
@@ -124,7 +111,6 @@ export default function Home() {
           </Card>
         ) : (
           <>
-            <Skeleton />
             <Card className="min-w-screen grid justify-items-center items-center p-8 m-12 min-h-screen">
               <div className="rounded-md border mb-4">
                 <Table>
