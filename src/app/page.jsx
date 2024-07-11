@@ -35,8 +35,8 @@ export default function Home() {
   };
 
   return (
-    <main className="grid justify-items-center items-center w-full h-full">
-      <Card className="min-w-screen grid justify-items-center items-center p-8 m-12 min-h-screen">
+    <main className="grid justify-items-center items-center w-full min-h-full">
+      <Card className="min-w-screen grid justify-items-center items-center p-8 m-12 min-h-96">
         <Form {...form}>
           <form
             className="w-full h-full flex flex-col items-center justify-center"
