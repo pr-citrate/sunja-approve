@@ -10,18 +10,30 @@ export async function GET(req) {
     return NextResponse.json({ requests: data });
   } catch (error) {
     console.error("Error in GET request:", error);
-    return NextResponse.error();
+    return NextResponse.json(
+      { error: "Error in GET request" },
+      { status: 500 }
+    );
   }
 }
 
 export async function POST(req) {
   try {
     const body = await req.json();
-    const data = await xata.db.requests.create(body);
+    console.log("Received body:", body); // 요청 본문을 로그에 출력
+    const data = await xata.db.requests.create({
+      time: body.time,
+      reason: body.reason,
+      contact: body.contact,
+      applicants: body.applicants,
+    });
     return NextResponse.json(data);
   } catch (error) {
     console.error("Error in POST request:", error);
-    return NextResponse.error();
+    return NextResponse.json(
+      { error: "Error in POST request" },
+      { status: 500 }
+    );
   }
 }
 
@@ -33,7 +45,10 @@ export async function PUT(req) {
     return NextResponse.json(data);
   } catch (error) {
     console.error("Error in PUT request:", error);
-    return NextResponse.error();
+    return NextResponse.json(
+      { error: "Error in PUT request" },
+      { status: 500 }
+    );
   }
 }
 
@@ -45,7 +60,10 @@ export async function PATCH(req) {
     return NextResponse.json(data);
   } catch (error) {
     console.error("Error in PATCH request:", error);
-    return NextResponse.error();
+    return NextResponse.json(
+      { error: "Error in PATCH request" },
+      { status: 500 }
+    );
   }
 }
 
@@ -56,6 +74,9 @@ export async function DELETE(req) {
     return NextResponse.json(data);
   } catch (error) {
     console.error("Error in DELETE request:", error);
-    return NextResponse.error();
+    return NextResponse.json(
+      { error: "Error in DELETE request" },
+      { status: 500 }
+    );
   }
 }

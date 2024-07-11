@@ -30,13 +30,26 @@ export default function Home() {
   const form = useForm();
 
   const onSubmit = async (data) => {
+    console.log("Submitting data:", data); // 폼 데이터를 콘솔에 출력
+
+    // 데이터 변환
+    const transformedData = {
+      time: data.time,
+      reason: data.reason,
+      contact: data.phone,
+      applicants: data.participants.map((participant) => ({
+        name: participant.name,
+        number: participant.number,
+      })),
+    };
+
     try {
       const response = await fetch("/api/requests", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(transformedData),
       });
 
       if (!response.ok) {
