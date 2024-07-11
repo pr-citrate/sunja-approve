@@ -24,11 +24,19 @@ import {
 const columns = [
   {
     accessorKey: "representative",
-    header: "대표자 이름",
+    header: "신청자 이름",
+  },
+  {
+    accessorKey: "phone",
+    header: "전화번호",
   },
   {
     accessorKey: "count",
     header: "총인원",
+  },
+  {
+    accessorKey: "period",
+    header: "신청 교시",
   },
   {
     accessorKey: "status",
@@ -53,13 +61,13 @@ const columns = [
   },
   {
     id: "approve",
-    header: "신청 확인",
+    header: "확인",
     cell: ({ row, table }) => (
       <Button
         onClick={async () => {
           try {
             const isApproved = row.original.status === "승인";
-            const newStatus = isApproved ? "미승인" : "승인";
+            const newStatus = isApproved ? "승인 취소" : "승인";
 
             // 서버에 승인 상태 변경 요청
             const response = await fetch(
@@ -90,6 +98,47 @@ const columns = [
         }}
       >
         {row.original.status === "승인" ? "승인 취소" : "승인"}
+      </Button>
+    ),
+  },
+  {
+    id: "reject",
+    header: "거부",
+    cell: ({ row, table }) => (
+      <Button
+        onClick={async () => {
+          try {
+            const newStatus = "거부";
+
+            // 서버에 거부 상태 변경 요청
+            const response = await fetch(
+              `/api/requests?id=${row.original.id}`,
+              {
+                method: "PATCH",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  status: newStatus,
+                }),
+              }
+            );
+
+            if (!response.ok) {
+              throw new Error("Status update failed");
+            }
+
+            // 로컬 상태 업데이트
+            const updatedData = table.options.data.map((d) =>
+              d.id === row.original.id ? { ...d, status: newStatus } : d
+            );
+            table.setOptions((prev) => ({ ...prev, data: updatedData }));
+          } catch (error) {
+            console.error("Error updating status:", error);
+          }
+        }}
+      >
+        거부
       </Button>
     ),
   },
@@ -129,6 +178,8 @@ export default function Home() {
         id: request.id,
         count: request.applicant.length,
         representative: request.applicant[0]?.name, // 첫 번째 신청자의 이름을 대표자로 설정
+        phone: request.applicant[0]?.phone, // 첫 번째 신청자의 전화번호
+        period: request.period, // 신청한 교시
         applicants: request.applicant,
         status: request.status || "미승인", // 상태를 기본적으로 미승인으로 설정하거나 서버에서 받아옴
       }));
