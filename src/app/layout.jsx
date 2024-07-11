@@ -19,7 +19,7 @@ export default function RootLayout({ children }) {
           src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"
           data-id="citrate"
           data-description="Support me on Buy me a coffee!"
-          data-message="배고픈 개발자에게 식사 한 번을 후원해주세요."
+          data-message="삶이 힘든 개발자에게 커피 한 잔을 후원해주세요."
           data-color="#5F7FFF"
           data-position="Right"
           data-x_margin="18"
