@@ -6,7 +6,6 @@ import { Card } from "@/components/ui/card";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -23,15 +22,34 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
-import { render } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Home() {
   const [numParticipants, setNumParticipants] = useState(2);
+  const [submitStatus, setSubmitStatus] = useState("");
   const form = useForm();
 
-  const onSubmit = (data) => {
-    console.log(data);
+  const onSubmit = async (data) => {
+    try {
+      const response = await fetch("/api/requests", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const result = await response.json();
+      console.log("Data submitted successfully:", result);
+      setSubmitStatus("제출 완료");
+    } catch (error) {
+      console.error("Error submitting data:", error);
+      setSubmitStatus("제출 실패");
+    }
   };
 
   return (
@@ -52,7 +70,12 @@ export default function Home() {
                     사용 시간
                   </FormLabel>
                   <FormControl>
-                    <Select id="time" className="text-lg w-full" {...field}>
+                    <Select
+                      id="time"
+                      className="text-lg w-full"
+                      onValueChange={field.onChange}
+                      value={field.value}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="사용 시간" />
                       </SelectTrigger>
@@ -81,10 +104,11 @@ export default function Home() {
                     <Select
                       id="participants"
                       className="text-lg w-full"
-                      {...field}
-                      onValueChange={(value) =>
-                        setNumParticipants(parseInt(value))
-                      }
+                      onValueChange={(value) => {
+                        setNumParticipants(parseInt(value));
+                        field.onChange(value);
+                      }}
+                      value={field.value}
                     >
                       <SelectTrigger className="outline-none">
                         <SelectValue placeholder="사용 인원" />
@@ -156,7 +180,7 @@ export default function Home() {
                   >
                     <FormField
                       control={form.control}
-                      name={`participant${i}`}
+                      name={`participants[${i}].name`}
                       render={({ field }) => (
                         <FormItem className="flex-1">
                           <Label htmlFor={`name${i}`} className="block mb-1">
@@ -176,7 +200,7 @@ export default function Home() {
                     />
                     <FormField
                       control={form.control}
-                      name={`number${i}`}
+                      name={`participants[${i}].number`}
                       render={({ field }) => (
                         <FormItem className="flex-1">
                           <Label htmlFor={`id${i}`} className="block mb-1">
@@ -201,6 +225,7 @@ export default function Home() {
             <Button type="submit" className="text-lg mt-4">
               제출
             </Button>
+            {submitStatus && <p className="mt-4 text-lg">{submitStatus}</p>}
           </form>
         </Form>
       </Card>

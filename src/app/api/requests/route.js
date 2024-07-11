@@ -4,38 +4,58 @@ import { getXataClient } from "@/xata";
 const xata = getXataClient();
 
 export async function GET(req) {
-  const params = Object.fromEntries(req.nextUrl.searchParams.entries());
-  const data = await xata.db.requests.getMany(params);
-
-  return NextResponse.json({ requests: data }); // requests 키로 감싸서 반환
+  try {
+    const params = Object.fromEntries(req.nextUrl.searchParams.entries());
+    const data = await xata.db.requests.getMany(params);
+    return NextResponse.json({ requests: data });
+  } catch (error) {
+    console.error("Error in GET request:", error);
+    return NextResponse.error();
+  }
 }
 
 export async function POST(req) {
-  const body = await req.json();
-  const data = await xata.db.requests.create(body);
-
-  return NextResponse.json(data);
+  try {
+    const body = await req.json();
+    const data = await xata.db.requests.create(body);
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error("Error in POST request:", error);
+    return NextResponse.error();
+  }
 }
 
 export async function PUT(req) {
-  const params = Object.fromEntries(req.nextUrl.searchParams.entries());
-  const body = await req.json();
-  const data = await xata.db.requests.createOrReplace(params.id, body);
-
-  return NextResponse.json(data);
+  try {
+    const params = Object.fromEntries(req.nextUrl.searchParams.entries());
+    const body = await req.json();
+    const data = await xata.db.requests.createOrReplace(params.id, body);
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error("Error in PUT request:", error);
+    return NextResponse.error();
+  }
 }
 
 export async function PATCH(req) {
-  const params = Object.fromEntries(req.nextUrl.searchParams.entries());
-  const body = await req.json();
-  const data = await xata.db.requests.update(params.id, body);
-
-  return NextResponse.json(data);
+  try {
+    const params = Object.fromEntries(req.nextUrl.searchParams.entries());
+    const body = await req.json();
+    const data = await xata.db.requests.update(params.id, body);
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error("Error in PATCH request:", error);
+    return NextResponse.error();
+  }
 }
 
 export async function DELETE(req) {
-  const params = Object.fromEntries(req.nextUrl.searchParams.entries());
-  const data = await xata.db.requests.delete(params.id);
-
-  return NextResponse.json(data);
+  try {
+    const params = Object.fromEntries(req.nextUrl.searchParams.entries());
+    const data = await xata.db.requests.delete(params.id);
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error("Error in DELETE request:", error);
+    return NextResponse.error();
+  }
 }
