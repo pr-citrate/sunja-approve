@@ -25,23 +25,12 @@ import { useForm } from "react-hook-form";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Home() {
-  const [numParticipants, setNumParticipants] = useState(2);
+  const [numApplicants, setNumApplicants] = useState(2);
   const [submitStatus, setSubmitStatus] = useState("");
   const form = useForm();
 
   const onSubmit = async (data) => {
     console.log("Submitting data:", data); // 폼 데이터를 콘솔에 출력
-
-    // 데이터 변환
-    const transformedData = {
-      time: data.time,
-      reason: data.reason,
-      contact: data.phone,
-      applicants: data.participants.map((participant) => ({
-        name: participant.name,
-        number: participant.number,
-      })),
-    };
 
     try {
       const response = await fetch("/api/requests", {
@@ -107,18 +96,18 @@ export default function Home() {
             />
             <FormField
               control={form.control}
-              name="participants"
+              name="applicants"
               render={({ field }) => (
                 <FormItem className="mb-4 w-full">
-                  <FormLabel htmlFor="participants" className="block mb-1">
+                  <FormLabel htmlFor="applicants" className="block mb-1">
                     사용 인원
                   </FormLabel>
                   <FormControl>
                     <Select
-                      id="participants"
+                      id="applicants"
                       className="text-lg w-full"
                       onValueChange={(value) => {
-                        setNumParticipants(parseInt(value));
+                        setNumApplicants(parseInt(value));
                         field.onChange(value);
                       }}
                       value={field.value}
@@ -162,15 +151,15 @@ export default function Home() {
             />
             <FormField
               control={form.control}
-              name="phone"
+              name="contact"
               render={({ field }) => (
                 <FormItem className="mb-4 w-full">
-                  <Label htmlFor="phone" className="block mb-1">
+                  <Label htmlFor="contact" className="block mb-1">
                     전화번호 (대표자)
                   </Label>
                   <FormControl>
                     <Input
-                      id="phone"
+                      id="contact"
                       placeholder="전화번호 (대표자)"
                       type="tel"
                       className="text-g w-full"
@@ -181,7 +170,7 @@ export default function Home() {
               )}
             />
             <AnimatePresence>
-              {[...Array(numParticipants)].map((_, i) => {
+              {[...Array(numApplicants)].map((_, i) => {
                 const number = `${i + 1}${i ? "" : " (대표자)"}`;
                 return (
                   <motion.div
@@ -193,7 +182,7 @@ export default function Home() {
                   >
                     <FormField
                       control={form.control}
-                      name={`participants[${i}].name`}
+                      name={`applicants[${i}].name`}
                       render={({ field }) => (
                         <FormItem className="flex-1">
                           <Label htmlFor={`name${i}`} className="block mb-1">
@@ -213,7 +202,7 @@ export default function Home() {
                     />
                     <FormField
                       control={form.control}
-                      name={`participants[${i}].number`}
+                      name={`applicants[${i}].number`}
                       render={({ field }) => (
                         <FormItem className="flex-1">
                           <Label htmlFor={`id${i}`} className="block mb-1">

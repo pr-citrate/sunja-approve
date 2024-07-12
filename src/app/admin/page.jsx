@@ -199,8 +199,7 @@ export default function Home() {
   };
 
   const handleBack = () => {
-    setIsPasswordCorrect(false);
-    setData([]);
+    window.location.reload();
   };
 
   return (
