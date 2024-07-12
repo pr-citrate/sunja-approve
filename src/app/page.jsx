@@ -25,7 +25,7 @@ import { useForm } from "react-hook-form";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Home() {
-  const [numApplicants, setNumApplicants] = useState(2);
+  const [numApplicant, setNumApplicant] = useState(2);
   const [submitStatus, setSubmitStatus] = useState("");
   const form = useForm();
 
@@ -38,7 +38,7 @@ export default function Home() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(transformedData),
+        body: JSON.stringify(data),
       });
 
       if (!response.ok) {
@@ -96,18 +96,18 @@ export default function Home() {
             />
             <FormField
               control={form.control}
-              name="applicants"
+              name="applicant"
               render={({ field }) => (
                 <FormItem className="mb-4 w-full">
-                  <FormLabel htmlFor="applicants" className="block mb-1">
+                  <FormLabel htmlFor="applicant" className="block mb-1">
                     사용 인원
                   </FormLabel>
                   <FormControl>
                     <Select
-                      id="applicants"
+                      id="applicant"
                       className="text-lg w-full"
                       onValueChange={(value) => {
-                        setNumApplicants(parseInt(value));
+                        setNumApplicant(parseInt(value));
                         field.onChange(value);
                       }}
                       value={field.value}
@@ -170,7 +170,7 @@ export default function Home() {
               )}
             />
             <AnimatePresence>
-              {[...Array(numApplicants)].map((_, i) => {
+              {[...Array(numApplicant)].map((_, i) => {
                 const number = `${i + 1}${i ? "" : " (대표자)"}`;
                 return (
                   <motion.div
@@ -182,7 +182,7 @@ export default function Home() {
                   >
                     <FormField
                       control={form.control}
-                      name={`applicants[${i}].name`}
+                      name={`applicant[${i}].name`}
                       render={({ field }) => (
                         <FormItem className="flex-1">
                           <Label htmlFor={`name${i}`} className="block mb-1">
@@ -202,7 +202,7 @@ export default function Home() {
                     />
                     <FormField
                       control={form.control}
-                      name={`applicants[${i}].number`}
+                      name={`applicant[${i}].number`}
                       render={({ field }) => (
                         <FormItem className="flex-1">
                           <Label htmlFor={`id${i}`} className="block mb-1">

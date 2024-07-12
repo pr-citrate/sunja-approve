@@ -4,7 +4,6 @@ import * as React from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -53,7 +52,7 @@ const columns = [
       <Button
         onClick={() => {
           alert(
-            row.original.applicants
+            row.original.applicant
               .map((applicant) => `${applicant.name} (${applicant.number})`)
               .join("\n")
           );
@@ -180,7 +179,7 @@ export default function Home() {
         contact: request.contact, // 첫 번째 신청자의 전화번호
         time: request.time, // 신청한 교시
         reason: request.reason, // 신청 사유
-        applicants: request.applicant,
+        applicant: request.applicant,
         status:
           request.isApproved === true
             ? "승인"
