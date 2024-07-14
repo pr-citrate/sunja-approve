@@ -72,7 +72,6 @@ const columns = [
             const isApproved = row.original.status === "승인";
             const newStatus = isApproved ? "미승인" : "승인";
 
-            // 서버에 승인 상태 변경 요청
             const response = await fetch(
               `/api/requests?id=${row.original.id}`,
               {
@@ -90,7 +89,6 @@ const columns = [
               throw new Error("Status update failed");
             }
 
-            // 로컬 상태 업데이트
             const updatedData = table.options.data.map((d) =>
               d.id === row.original.id ? { ...d, status: newStatus } : d
             );
@@ -111,7 +109,6 @@ const columns = [
       <Button
         onClick={async () => {
           try {
-            // 서버에 거부 상태 변경 요청
             const response = await fetch(
               `/api/requests?id=${row.original.id}`,
               {
@@ -126,7 +123,6 @@ const columns = [
               throw new Error("Request deletion failed");
             }
 
-            // 로컬 상태에서 해당 항목 삭제
             const updatedData = table.options.data.filter(
               (d) => d.id !== row.original.id
             );
@@ -168,30 +164,29 @@ export default function Home() {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/requests"); // 서버에서 데이터를 가져오는 API 엔드포인트
+      const response = await fetch("/api/requests");
       const result = await response.json();
 
-      // 각 request의 applicant를 그룹화하여 변환
       const groupedData = result.requests.map((request) => ({
         id: request.id,
         count: request.applicant.length,
-        representative: request.applicant[0]?.name, // 첫 번째 신청자의 이름을 대표자로 설정
-        contact: request.contact, // 첫 번째 신청자의 전화번호
-        time: request.time, // 신청한 교시
-        reason: request.reason, // 신청 사유
+        representative: request.applicant[0]?.name,
+        contact: request.contact,
+        time: request.time,
+        reason: request.reason,
         applicant: request.applicant,
         status:
           request.isApproved === true
             ? "승인"
             : request.isApproved === false
             ? "미승인"
-            : "거부", // 상태 설정
+            : "거부",
       }));
 
-      setData(groupedData); // 변환된 데이터를 상태로 설정
+      setData(groupedData);
     } catch (error) {
       console.error("데이터 가져오기 오류:", error);
-      setData([]); // 오류 발생 시 빈 배열로 설정
+      setData([]);
     } finally {
       setIsLoading(false);
     }
