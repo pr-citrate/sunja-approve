@@ -28,6 +28,9 @@ export default function Home() {
   const [numApplicant, setNumApplicant] = useState(2);
   const form = useForm();
 
+  const handleButtonClick = (url) => {
+    window.location.href = url;
+  };
   const onSubmit = async (data) => {
     console.log("Submitting data:", data); // 폼 데이터를 콘솔에 출력
 
@@ -232,6 +235,13 @@ export default function Home() {
             </AnimatePresence>
             <Button type="submit" className="text-lg mt-4">
               제출
+            </Button>
+            <Button
+              type="button"
+              onClick={() => handleButtonClick("/standard")}
+              className="text-lg mt-4"
+            >
+              뒤로
             </Button>
             {form.formState.errors && (
               <p className="mt-4 text-lg text-red-500">모든 칸을 입력하세요.</p>

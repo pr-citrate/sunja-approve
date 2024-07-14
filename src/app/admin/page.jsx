@@ -20,6 +20,10 @@ import {
   flexRender,
 } from "@tanstack/react-table";
 
+const handleButtonClick = (url) => {
+  window.location.href = url;
+};
+
 const columns = (data, setData) => [
   {
     accessorKey: "name",
@@ -213,17 +217,24 @@ export default function Home() {
               <Button type="submit" className="text-lg mt-4 w-full">
                 로그인
               </Button>
+              <Button
+                type="button"
+                onClick={() => handleButtonClick("/standard")}
+                className="text-lg mt-4"
+              >
+                뒤로
+              </Button>
             </form>
           </Card>
         ) : (
           <Card className="min-w-screen grid justify-items-center items-center p-8 m-12 min-h-screen">
-            <div className="rounded-md border mb-4">
+            <div className="rounded-md border mb-4 w-full">
               {isLoading ? (
                 <p>로딩 중...</p>
               ) : !data || data.length === 0 ? (
                 <p>신청 목록이 없습니다</p>
               ) : (
-                <Table>
+                <Table className="w-full">
                   <TableHeader>
                     {table.getHeaderGroups().map((headerGroup) => (
                       <TableRow key={headerGroup.id}>
@@ -257,13 +268,22 @@ export default function Home() {
                 </Table>
               )}
             </div>
-            <Button
-              type="button"
-              onClick={() => window.location.reload()}
-              className="mt-4"
-            >
-              뒤로
-            </Button>
+            <div className="flex space-x-4 mt-4">
+              <Button
+                type="button"
+                onClick={() => window.location.reload()}
+                className="text-lg"
+              >
+                뒤로
+              </Button>
+              <Button
+                type="button"
+                onClick={() => handleButtonClick("/standard")}
+                className="text-lg"
+              >
+                처음
+              </Button>
+            </div>
           </Card>
         )}
       </main>
