@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import React, { useEffect, useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -22,7 +22,7 @@ import {
 
 const columns = [
   {
-    accessorKey: "representative",
+    accessorKey: "name",
     header: "신청자 이름",
   },
   {
@@ -123,6 +123,7 @@ const columns = [
               throw new Error("Request deletion failed");
             }
 
+            // 로컬 상태에서 해당 항목 삭제
             const updatedData = table.options.data.filter(
               (d) => d.id !== row.original.id
             );
@@ -139,14 +140,14 @@ const columns = [
 ];
 
 export default function Home() {
-  const [password, setPassword] = React.useState("");
-  const [isPasswordCorrect, setIsPasswordCorrect] = React.useState(false);
-  const [data, setData] = React.useState([]);
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [password, setPassword] = useState("");
+  const [isPasswordCorrect, setIsPasswordCorrect] = useState(false);
+  const [data, setData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const methods = useForm();
 
   const table = useReactTable({
-    data: data || [],
+    data: data,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
@@ -155,7 +156,6 @@ export default function Home() {
     e.preventDefault();
     if (password === "000000") {
       setIsPasswordCorrect(true);
-      fetchData();
     } else {
       alert("비밀번호가 틀렸습니다. 다시 시도해주세요.");
     }
@@ -166,24 +166,17 @@ export default function Home() {
     try {
       const response = await fetch("/api/requests");
       const result = await response.json();
+      console.log("클라이언트에서 받아온 데이터:", result.requests);
 
-      const groupedData = result.requests.map((request) => ({
-        id: request.id,
-        count: request.applicant.length,
-        representative: request.applicant[0]?.name,
-        contact: request.contact,
-        time: request.time,
-        reason: request.reason,
-        applicant: request.applicant,
-        status:
-          request.isApproved === true
-            ? "승인"
-            : request.isApproved === false
-            ? "미승인"
-            : "거부",
+      const transformedData = result.requests.map((request) => ({
+        ...request,
+        name: request.applicant[0]?.name || "N/A",
+        count: `${request.applicant.length}명`,
+        time: `${request.time}교시`,
       }));
 
-      setData(groupedData);
+      console.log("변환된 데이터:", transformedData);
+      setData(transformedData);
     } catch (error) {
       console.error("데이터 가져오기 오류:", error);
       setData([]);
@@ -192,9 +185,11 @@ export default function Home() {
     }
   };
 
-  const handleBack = () => {
-    window.location.reload();
-  };
+  useEffect(() => {
+    if (isPasswordCorrect) {
+      fetchData();
+    }
+  }, [isPasswordCorrect]);
 
   return (
     <FormProvider {...methods}>
@@ -263,7 +258,11 @@ export default function Home() {
                 </Table>
               )}
             </div>
-            <Button type="button" onClick={handleBack} className="mt-4">
+            <Button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="mt-4"
+            >
               뒤로
             </Button>
           </Card>
