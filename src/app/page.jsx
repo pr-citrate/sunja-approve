@@ -26,7 +26,6 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export default function Home() {
   const [numApplicant, setNumApplicant] = useState(2);
-  const [submitStatus, setSubmitStatus] = useState("");
   const form = useForm();
 
   const onSubmit = async (data) => {
@@ -47,10 +46,11 @@ export default function Home() {
 
       const result = await response.json();
       console.log("Data submitted successfully:", result);
-      setSubmitStatus("제출 완료");
+      alert("제출되었습니다.");
+      window.location.reload(); // 제출 성공 시 페이지를 초기화
     } catch (error) {
       console.error("Error submitting data:", error);
-      setSubmitStatus("제출 실패");
+      alert("제출 실패");
     }
   };
 
@@ -66,6 +66,7 @@ export default function Home() {
             <FormField
               control={form.control}
               name="time"
+              rules={{ required: "사용 시간을 선택하세요" }}
               render={({ field }) => (
                 <FormItem className="mb-4 w-full">
                   <FormLabel htmlFor="time" className="block mb-1">
@@ -97,6 +98,7 @@ export default function Home() {
             <FormField
               control={form.control}
               name="applicant"
+              rules={{ required: "사용 인원을 선택하세요" }}
               render={({ field }) => (
                 <FormItem className="mb-4 w-full">
                   <FormLabel htmlFor="applicant" className="block mb-1">
@@ -132,6 +134,7 @@ export default function Home() {
             <FormField
               control={form.control}
               name="reason"
+              rules={{ required: "사유를 입력하세요" }}
               render={({ field }) => (
                 <FormItem className="mb-4 w-full">
                   <FormLabel htmlFor="reason" className="block mb-1">
@@ -152,6 +155,7 @@ export default function Home() {
             <FormField
               control={form.control}
               name="contact"
+              rules={{ required: "대표자 전화번호를 입력하세요" }}
               render={({ field }) => (
                 <FormItem className="mb-4 w-full">
                   <Label htmlFor="contact" className="block mb-1">
@@ -183,6 +187,7 @@ export default function Home() {
                     <FormField
                       control={form.control}
                       name={`applicant[${i}].name`}
+                      rules={{ required: "이름을 입력하세요" }}
                       render={({ field }) => (
                         <FormItem className="flex-1">
                           <Label htmlFor={`name${i}`} className="block mb-1">
@@ -203,6 +208,7 @@ export default function Home() {
                     <FormField
                       control={form.control}
                       name={`applicant[${i}].number`}
+                      rules={{ required: "학번을 입력하세요" }}
                       render={({ field }) => (
                         <FormItem className="flex-1">
                           <Label htmlFor={`id${i}`} className="block mb-1">
@@ -227,7 +233,9 @@ export default function Home() {
             <Button type="submit" className="text-lg mt-4">
               제출
             </Button>
-            {submitStatus && <p className="mt-4 text-lg">{submitStatus}</p>}
+            {form.formState.errors && (
+              <p className="mt-4 text-lg text-red-500">모든 칸을 입력하세요.</p>
+            )}
           </form>
         </Form>
       </Card>

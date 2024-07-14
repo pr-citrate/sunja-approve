@@ -20,7 +20,7 @@ import {
   flexRender,
 } from "@tanstack/react-table";
 
-const columns = [
+const columns = (data, setData) => [
   {
     accessorKey: "name",
     header: "신청자 이름",
@@ -65,7 +65,7 @@ const columns = [
   {
     id: "approve",
     header: "확인",
-    cell: ({ row, table }) => (
+    cell: ({ row }) => (
       <Button
         onClick={async () => {
           try {
@@ -89,10 +89,10 @@ const columns = [
               throw new Error("Status update failed");
             }
 
-            const updatedData = table.options.data.map((d) =>
+            const updatedData = data.map((d) =>
               d.id === row.original.id ? { ...d, status: newStatus } : d
             );
-            table.setOptions((prev) => ({ ...prev, data: updatedData }));
+            setData(updatedData);
           } catch (error) {
             console.error("Error updating status:", error);
           }
@@ -105,7 +105,7 @@ const columns = [
   {
     id: "reject",
     header: "거부",
-    cell: ({ row, table }) => (
+    cell: ({ row }) => (
       <Button
         onClick={async () => {
           try {
@@ -123,11 +123,9 @@ const columns = [
               throw new Error("Request deletion failed");
             }
 
-            // 로컬 상태에서 해당 항목 삭제
-            const updatedData = table.options.data.filter(
-              (d) => d.id !== row.original.id
-            );
-            table.setOptions((prev) => ({ ...prev, data: updatedData }));
+            const updatedData = data.filter((d) => d.id !== row.original.id);
+            setData(updatedData);
+            alert("거부 되었습니다.");
           } catch (error) {
             console.error("Error deleting request:", error);
           }
@@ -147,8 +145,8 @@ export default function Home() {
   const methods = useForm();
 
   const table = useReactTable({
-    data: data,
-    columns,
+    data,
+    columns: columns(data, setData),
     getCoreRowModel: getCoreRowModel(),
   });
 
@@ -173,6 +171,7 @@ export default function Home() {
         name: request.applicant[0]?.name || "N/A",
         count: `${request.applicant.length}명`,
         time: `${request.time}교시`,
+        status: request.status || "미승인",
       }));
 
       console.log("변환된 데이터:", transformedData);
@@ -222,7 +221,7 @@ export default function Home() {
               {isLoading ? (
                 <p>로딩 중...</p>
               ) : !data || data.length === 0 ? (
-                <p>데이터가 없습니다</p>
+                <p>신청 목록이 없습니다</p>
               ) : (
                 <Table>
                   <TableHeader>
