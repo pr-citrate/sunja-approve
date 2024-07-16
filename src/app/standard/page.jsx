@@ -1,53 +1,38 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 
-export default function AdminPage() {
-  const [fetchedData, setFetchedData] = useState(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch('/api/submit', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-
-        const result = await response.json();
-        setFetchedData(result);
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    };
-
-    fetchData();
-  }, []);
+export default function Home() {
+  const handleButtonClick = (url) => {
+    window.location.href = url;
+  };
 
   return (
-    <div>
-      <h1>Admin Page</h1>
-      {fetchedData ? (
-        <div>
-          <p>사용 시간: {fetchedData.time}</p>
-          <p>사유: {fetchedData.reason}</p>
-          <p>전화번호: {fetchedData.phone}</p>
-          <p>사용 인원: {fetchedData.participants.length}</p>
-          {fetchedData.participants.map((participant, index) => (
-            <div key={index}>
-              <p>이름: {participant.name}</p>
-              <p>학번: {participant.id}</p>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p>Loading...</p>
-      )}
-    </div>
+    <main className="flex justify-center items-center w-full h-screen">
+      <Card className="w-96 grid justify-items-center items-center p-8">
+        <Label className="text-xl mb-4">선택하세요</Label>
+        <Button
+          className="text-lg mb-4 w-full"
+          onClick={() => handleButtonClick("/admin")}
+        >
+          관리자 모드
+        </Button>
+        <Button
+          className="text-lg mb-4 w-full"
+          onClick={() => handleButtonClick("/user")}
+        >
+          신청 하기
+        </Button>
+        <Button
+          className="text-lg mb-4 w-full"
+          onClick={() => handleButtonClick("/present")}
+        >
+          신청 현황
+        </Button>
+      </Card>
+    </main>
   );
 }
