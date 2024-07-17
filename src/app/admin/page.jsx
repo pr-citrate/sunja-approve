@@ -249,8 +249,11 @@ export default function Homeadmin() {
               )}
             </div>
             <div className="flex space-x-4 mt-4">
-              <Button type="button" onClick={() => window.location.reload()} className="text-lg">
-                뒤로
+              <Button
+                className="text-lg mb-4 w-full"
+                onClick={() => handleButtonClick("/adminpresent")}
+              >
+                승인 현황
               </Button>
               <Button
                 className="text-lg mb-4 w-full"
