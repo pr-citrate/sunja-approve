@@ -14,11 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  useReactTable,
-  getCoreRowModel,
-  flexRender,
-} from "@tanstack/react-table";
+import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-table";
 
 const columns = (data, setData) => [
   {
@@ -54,7 +50,7 @@ const columns = (data, setData) => [
           alert(
             row.original.applicant
               .map((applicant) => `${applicant.name} (${applicant.number})`)
-              .join("\n")
+              .join("\n"),
           );
         }}
       >
@@ -72,25 +68,22 @@ const columns = (data, setData) => [
             const isApproved = row.original.status === "승인";
             const newStatus = isApproved ? "미승인" : "승인";
 
-            const response = await fetch(
-              `/api/requests?id=${row.original.id}`,
-              {
-                method: "PATCH",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  status: newStatus,
-                }),
-              }
-            );
+            const response = await fetch(`/api/requests?id=${row.original.id}`, {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                status: newStatus,
+              }),
+            });
 
             if (!response.ok) {
               throw new Error("Status update failed");
             }
 
             const updatedData = data.map((d) =>
-              d.id === row.original.id ? { ...d, status: newStatus } : d
+              d.id === row.original.id ? { ...d, status: newStatus } : d,
             );
             setData(updatedData);
           } catch (error) {
@@ -109,15 +102,12 @@ const columns = (data, setData) => [
       <Button
         onClick={async () => {
           try {
-            const response = await fetch(
-              `/api/requests?id=${row.original.id}`,
-              {
-                method: "DELETE",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-              }
-            );
+            const response = await fetch(`/api/requests?id=${row.original.id}`, {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            });
 
             if (!response.ok) {
               throw new Error("Request deletion failed");
@@ -171,12 +161,7 @@ export default function Homeadmin() {
         name: request.applicant[0]?.name || "N/A",
         count: `${request.applicant.length}명`,
         time: `${request.time}교시`,
-        status:
-          request.isApproved === null
-            ? "미승인"
-            : request.isApproved
-            ? "승인"
-            : "거부",
+        status: request.isApproved === null ? "미승인" : request.isApproved ? "승인" : "거부",
       }));
 
       console.log("변환된 데이터:", transformedData);
@@ -206,10 +191,7 @@ export default function Homeadmin() {
       <main className="flex justify-center items-center w-full h-screen">
         {!isPasswordCorrect ? (
           <Card className="w-96 grid justify-items-center items-center p-8">
-            <form
-              onSubmit={handlePasswordSubmit}
-              className="w-full grid justify-items-center"
-            >
+            <form onSubmit={handlePasswordSubmit} className="w-full grid justify-items-center">
               <Label htmlFor="password" className="text-xl mb-4">
                 비밀번호 입력
               </Label>
@@ -249,10 +231,7 @@ export default function Homeadmin() {
                           <TableHead key={header.id}>
                             {header.isPlaceholder
                               ? null
-                              : flexRender(
-                                  header.column.columnDef.header,
-                                  header.getContext()
-                                )}
+                              : flexRender(header.column.columnDef.header, header.getContext())}
                           </TableHead>
                         ))}
                       </TableRow>
@@ -263,10 +242,7 @@ export default function Homeadmin() {
                       <TableRow key={row.id}>
                         {row.getVisibleCells().map((cell) => (
                           <TableCell key={cell.id}>
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext()
-                            )}
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
                           </TableCell>
                         ))}
                       </TableRow>
@@ -276,11 +252,7 @@ export default function Homeadmin() {
               )}
             </div>
             <div className="flex space-x-4 mt-4">
-              <Button
-                type="button"
-                onClick={() => window.location.reload()}
-                className="text-lg"
-              >
+              <Button type="button" onClick={() => window.location.reload()} className="text-lg">
                 뒤로
               </Button>
               <Button
