@@ -278,14 +278,7 @@ export default function Home() {
                 className="text-lg"
               >
                 뒤로
-              </Button>{" "}
-              <Button
-                type="button"
-                onClick={handleButtonClick("/present")}
-                className="text-lg"
-              >
-                승인 완료
-              </Button>{" "}
+              </Button>
             </div>
           </Card>
         )}
