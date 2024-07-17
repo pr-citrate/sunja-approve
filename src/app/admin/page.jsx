@@ -20,10 +20,6 @@ import {
   flexRender,
 } from "@tanstack/react-table";
 
-const handleButtonClick = (url) => {
-  window.location.href = url;
-};
-
 const columns = (data, setData) => [
   {
     accessorKey: "name",
@@ -175,7 +171,12 @@ export default function Home() {
         name: request.applicant[0]?.name || "N/A",
         count: `${request.applicant.length}명`,
         time: `${request.time}교시`,
-        status: request.status || "미승인",
+        status:
+          request.isApproved === null
+            ? "미승인"
+            : request.isApproved
+            ? "승인"
+            : "거부",
       }));
 
       console.log("변환된 데이터:", transformedData);
@@ -275,14 +276,7 @@ export default function Home() {
                 className="text-lg"
               >
                 뒤로
-              </Button>
-              <Button
-                type="button"
-                onClick={() => handleButtonClick("/standard")}
-                className="text-lg"
-              >
-                처음
-              </Button>
+              </Button>{" "}
             </div>
           </Card>
         )}
