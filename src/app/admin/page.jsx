@@ -4,7 +4,6 @@ import * as React from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -111,7 +110,6 @@ export default function Home() {
           </Card>
         ) : (
           <>
-            <Skeleton />
             <Card className="min-w-screen grid justify-items-center items-center p-8 m-12 min-h-screen">
               <div className="rounded-md border mb-4">
                 <Table>
