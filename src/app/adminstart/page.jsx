@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 
-export default function HomePage() {
+export default function Home() {
   const handleButtonClick = (url) => {
     if (typeof window !== "undefined") {
       window.location.href = url;
@@ -18,13 +18,13 @@ export default function HomePage() {
         <Label className="text-xl mb-4">선택하세요</Label>
         <Button
           className="text-lg mb-4 w-full"
-          onClick={() => handleButtonClick("/admin")}
+          onClick={handleButtonClick("/admin")}
         >
           신청 승인
         </Button>
         <Button
           className="text-lg mb-4 w-full"
-          onClick={() => handleButtonClick("/present")}
+          onClick={handleButtonClick("/status")}
         >
           신청 현황
         </Button>
