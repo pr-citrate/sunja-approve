@@ -15,18 +15,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Home() {
   const [numApplicant, setNumApplicant] = useState(2);
-  const form = useForm();
+  const form = useForm({
+    defaultValues: {
+      time: "",
+      applicant: Array(5).fill({ name: "", number: "" }),
+      reason: "",
+      contact: "",
+    },
+  });
 
   const handleButtonClick = (url) => {
     window.location.href = url;
   };
+
   const onSubmit = async (data) => {
-    console.log("Submitting data:", data); // 폼 데이터를 콘솔에 출력
+    console.log("Submitting data:", data);
 
     try {
       const response = await fetch("/api/requests", {
@@ -44,7 +52,7 @@ export default function Home() {
       const result = await response.json();
       console.log("Data submitted successfully:", result);
       alert("제출되었습니다.");
-      window.location.reload(); // 제출 성공 시 페이지를 초기화
+      window.location.reload();
     } catch (error) {
       console.error("Error submitting data:", error);
       alert("제출 실패");
@@ -70,24 +78,28 @@ export default function Home() {
                     사용 시간
                   </FormLabel>
                   <FormControl>
-                    <Select
-                      id="time"
-                      className="text-lg w-full"
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="사용 시간" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectLabel>시간</SelectLabel>
-                          <SelectItem value="1">야자 1교시</SelectItem>
-                          <SelectItem value="2">야자 2교시</SelectItem>
-                          <SelectItem value="3">야자 3교시</SelectItem>
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
+                    <Controller
+                      name="time"
+                      control={form.control}
+                      render={({ field }) => (
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="사용 시간" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectLabel>시간</SelectLabel>
+                              <SelectItem value="1">야자 1교시</SelectItem>
+                              <SelectItem value="2">야자 2교시</SelectItem>
+                              <SelectItem value="3">야자 3교시</SelectItem>
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
                   </FormControl>
                 </FormItem>
               )}
@@ -102,28 +114,32 @@ export default function Home() {
                     사용 인원
                   </FormLabel>
                   <FormControl>
-                    <Select
-                      id="applicant"
-                      className="text-lg w-full"
-                      onValueChange={(value) => {
-                        setNumApplicant(parseInt(value));
-                        field.onChange(value);
-                      }}
-                      value={field.value}
-                    >
-                      <SelectTrigger className="outline-none">
-                        <SelectValue placeholder="사용 인원" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectLabel>인원</SelectLabel>
-                          <SelectItem value="2">2명</SelectItem>
-                          <SelectItem value="3">3명</SelectItem>
-                          <SelectItem value="4">4명</SelectItem>
-                          <SelectItem value="5">5명</SelectItem>
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
+                    <Controller
+                      name="applicant"
+                      control={form.control}
+                      render={({ field }) => (
+                        <Select
+                          onValueChange={(value) => {
+                            setNumApplicant(parseInt(value));
+                            field.onChange(value);
+                          }}
+                          value={field.value}
+                        >
+                          <SelectTrigger className="outline-none">
+                            <SelectValue placeholder="사용 인원" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectLabel>인원</SelectLabel>
+                              <SelectItem value="2">2명</SelectItem>
+                              <SelectItem value="3">3명</SelectItem>
+                              <SelectItem value="4">4명</SelectItem>
+                              <SelectItem value="5">5명</SelectItem>
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
                   </FormControl>
                 </FormItem>
               )}

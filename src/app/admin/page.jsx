@@ -19,7 +19,7 @@ import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-tabl
 const columns = (data, setData) => [
   {
     accessorKey: "name",
-    header: "신청자 이름",
+    header: "대표자",
   },
   {
     accessorKey: "contact",
@@ -31,19 +31,15 @@ const columns = (data, setData) => [
   },
   {
     accessorKey: "time",
-    header: "신청 교시",
+    header: "신청교시",
   },
   {
     accessorKey: "reason",
     header: "사유",
   },
   {
-    accessorKey: "status",
-    header: "상태",
-  },
-  {
     id: "details",
-    header: "총 신청자",
+    header: "총신청자",
     cell: ({ row }) => (
       <Button
         onClick={() => {
@@ -65,33 +61,37 @@ const columns = (data, setData) => [
       <Button
         onClick={async () => {
           try {
-            const isApproved = row.original.status === "승인";
-            const newStatus = isApproved ? "미승인" : "승인";
+            const isApproved = row.original.isApproved;
+            const newStatus = !isApproved;
 
-            const response = await fetch(`/api/requests?id=${row.original.id}`, {
-              method: "PATCH",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                status: newStatus,
-              }),
-            });
+            const response = await fetch(
+              `/api/requests?id=${row.original.id}`,
+              {
+                method: "PATCH",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  isApproved: newStatus,
+                }),
+              }
+            );
 
             if (!response.ok) {
               throw new Error("Status update failed");
             }
 
             const updatedData = data.map((d) =>
-              d.id === row.original.id ? { ...d, status: newStatus } : d,
+              d.id === row.original.id ? { ...d, isApproved: newStatus } : d
             );
             setData(updatedData);
+            alert(newStatus ? "승인 되었습니다." : "승인 취소 되었습니다.");
           } catch (error) {
             console.error("Error updating status:", error);
           }
         }}
       >
-        {row.original.status === "승인" ? "승인 취소" : "승인"}
+        {row.original.isApproved ? "승인 취소" : "승인"}
       </Button>
     ),
   },
@@ -102,12 +102,15 @@ const columns = (data, setData) => [
       <Button
         onClick={async () => {
           try {
-            const response = await fetch(`/api/requests?id=${row.original.id}`, {
-              method: "DELETE",
-              headers: {
-                "Content-Type": "application/json",
-              },
-            });
+            const response = await fetch(
+              `/api/requests?id=${row.original.id}`,
+              {
+                method: "DELETE",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              }
+            );
 
             if (!response.ok) {
               throw new Error("Request deletion failed");
@@ -161,7 +164,7 @@ export default function Homeadmin() {
         name: request.applicant[0]?.name || "N/A",
         count: `${request.applicant.length}명`,
         time: `${request.time}교시`,
-        status: request.isApproved === null ? "미승인" : request.isApproved ? "승인" : "거부",
+        isApproved: request.isApproved === null ? false : request.isApproved,
       }));
 
       console.log("변환된 데이터:", transformedData);
@@ -252,7 +255,11 @@ export default function Homeadmin() {
               )}
             </div>
             <div className="flex space-x-4 mt-4">
-              <Button type="button" onClick={() => window.location.reload()} className="text-lg">
+              <Button
+                type="button"
+                onClick={() => window.location.reload()}
+                className="text-lg"
+              >
                 뒤로
               </Button>
               <Button
