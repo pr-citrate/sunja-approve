@@ -194,7 +194,9 @@ export default function Home() {
       fetchData();
     }
   }, [isPasswordCorrect]);
-
+  const handleButtonClick = (url) => {
+    window.location.href = url;
+  };
   return (
     <FormProvider {...methods}>
       <main className="flex justify-center items-center w-full h-screen">
@@ -276,6 +278,13 @@ export default function Home() {
                 className="text-lg"
               >
                 뒤로
+              </Button>{" "}
+              <Button
+                type="button"
+                onClick={handleButtonClick("/standard")}
+                className="text-lg"
+              >
+                승인 완료
               </Button>{" "}
             </div>
           </Card>
