@@ -18,6 +18,7 @@ import {
   getCoreRowModel,
   flexRender,
 } from "@tanstack/react-table";
+import { useRouter } from "next/router"; // useRouter 임포트
 
 const columns = (data, setData) => [
   {
@@ -34,6 +35,7 @@ export default function Home() {
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const methods = useForm();
+  const router = useRouter(); // useRouter 초기화
 
   const table = useReactTable({
     data,
@@ -77,7 +79,7 @@ export default function Home() {
   }, []);
 
   const handleButtonClick = (url) => {
-    window.location.href = url;
+    router.push(url); // router.push로 변경
   };
 
   return (
@@ -126,7 +128,9 @@ export default function Home() {
           </div>
           <Button
             type="button"
-            onClick={handleButtonClick("https://sunja-approve.vercel.app/")}
+            onClick={() =>
+              handleButtonClick("https://sunja-approve.vercel.app/")
+            }
             className="mt-4"
           >
             뒤로
