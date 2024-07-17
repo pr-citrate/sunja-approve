@@ -124,11 +124,7 @@ export default function Home() {
               </Table>
             )}
           </div>
-          <Button
-            type="button"
-            onClick={handleButtonClick("/standard")}
-            className="mt-4"
-          >
+          <Button type="button" onClick={handleButtonClick()} className="mt-4">
             뒤로
           </Button>
         </Card>
