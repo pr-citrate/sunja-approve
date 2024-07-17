@@ -7,10 +7,11 @@ const tables = [
     name: "requests",
     columns: [
       { name: "applicant", type: "json" },
-      { name: "isApproved", type: "bool", defaultValue: "false" },
       { name: "contact", type: "string" },
-      { name: "time", type: "int" },
       { name: "reason", type: "string" },
+      { name: "time", type: "string" },
+      { name: "isApproved", type: "bool" },
+      { name: "status", type: "string" },
     ],
   },
   {
