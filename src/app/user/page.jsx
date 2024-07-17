@@ -25,11 +25,36 @@ import { useForm } from "react-hook-form";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Home() {
-  const [numParticipants, setNumParticipants] = useState(2);
+  const [numApplicant, setNumApplicant] = useState(2);
   const form = useForm();
 
-  const onSubmit = (data) => {
-    console.log(data);
+  const handleButtonClick = (url) => {
+    window.location.href = url;
+  };
+  const onSubmit = async (data) => {
+    console.log("Submitting data:", data); // 폼 데이터를 콘솔에 출력
+
+    try {
+      const response = await fetch("/api/requests", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const result = await response.json();
+      console.log("Data submitted successfully:", result);
+      alert("제출되었습니다.");
+      window.location.reload(); // 제출 성공 시 페이지를 초기화
+    } catch (error) {
+      console.error("Error submitting data:", error);
+      alert("제출 실패");
+    }
   };
 
   return (
@@ -44,13 +69,19 @@ export default function Home() {
             <FormField
               control={form.control}
               name="time"
+              rules={{ required: "사용 시간을 선택하세요" }}
               render={({ field }) => (
                 <FormItem className="mb-4 w-full">
                   <FormLabel htmlFor="time" className="block mb-1">
                     사용 시간
                   </FormLabel>
                   <FormControl>
-                    <Select id="time" className="text-lg w-full" {...field}>
+                    <Select
+                      id="time"
+                      className="text-lg w-full"
+                      onValueChange={field.onChange}
+                      value={field.value}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="사용 시간" />
                       </SelectTrigger>
@@ -69,20 +100,22 @@ export default function Home() {
             />
             <FormField
               control={form.control}
-              name="participants"
+              name="applicant"
+              rules={{ required: "사용 인원을 선택하세요" }}
               render={({ field }) => (
                 <FormItem className="mb-4 w-full">
-                  <FormLabel htmlFor="participants" className="block mb-1">
+                  <FormLabel htmlFor="applicant" className="block mb-1">
                     사용 인원
                   </FormLabel>
                   <FormControl>
                     <Select
-                      id="participants"
+                      id="applicant"
                       className="text-lg w-full"
-                      {...field}
-                      onValueChange={(value) =>
-                        setNumParticipants(parseInt(value))
-                      }
+                      onValueChange={(value) => {
+                        setNumApplicant(parseInt(value));
+                        field.onChange(value);
+                      }}
+                      value={field.value}
                     >
                       <SelectTrigger className="outline-none">
                         <SelectValue placeholder="사용 인원" />
@@ -104,6 +137,7 @@ export default function Home() {
             <FormField
               control={form.control}
               name="reason"
+              rules={{ required: "사유를 입력하세요" }}
               render={({ field }) => (
                 <FormItem className="mb-4 w-full">
                   <FormLabel htmlFor="reason" className="block mb-1">
@@ -123,15 +157,16 @@ export default function Home() {
             />
             <FormField
               control={form.control}
-              name="phone"
+              name="contact"
+              rules={{ required: "대표자 전화번호를 입력하세요" }}
               render={({ field }) => (
                 <FormItem className="mb-4 w-full">
-                  <Label htmlFor="phone" className="block mb-1">
+                  <Label htmlFor="contact" className="block mb-1">
                     전화번호 (대표자)
                   </Label>
                   <FormControl>
                     <Input
-                      id="phone"
+                      id="contact"
                       placeholder="전화번호 (대표자)"
                       type="tel"
                       className="text-g w-full"
@@ -142,7 +177,7 @@ export default function Home() {
               )}
             />
             <AnimatePresence>
-              {[...Array(numParticipants)].map((_, i) => {
+              {[...Array(numApplicant)].map((_, i) => {
                 const number = `${i + 1}${i ? "" : " (대표자)"}`;
                 return (
                   <motion.div
@@ -154,7 +189,8 @@ export default function Home() {
                   >
                     <FormField
                       control={form.control}
-                      name={`participant${i}`}
+                      name={`applicant[${i}].name`}
+                      rules={{ required: "이름을 입력하세요" }}
                       render={({ field }) => (
                         <FormItem className="flex-1">
                           <Label htmlFor={`name${i}`} className="block mb-1">
@@ -174,7 +210,8 @@ export default function Home() {
                     />
                     <FormField
                       control={form.control}
-                      name={`number${i}`}
+                      name={`applicant[${i}].number`}
+                      rules={{ required: "학번을 입력하세요" }}
                       render={({ field }) => (
                         <FormItem className="flex-1">
                           <Label htmlFor={`id${i}`} className="block mb-1">
@@ -199,6 +236,16 @@ export default function Home() {
             <Button type="submit" className="text-lg mt-4">
               제출
             </Button>
+            <Button
+              type="button"
+              onClick={() => handleButtonClick("/standard")}
+              className="text-lg mt-4"
+            >
+              뒤로
+            </Button>
+            {form.formState.errors && (
+              <p className="mt-4 text-lg text-red-500">모든 칸을 입력하세요.</p>
+            )}
           </form>
         </Form>
       </Card>
