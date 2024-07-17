@@ -30,7 +30,7 @@ const columns = (data, setData) => [
   },
 ];
 
-export default function Home() {
+export default function RequestsPage() {
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const methods = useForm();
@@ -76,8 +76,10 @@ export default function Home() {
     fetchData();
   }, []);
 
-  const handleButtonClick = (url) => {
-    window.location.href = url;
+  const handleButtonClick = () => {
+    if (typeof window !== "undefined") {
+      window.history.back();
+    }
   };
 
   return (
@@ -124,11 +126,7 @@ export default function Home() {
               </Table>
             )}
           </div>
-          <Button
-            type="button"
-            onClick={() => handleButtonClick("/standard")}
-            className="mt-4"
-          >
+          <Button type="button" onClick={handleButtonClick} className="mt-4">
             뒤로
           </Button>
         </Card>

@@ -20,10 +20,6 @@ import {
   flexRender,
 } from "@tanstack/react-table";
 
-const handleButtonClick = (url) => {
-  window.location.href = url;
-};
-
 const columns = (data, setData) => [
   {
     accessorKey: "name",
@@ -141,7 +137,7 @@ const columns = (data, setData) => [
   },
 ];
 
-export default function Home() {
+export default function Homeadmin() {
   const [password, setPassword] = useState("");
   const [isPasswordCorrect, setIsPasswordCorrect] = useState(false);
   const [data, setData] = useState([]);
@@ -175,7 +171,12 @@ export default function Home() {
         name: request.applicant[0]?.name || "N/A",
         count: `${request.applicant.length}명`,
         time: `${request.time}교시`,
-        status: request.status || "미승인",
+        status:
+          request.isApproved === null
+            ? "미승인"
+            : request.isApproved
+            ? "승인"
+            : "거부",
       }));
 
       console.log("변환된 데이터:", transformedData);
@@ -193,6 +194,12 @@ export default function Home() {
       fetchData();
     }
   }, [isPasswordCorrect]);
+
+  const handleButtonClick = (url) => {
+    if (typeof window !== "undefined") {
+      window.location.href = url;
+    }
+  };
 
   return (
     <FormProvider {...methods}>
@@ -219,7 +226,7 @@ export default function Home() {
               </Button>
               <Button
                 type="button"
-                onClick={() => handleButtonClick("/standard")}
+                onClick={() => handleButtonClick("/adminstart")}
                 className="text-lg mt-4"
               >
                 뒤로
@@ -277,11 +284,10 @@ export default function Home() {
                 뒤로
               </Button>
               <Button
-                type="button"
-                onClick={() => handleButtonClick("/standard")}
-                className="text-lg"
+                className="text-lg mb-4 w-full"
+                onClick={() => handleButtonClick("/adminstart")}
               >
-                처음
+                홈
               </Button>
             </div>
           </Card>
