@@ -39,3 +39,7 @@ next-env.d.ts
 
 # xata
 .xata/migrations
+
+# IDE
+.idea
+.vscode
