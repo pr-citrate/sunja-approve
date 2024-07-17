@@ -270,7 +270,7 @@ export default function Homeadmin() {
             <div className="flex space-x-4 mt-4">
               <Button
                 type="button"
-                onClick={() => handleButtonClick("/approve")}
+                onClick={() => handleButtonClick("/adminpresent")}
                 className="text-lg"
               >
                 승인 상황
