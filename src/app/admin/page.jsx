@@ -195,7 +195,7 @@ export default function Homeadmin() {
 
   return (
     <FormProvider {...methods}>
-      <main className="flex justify-center items-center w-full h-screen">
+      <main className="flex justify-center items-center w-screen h-screen">
         {!isPasswordCorrect ? (
           <Card className="w-96 grid justify-items-center items-center p-8">
             <form

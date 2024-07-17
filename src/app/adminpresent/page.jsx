@@ -29,6 +29,10 @@ const columns = [
     header: "전화번호",
   },
   {
+    accessorKey: "reason",
+    header: "사유",
+  },
+  {
     accessorKey: "count",
     header: "총인원",
   },
@@ -80,6 +84,8 @@ export default function RequestsPage() {
         if (request.time >= 1 && request.time <= 3) {
           dataByTime[request.time].push({
             ...request,
+            name:
+              request.applicant.length > 0 ? request.applicant[0].name : "N/A",
             count: `${request.applicant.length}명`,
           });
         }
