@@ -126,7 +126,7 @@ export default function Home() {
           </div>
           <Button
             type="button"
-            onClick={() => handleButtonClick("/standard")}
+            onClick={handleButtonClick("https://sunja-approve.vercel.app/")}
             className="mt-4"
           >
             뒤로

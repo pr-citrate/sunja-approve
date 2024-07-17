@@ -238,7 +238,7 @@ export default function Home() {
             </Button>
             <Button
               type="button"
-              onClick={() => handleButtonClick("/standard")}
+              onClick={() => handleButtonClick("/present")}
               className="text-lg mt-4"
             >
               신청 현황
