@@ -137,7 +137,7 @@ const columns = (data, setData) => [
   },
 ];
 
-export default function Home() {
+export default function Homeadmin() {
   const [password, setPassword] = useState("");
   const [isPasswordCorrect, setIsPasswordCorrect] = useState(false);
   const [data, setData] = useState([]);
@@ -194,9 +194,13 @@ export default function Home() {
       fetchData();
     }
   }, [isPasswordCorrect]);
+
   const handleButtonClick = (url) => {
-    window.location.href = url;
+    if (typeof window !== "undefined") {
+      window.location.href = url;
+    }
   };
+
   return (
     <FormProvider {...methods}>
       <main className="flex justify-center items-center w-full h-screen">
@@ -222,7 +226,7 @@ export default function Home() {
               </Button>
               <Button
                 type="button"
-                onClick={() => (window.location.href = "/standard")}
+                onClick={() => handleButtonClick("/adminstart")}
                 className="text-lg mt-4"
               >
                 뒤로
@@ -281,9 +285,9 @@ export default function Home() {
               </Button>
               <Button
                 className="text-lg mb-4 w-full"
-                onClick={handleButtonClick("/adminstart")}
+                onClick={() => handleButtonClick("/adminstart")}
               >
-                신청 현황
+                홈
               </Button>
             </div>
           </Card>
