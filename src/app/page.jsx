@@ -23,14 +23,18 @@ import {
 } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
 import { motion, AnimatePresence } from "framer-motion";
+import {useRouter} from "next/navigation";
+
 
 export default function Home() {
   const [numApplicant, setNumApplicant] = useState(2);
   const form = useForm();
+  const router = useRouter();
 
-  const handleButtonClick = (url) => {
-    window.location.href = url;
+  const handleButtonClick = () => {
+    router.refresh();
   };
+
   const onSubmit = async (data) => {
     console.log("Submitting data:", data); // 폼 데이터를 콘솔에 출력
 
@@ -236,16 +240,6 @@ export default function Home() {
             <Button type="submit" className="text-lg mt-4">
               제출
             </Button>
-            <Button
-              type="button"
-              onClick={() => handleButtonClick("/standard")}
-              className="text-lg mt-4"
-            >
-              뒤로
-            </Button>
-            {form.formState.errors && (
-              <p className="mt-4 text-lg text-red-500">모든 칸을 입력하세요.</p>
-            )}
           </form>
         </Form>
       </Card>
