@@ -220,7 +220,7 @@ export default function Home() {
               </Button>
               <Button
                 type="button"
-                onClick={() => handleButtonClick("/standard")}
+                onClick={() => (window.location.href = "/standard")}
                 className="text-lg mt-4"
               >
                 뒤로
