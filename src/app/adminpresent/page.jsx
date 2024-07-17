@@ -13,11 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  useReactTable,
-  getCoreRowModel,
-  flexRender,
-} from "@tanstack/react-table";
+import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-table";
 
 const columns = [
   {
@@ -70,9 +66,7 @@ export default function RequestsPage() {
       const result = await response.json();
       console.log("클라이언트에서 받아온 데이터:", result.requests);
 
-      const approvedData = result.requests.filter(
-        (request) => request.isApproved
-      );
+      const approvedData = result.requests.filter((request) => request.isApproved);
 
       const dataByTime = {
         1: [],
@@ -84,8 +78,7 @@ export default function RequestsPage() {
         if (request.time >= 1 && request.time <= 3) {
           dataByTime[request.time].push({
             ...request,
-            name:
-              request.applicant.length > 0 ? request.applicant[0].name : "N/A",
+            name: request.applicant.length > 0 ? request.applicant[0].name : "N/A",
             count: `${request.applicant.length}명`,
           });
         }
@@ -133,10 +126,7 @@ export default function RequestsPage() {
                         <TableHead key={header.id}>
                           {header.isPlaceholder
                             ? null
-                            : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                              )}
+                            : flexRender(header.column.columnDef.header, header.getContext())}
                         </TableHead>
                       ))}
                     </TableRow>
@@ -147,10 +137,7 @@ export default function RequestsPage() {
                     <TableRow key={row.id}>
                       {row.getVisibleCells().map((cell) => (
                         <TableCell key={cell.id}>
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )}
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </TableCell>
                       ))}
                     </TableRow>
@@ -176,10 +163,7 @@ export default function RequestsPage() {
                         <TableHead key={header.id}>
                           {header.isPlaceholder
                             ? null
-                            : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                              )}
+                            : flexRender(header.column.columnDef.header, header.getContext())}
                         </TableHead>
                       ))}
                     </TableRow>
@@ -190,10 +174,7 @@ export default function RequestsPage() {
                     <TableRow key={row.id}>
                       {row.getVisibleCells().map((cell) => (
                         <TableCell key={cell.id}>
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )}
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </TableCell>
                       ))}
                     </TableRow>
@@ -219,10 +200,7 @@ export default function RequestsPage() {
                         <TableHead key={header.id}>
                           {header.isPlaceholder
                             ? null
-                            : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                              )}
+                            : flexRender(header.column.columnDef.header, header.getContext())}
                         </TableHead>
                       ))}
                     </TableRow>
@@ -233,10 +211,7 @@ export default function RequestsPage() {
                     <TableRow key={row.id}>
                       {row.getVisibleCells().map((cell) => (
                         <TableCell key={cell.id}>
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )}
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </TableCell>
                       ))}
                     </TableRow>
