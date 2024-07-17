@@ -64,25 +64,22 @@ const columns = (data, setData) => [
             const isApproved = row.original.isApproved;
             const newStatus = !isApproved;
 
-            const response = await fetch(
-              `/api/requests?id=${row.original.id}`,
-              {
-                method: "PATCH",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  isApproved: newStatus,
-                }),
-              }
-            );
+            const response = await fetch(`/api/requests?id=${row.original.id}`, {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                isApproved: newStatus,
+              }),
+            });
 
             if (!response.ok) {
               throw new Error("Status update failed");
             }
 
             const updatedData = data.map((d) =>
-              d.id === row.original.id ? { ...d, isApproved: newStatus } : d
+              d.id === row.original.id ? { ...d, isApproved: newStatus } : d,
             );
             setData(updatedData);
             alert(newStatus ? "승인 되었습니다." : "승인 취소 되었습니다.");
@@ -102,15 +99,12 @@ const columns = (data, setData) => [
       <Button
         onClick={async () => {
           try {
-            const response = await fetch(
-              `/api/requests?id=${row.original.id}`,
-              {
-                method: "DELETE",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-              }
-            );
+            const response = await fetch(`/api/requests?id=${row.original.id}`, {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            });
 
             if (!response.ok) {
               throw new Error("Request deletion failed");
@@ -255,11 +249,7 @@ export default function Homeadmin() {
               )}
             </div>
             <div className="flex space-x-4 mt-4">
-              <Button
-                type="button"
-                onClick={() => window.location.reload()}
-                className="text-lg"
-              >
+              <Button type="button" onClick={() => window.location.reload()} className="text-lg">
                 뒤로
               </Button>
               <Button

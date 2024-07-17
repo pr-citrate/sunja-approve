@@ -72,7 +72,7 @@ export default function Home() {
               control={form.control}
               name="time"
               rules={{ required: "사용 시간을 선택하세요" }}
-              render={({ field }) => (
+              render={() => (
                 <FormItem className="mb-4 w-full">
                   <FormLabel htmlFor="time" className="block mb-1">
                     사용 시간
@@ -82,10 +82,7 @@ export default function Home() {
                       name="time"
                       control={form.control}
                       render={({ field }) => (
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value}
-                        >
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <SelectTrigger>
                             <SelectValue placeholder="사용 시간" />
                           </SelectTrigger>
@@ -108,7 +105,7 @@ export default function Home() {
               control={form.control}
               name="applicant"
               rules={{ required: "사용 인원을 선택하세요" }}
-              render={({ field }) => (
+              render={() => (
                 <FormItem className="mb-4 w-full">
                   <FormLabel htmlFor="applicant" className="block mb-1">
                     사용 인원
