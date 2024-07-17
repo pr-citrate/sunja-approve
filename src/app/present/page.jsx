@@ -76,6 +76,10 @@ export default function Home() {
     fetchData();
   }, []);
 
+  const handleButtonClick = (url) => {
+    window.history.back();
+  };
+
   return (
     <FormProvider {...methods}>
       <main className="flex justify-center items-center w-screen h-screen">
@@ -122,7 +126,7 @@ export default function Home() {
           </div>
           <Button
             type="button"
-            onClick={window.history.back()}
+            onClick={handleButtonClick("/standard")}
             className="mt-4"
           >
             뒤로
