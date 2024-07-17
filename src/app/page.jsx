@@ -23,7 +23,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
-import { render } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Home() {

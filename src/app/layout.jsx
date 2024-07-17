@@ -24,6 +24,7 @@ export default function RootLayout({ children }) {
           data-position="Right"
           data-x_margin="18"
           data-y_margin="18"
+          async
         />
         <ThemeProvider
           attribute="class"
