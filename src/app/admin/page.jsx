@@ -279,6 +279,12 @@ export default function Home() {
               >
                 뒤로
               </Button>
+              <Button
+                className="text-lg mb-4 w-full"
+                onClick={handleButtonClick("/adminstart")}
+              >
+                신청 현황
+              </Button>
             </div>
           </Card>
         )}
