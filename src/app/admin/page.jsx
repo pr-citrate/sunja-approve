@@ -14,11 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  useReactTable,
-  getCoreRowModel,
-  flexRender,
-} from "@tanstack/react-table";
+import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-table";
 
 const columns = (data, setData) => [
   {
@@ -50,7 +46,7 @@ const columns = (data, setData) => [
           alert(
             row.original.applicant
               .map((applicant) => `${applicant.name} (${applicant.number})`)
-              .join("\n")
+              .join("\n"),
           );
         }}
       >
@@ -198,10 +194,7 @@ export default function Homeadmin() {
       <main className="flex justify-center items-center w-screen h-screen">
         {!isPasswordCorrect ? (
           <Card className="w-96 grid justify-items-center items-center p-8">
-            <form
-              onSubmit={handlePasswordSubmit}
-              className="w-full grid justify-items-center"
-            >
+            <form onSubmit={handlePasswordSubmit} className="w-full grid justify-items-center">
               <Label htmlFor="password" className="text-xl mb-4">
                 비밀번호 입력
               </Label>
@@ -241,10 +234,7 @@ export default function Homeadmin() {
                           <TableHead key={header.id}>
                             {header.isPlaceholder
                               ? null
-                              : flexRender(
-                                  header.column.columnDef.header,
-                                  header.getContext()
-                                )}
+                              : flexRender(header.column.columnDef.header, header.getContext())}
                           </TableHead>
                         ))}
                       </TableRow>
@@ -255,10 +245,7 @@ export default function Homeadmin() {
                       <TableRow key={row.id}>
                         {row.getVisibleCells().map((cell) => (
                           <TableCell key={cell.id}>
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext()
-                            )}
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
                           </TableCell>
                         ))}
                       </TableRow>
@@ -270,10 +257,10 @@ export default function Homeadmin() {
             <div className="flex space-x-4 mt-4">
               <Button
                 type="button"
-                onClick={() => handleButtonClick("/adminpresent")}
+                onClick={() => window.location.reload()}
                 className="text-lg"
               >
-                승인 상황
+                뒤로
               </Button>
               <Button
                 className="text-lg mb-4 w-full"
