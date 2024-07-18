@@ -12,15 +12,15 @@ export default [
   {
     rules: {
       "react/react-in-jsx-scope": "off",
-      "react/prop-types": "off"
+      "react/prop-types": "off",
     },
     settings: {
       react: {
-        version: "detect"
-      }
-    }
+        version: "detect",
+      },
+    },
   },
   {
-    ignores: ["src/components/ui"]
-  }
+    ignores: ["src/components/ui"],
+  },
 ];
