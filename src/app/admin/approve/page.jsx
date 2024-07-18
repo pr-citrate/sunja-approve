@@ -15,6 +15,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-table";
+import { stringify } from "qs";
 
 const columns = (data, setData) => [
   {
@@ -149,7 +150,21 @@ export default function Homeadmin() {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/requests");
+      const response = await fetch(
+        "/api/requests?" +
+          stringify({
+            $all: [
+              {
+                "xata.createdAt": { $ge: new Date(new Date().setHours(0, 0, 0, 0)).toISOString() },
+              },
+              {
+                "xata.createdAt": {
+                  $le: new Date(new Date().setHours(23, 59, 59, 999)).toISOString(),
+                },
+              },
+            ],
+          }),
+      );
       const result = await response.json();
       console.log("클라이언트에서 받아온 데이터:", result.requests);
 
