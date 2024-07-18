@@ -40,7 +40,7 @@ const columns = (data, setData) => [
   },
   {
     accessorKey: "status",
-    header: "승인 상태", // 승인 상태 칸 추가
+    header: "승인 상태",
     cell: ({ row }) => (row.original.isApproved ? "승인됨" : "미승인"),
   },
   {
@@ -81,7 +81,7 @@ const columns = (data, setData) => [
             });
 
             if (!response.ok) {
-              throw new Error("Status update failed");
+              throw new Error("Request update failed");
             }
 
             const updatedData = data.map((d) =>

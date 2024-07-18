@@ -45,10 +45,6 @@ export default function Home() {
         body: JSON.stringify(data),
       });
 
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-
       const result = await response.json();
       console.log("Data submitted successfully:", result);
       alert("제출되었습니다.");
