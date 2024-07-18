@@ -205,7 +205,7 @@ export default function Homeadmin() {
               </Button>
               <Button
                 type="button"
-                onClick={() => handleButtonClick("/adminstart")}
+                onClick={() => handleButtonClick("/admin")}
                 className="text-lg mt-4"
               >
                 뒤로
@@ -251,14 +251,11 @@ export default function Homeadmin() {
             <div className="flex space-x-4 mt-4">
               <Button
                 className="text-lg mb-4 w-full"
-                onClick={() => handleButtonClick("/adminpresent")}
+                onClick={() => handleButtonClick("/admin/status")}
               >
                 승인 현황
               </Button>
-              <Button
-                className="text-lg mb-4 w-full"
-                onClick={() => handleButtonClick("/adminstart")}
-              >
+              <Button className="text-lg mb-4 w-full" onClick={() => handleButtonClick("/admin")}>
                 홈
               </Button>
             </div>
