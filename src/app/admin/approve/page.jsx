@@ -38,6 +38,11 @@ const columns = (data, setData) => [
     header: "사유",
   },
   {
+    accessorKey: "status",
+    header: "승인 상태", // 승인 상태 칸 추가
+    cell: ({ row }) => (row.original.isApproved ? "승인됨" : "미승인"),
+  },
+  {
     id: "details",
     header: "총신청자",
     cell: ({ row }) => (
