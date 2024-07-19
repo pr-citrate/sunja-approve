@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -17,15 +17,19 @@ import {
 } from "@/components/ui/select";
 import { useForm, Controller } from "react-hook-form";
 import { motion, AnimatePresence } from "framer-motion";
+import { zodResolver } from "@hookform/resolvers/zod";
+import formSchema from "@/schema";
 
 export default function Home() {
   const [numApplicant, setNumApplicant] = useState(2);
   const form = useForm({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       time: "",
       applicant: Array(5).fill({ name: "", number: "" }),
       reason: "",
       contact: "",
+      applicantNum: "2",
     },
   });
 
@@ -67,7 +71,7 @@ export default function Home() {
             <FormField
               control={form.control}
               name="time"
-              rules={{ required: "사용 시간을 선택하세요" }}
+              // rules={{ required: "사용 시간을 선택하세요" }}
               render={() => (
                 <FormItem className="mb-4 w-full">
                   <FormLabel htmlFor="time" className="block mb-1">
@@ -94,12 +98,13 @@ export default function Home() {
                       )}
                     />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
             <FormField
               control={form.control}
-              name="applicant"
+              name="applicantNum"
               rules={{ required: "사용 인원을 선택하세요" }}
               render={() => (
                 <FormItem className="mb-4 w-full">
@@ -108,7 +113,7 @@ export default function Home() {
                   </FormLabel>
                   <FormControl>
                     <Controller
-                      name="applicant"
+                      name="applicantNum"
                       control={form.control}
                       render={({ field }) => (
                         <Select
@@ -116,7 +121,7 @@ export default function Home() {
                             setNumApplicant(parseInt(value));
                             field.onChange(value);
                           }}
-                          value={field.value}
+                          defaultValue={field.value}
                         >
                           <SelectTrigger className="outline-none">
                             <SelectValue placeholder="사용 인원" />
@@ -134,6 +139,7 @@ export default function Home() {
                       )}
                     />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -155,6 +161,7 @@ export default function Home() {
                       {...field}
                     />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -176,6 +183,7 @@ export default function Home() {
                       {...field}
                     />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -208,6 +216,7 @@ export default function Home() {
                               {...field}
                             />
                           </FormControl>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
@@ -229,6 +238,7 @@ export default function Home() {
                               {...field}
                             />
                           </FormControl>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
