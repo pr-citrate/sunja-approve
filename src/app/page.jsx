@@ -29,6 +29,7 @@ export default function Home() {
       applicant: Array(5).fill({ name: "", number: "" }),
       reason: "",
       contact: "",
+      applicantNum: "2",
     },
   });
 
