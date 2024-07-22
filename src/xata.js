@@ -34,7 +34,7 @@ const defaultOptions = {
 export class XataClient extends DatabaseClient {
   constructor(options) {
     const apiKey = process.env.NEXT_PUBLIC_XATA_API_KEY;
-    const branch = process.env.NEXT_PUBLIC_XATA_BRANCH || "main";
+    const branch = process.env.NEXT_PUBLIC_XATA_BRANCH 
 
     if (!apiKey) {
       throw new Error("Xata API key is not defined");
