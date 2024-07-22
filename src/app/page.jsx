@@ -29,7 +29,6 @@ export default function Home() {
       applicant: Array(5).fill({ name: "", number: "" }),
       reason: "",
       contact: "",
-      applicantNum: "2", // 변경: 기본값 설정
     },
   });
 
@@ -41,13 +40,17 @@ export default function Home() {
     console.log("Submitting data:", data);
 
     try {
-      await fetch("/api/requests", {
+      const response = await fetch("/api/requests", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
       });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
 
       const result = await response.json();
       console.log("Data submitted successfully:", result);
@@ -71,6 +74,7 @@ export default function Home() {
             <FormField
               control={form.control}
               name="time"
+              rules={{ required: "사용 시간을 선택하세요" }}
               render={() => (
                 <FormItem className="mb-4 w-full">
                   <FormLabel htmlFor="time" className="block mb-1">
@@ -103,17 +107,18 @@ export default function Home() {
             />
             <FormField
               control={form.control}
-              name="applicantNum" // 변경: 올바른 필드 이름 사용
+              name="applicantNum"
+              rules={{ required: "사용 인원을 선택하세요" }}
               render={() => (
                 <FormItem className="mb-4 w-full">
-                  <FormLabel htmlFor="applicantNum" className="block mb-1">
+                  <FormLabel htmlFor="applicant" className="block mb-1">
                     사용 인원
                   </FormLabel>
                   <FormControl>
                     <Controller
                       name="applicantNum"
                       control={form.control}
-                      render={({field}) => (
+                      render={({ field }) => (
                         <Select
                           onValueChange={(value) => {
                             setNumApplicant(parseInt(value));
@@ -144,7 +149,8 @@ export default function Home() {
             <FormField
               control={form.control}
               name="reason"
-              render={({field}) => (
+              rules={{ required: "사유를 입력하세요" }}
+              render={({ field }) => (
                 <FormItem className="mb-4 w-full">
                   <FormLabel htmlFor="reason" className="block mb-1">
                     사유
@@ -165,7 +171,8 @@ export default function Home() {
             <FormField
               control={form.control}
               name="contact"
-              render={({field}) => (
+              rules={{ required: "대표자 전화번호를 입력하세요" }}
+              render={({ field }) => (
                 <FormItem className="mb-4 w-full">
                   <Label htmlFor="contact" className="block mb-1">
                     전화번호 (대표자)
@@ -197,7 +204,8 @@ export default function Home() {
                     <FormField
                       control={form.control}
                       name={`applicant[${i}].name`}
-                      render={({field}) => (
+                      rules={{ required: "이름을 입력하세요" }}
+                      render={({ field }) => (
                         <FormItem className="flex-1">
                           <Label htmlFor={`name${i}`} className="block mb-1">
                             {`이름 ${number}`}
@@ -218,7 +226,8 @@ export default function Home() {
                     <FormField
                       control={form.control}
                       name={`applicant[${i}].number`}
-                      render={({field}) => (
+                      rules={{ required: "학번을 입력하세요" }}
+                      render={({ field }) => (
                         <FormItem className="flex-1">
                           <Label htmlFor={`id${i}`} className="block mb-1">
                             {`학번 ${number}`}

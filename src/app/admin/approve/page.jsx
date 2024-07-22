@@ -112,6 +112,10 @@ const columns = (data, setData) => [
               },
             });
 
+            if (!response.ok) {
+              throw new Error("Request deletion failed");
+            }
+
             const updatedData = data.filter((d) => d.id !== row.original.id);
             setData(updatedData);
             alert("거부 되었습니다.");
