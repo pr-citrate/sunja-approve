@@ -29,6 +29,7 @@ export default function Home() {
       applicant: Array(5).fill({ name: "", number: "" }),
       reason: "",
       contact: "",
+      applicantNum: "2",
     },
   });
 
@@ -47,10 +48,6 @@ export default function Home() {
         },
         body: JSON.stringify(data),
       });
-
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
 
       const result = await response.json();
       console.log("Data submitted successfully:", result);
@@ -109,7 +106,7 @@ export default function Home() {
               control={form.control}
               name="applicantNum"
               rules={{ required: "사용 인원을 선택하세요" }}
-              render={() => (
+              render={({ field }) => (
                 <FormItem className="mb-4 w-full">
                   <FormLabel htmlFor="applicant" className="block mb-1">
                     사용 인원

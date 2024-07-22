@@ -32,7 +32,14 @@ const defaultOptions = {
 /** @extends DatabaseClient<DatabaseSchema> */
 export class XataClient extends DatabaseClient {
   constructor(options) {
-    super({ ...defaultOptions, ...options }, tables);
+    const apiKey = process.env.NEXT_PUBLIC_XATA_API_KEY;
+    const branch = process.env.XATA_BRANCH || 'main';
+
+    if (!apiKey) {
+      throw new Error('Xata API key is not defined');
+    }
+
+    super({ ...defaultOptions, ...options, apiKey, branch }, tables);
   }
 }
 let instance = undefined;
