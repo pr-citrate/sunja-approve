@@ -26,8 +26,7 @@ const tables = [
 /** @type { import('@xata.io/client').ClientConstructor<{}> } */
 const DatabaseClient = buildClient();
 const defaultOptions = {
-  databaseURL:
-    "https://pr-citrate-s-workspace-piheva.ap-southeast-2.xata.sh/db/sunja-approve",
+  databaseURL: "https://pr-citrate-s-workspace-piheva.ap-southeast-2.xata.sh/db/sunja-approve",
 };
 
 /** @typedef { import('./types').DatabaseSchema } DatabaseSchema */
@@ -35,21 +34,22 @@ const defaultOptions = {
 export class XataClient extends DatabaseClient {
   constructor(options) {
     const apiKey = process.env.NEXT_PUBLIC_XATA_API_KEY;
-    const branch = process.env.NEXT_PUBLIC_XATA_BRANCH || 'main';
+    const branch = process.env.NEXT_PUBLIC_XATA_BRANCH || "main";
 
     if (!apiKey) {
-      throw new Error('Xata API key is not defined');
+      throw new Error("Xata API key is not defined");
     }
 
     super({ ...defaultOptions, ...options, apiKey, branch }, tables);
   }
 }
 
-let instance = undefined;
+let instance;
 
 /** @type { () => XataClient } */
 export const getXataClient = () => {
-  if (instance) return instance;
-  instance = new XataClient();
+  if (!instance) {
+    instance = new XataClient();
+  }
   return instance;
 };
