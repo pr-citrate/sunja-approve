@@ -29,7 +29,7 @@ export default function Home() {
       applicant: Array(5).fill({ name: "", number: "" }),
       reason: "",
       contact: "",
-      applicantNum: "2",
+      applicant: "",
     },
   });
 
@@ -104,7 +104,7 @@ export default function Home() {
             />
             <FormField
               control={form.control}
-              name="applicantNum"
+              name="applicant"
               rules={{ required: "사용 인원을 선택하세요" }}
               render={({ field }) => (
                 <FormItem className="mb-4 w-full">
@@ -113,7 +113,7 @@ export default function Home() {
                   </FormLabel>
                   <FormControl>
                     <Controller
-                      name="applicantNum"
+                      name="applicant"
                       control={form.control}
                       render={({ field }) => (
                         <Select
