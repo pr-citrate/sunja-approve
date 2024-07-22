@@ -41,7 +41,7 @@ export default function Home() {
     console.log("Submitting data:", data);
 
     try {
-      const response = await fetch("/api/requests", {
+      await fetch("/api/requests", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -104,7 +104,7 @@ export default function Home() {
             <FormField
               control={form.control}
               name="applicantNum" // 변경: 올바른 필드 이름 사용
-              render={({ field }) => (
+              render={() => (
                 <FormItem className="mb-4 w-full">
                   <FormLabel htmlFor="applicantNum" className="block mb-1">
                     사용 인원
@@ -113,7 +113,7 @@ export default function Home() {
                     <Controller
                       name="applicantNum"
                       control={form.control}
-                      render={({ field }) => (
+                      render={({field}) => (
                         <Select
                           onValueChange={(value) => {
                             setNumApplicant(parseInt(value));
@@ -144,7 +144,7 @@ export default function Home() {
             <FormField
               control={form.control}
               name="reason"
-              render={({ field }) => (
+              render={({field}) => (
                 <FormItem className="mb-4 w-full">
                   <FormLabel htmlFor="reason" className="block mb-1">
                     사유
@@ -165,7 +165,7 @@ export default function Home() {
             <FormField
               control={form.control}
               name="contact"
-              render={({ field }) => (
+              render={({field}) => (
                 <FormItem className="mb-4 w-full">
                   <Label htmlFor="contact" className="block mb-1">
                     전화번호 (대표자)
@@ -197,7 +197,7 @@ export default function Home() {
                     <FormField
                       control={form.control}
                       name={`applicant[${i}].name`}
-                      render={({ field }) => (
+                      render={({field}) => (
                         <FormItem className="flex-1">
                           <Label htmlFor={`name${i}`} className="block mb-1">
                             {`이름 ${number}`}
@@ -218,7 +218,7 @@ export default function Home() {
                     <FormField
                       control={form.control}
                       name={`applicant[${i}].number`}
-                      render={({ field }) => (
+                      render={({field}) => (
                         <FormItem className="flex-1">
                           <Label htmlFor={`id${i}`} className="block mb-1">
                             {`학번 ${number}`}
