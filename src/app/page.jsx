@@ -29,7 +29,7 @@ export default function Home() {
       applicant: Array(5).fill({ name: "", number: "" }),
       reason: "",
       contact: "",
-      applicant: "",
+      applicantNum: "2", // 변경: 기본값 설정
     },
   });
 
@@ -71,7 +71,6 @@ export default function Home() {
             <FormField
               control={form.control}
               name="time"
-              rules={{ required: "사용 시간을 선택하세요" }}
               render={() => (
                 <FormItem className="mb-4 w-full">
                   <FormLabel htmlFor="time" className="block mb-1">
@@ -104,16 +103,15 @@ export default function Home() {
             />
             <FormField
               control={form.control}
-              name="applicant"
-              rules={{ required: "사용 인원을 선택하세요" }}
+              name="applicantNum" // 변경: 올바른 필드 이름 사용
               render={({ field }) => (
                 <FormItem className="mb-4 w-full">
-                  <FormLabel htmlFor="applicant" className="block mb-1">
+                  <FormLabel htmlFor="applicantNum" className="block mb-1">
                     사용 인원
                   </FormLabel>
                   <FormControl>
                     <Controller
-                      name="applicant"
+                      name="applicantNum"
                       control={form.control}
                       render={({ field }) => (
                         <Select
@@ -146,7 +144,6 @@ export default function Home() {
             <FormField
               control={form.control}
               name="reason"
-              rules={{ required: "사유를 입력하세요" }}
               render={({ field }) => (
                 <FormItem className="mb-4 w-full">
                   <FormLabel htmlFor="reason" className="block mb-1">
@@ -168,7 +165,6 @@ export default function Home() {
             <FormField
               control={form.control}
               name="contact"
-              rules={{ required: "대표자 전화번호를 입력하세요" }}
               render={({ field }) => (
                 <FormItem className="mb-4 w-full">
                   <Label htmlFor="contact" className="block mb-1">
@@ -201,7 +197,6 @@ export default function Home() {
                     <FormField
                       control={form.control}
                       name={`applicant[${i}].name`}
-                      rules={{ required: "이름을 입력하세요" }}
                       render={({ field }) => (
                         <FormItem className="flex-1">
                           <Label htmlFor={`name${i}`} className="block mb-1">
@@ -223,7 +218,6 @@ export default function Home() {
                     <FormField
                       control={form.control}
                       name={`applicant[${i}].number`}
-                      rules={{ required: "학번을 입력하세요" }}
                       render={({ field }) => (
                         <FormItem className="flex-1">
                           <Label htmlFor={`id${i}`} className="block mb-1">
