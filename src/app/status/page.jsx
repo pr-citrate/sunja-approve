@@ -13,6 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-table";
+import { useRouter } from "next/navigation";
 
 const columns = () => [
   {
@@ -26,6 +27,8 @@ const columns = () => [
 ];
 
 export default function RequestsPage() {
+  const router = useRouter();
+
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const methods = useForm();
@@ -71,12 +74,6 @@ export default function RequestsPage() {
     fetchData();
   }, []);
 
-  const handleButtonClick = () => {
-    if (typeof window !== "undefined") {
-      window.history.back();
-    }
-  };
-
   return (
     <FormProvider {...methods}>
       <main className="flex justify-center items-center w-screen h-screen">
@@ -115,7 +112,7 @@ export default function RequestsPage() {
               </Table>
             )}
           </div>
-          <Button type="button" onClick={handleButtonClick} className="mt-4">
+          <Button type="button" onClick={()=>router.back()} className="mt-4">
             뒤로
           </Button>
         </Card>

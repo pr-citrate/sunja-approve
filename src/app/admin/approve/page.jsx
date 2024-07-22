@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/table";
 import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-table";
 import { stringify } from "qs";
+import { useRouter } from "next/navigation";
 
 const columns = (data, setData) => [
   {
@@ -131,6 +132,8 @@ const columns = (data, setData) => [
 ];
 
 export default function Homeadmin() {
+  const router = useRouter()
+
   const [password, setPassword] = useState("");
   const [isPasswordCorrect, setIsPasswordCorrect] = useState(false);
   const [data, setData] = useState([]);
@@ -197,12 +200,6 @@ export default function Homeadmin() {
     }
   }, [isPasswordCorrect]);
 
-  const handleButtonClick = (url) => {
-    if (typeof window !== "undefined") {
-      window.location.href = url;
-    }
-  };
-
   return (
     <FormProvider {...methods}>
       <main className="flex justify-center items-center w-screen h-screen">
@@ -225,7 +222,7 @@ export default function Homeadmin() {
               </Button>
               <Button
                 type="button"
-                onClick={() => handleButtonClick("/admin")}
+                onClick={() => router.push("/admin")}
                 className="text-lg mt-4"
               >
                 뒤로
@@ -271,11 +268,11 @@ export default function Homeadmin() {
             <div className="flex space-x-4 mt-4">
               <Button
                 className="text-lg mb-4 w-full"
-                onClick={() => handleButtonClick("/admin/status")}
+                onClick={() => router.push("/admin/status")}
               >
                 승인 현황
               </Button>
-              <Button className="text-lg mb-4 w-full" onClick={() => handleButtonClick("/admin")}>
+              <Button className="text-lg mb-4 w-full" onClick={() => router.push("/admin")}>
                 홈
               </Button>
             </div>

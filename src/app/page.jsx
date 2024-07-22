@@ -19,8 +19,11 @@ import { useForm, Controller } from "react-hook-form";
 import { motion, AnimatePresence } from "framer-motion";
 import { zodResolver } from "@hookform/resolvers/zod";
 import formSchema from "@/schema";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter()
+
   const [numApplicant, setNumApplicant] = useState(2);
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -32,10 +35,6 @@ export default function Home() {
       applicantNum: "2",
     },
   });
-
-  const handleButtonClick = (url) => {
-    window.location.href = url;
-  };
 
   const onSubmit = async (data) => {
     console.log("Submitting data:", data);
@@ -52,7 +51,7 @@ export default function Home() {
       const result = await response.json();
       console.log("Data submitted successfully:", result);
       alert("제출되었습니다.");
-      window.location.reload();
+      router.refresh()
     } catch (error) {
       console.error("Error submitting data:", error);
       alert("제출 실패");
@@ -247,7 +246,7 @@ export default function Home() {
             </Button>
             <Button
               type="button"
-              onClick={() => handleButtonClick("/status")}
+              onClick={() => router.push("/status")}
               className="text-lg mt-4"
             >
               신청 현황
