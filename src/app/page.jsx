@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -60,8 +60,11 @@ export default function Home() {
 
   const handleApplicantNumChange = (value) => {
     setNumApplicant(parseInt(value));
-    form.setValue("applicant", Array(parseInt(value)).fill({ name: "", number: "" }));
   };
+
+  useEffect(() => {
+    form.setValue("applicant", Array(numApplicant).fill({ name: "", number: "" }));
+  }, [numApplicant]);
 
   return (
     <main className="grid justify-items-center items-center w-full min-h-full">
