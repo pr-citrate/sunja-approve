@@ -22,14 +22,14 @@ import formSchema from "@/schema";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
-  const router = useRouter()
-
+  const router = useRouter();
   const [numApplicant, setNumApplicant] = useState(2);
+
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       time: "",
-      applicant: Array(5).fill({ name: "", number: "" }),
+      applicant: Array(2).fill({ name: "", number: "" }),
       reason: "",
       contact: "",
       applicantNum: "2",
@@ -51,11 +51,16 @@ export default function Home() {
       const result = await response.json();
       console.log("Data submitted successfully:", result);
       alert("제출되었습니다.");
-      router.refresh()
+      router.refresh();
     } catch (error) {
       console.error("Error submitting data:", error);
       alert("제출 실패");
     }
+  };
+
+  const handleApplicantNumChange = (value) => {
+    setNumApplicant(parseInt(value));
+    form.setValue("applicant", Array(parseInt(value)).fill({ name: "", number: "" }));
   };
 
   return (
@@ -115,7 +120,7 @@ export default function Home() {
                       render={({ field }) => (
                         <Select
                           onValueChange={(value) => {
-                            setNumApplicant(parseInt(value));
+                            handleApplicantNumChange(value);
                             field.onChange(value);
                           }}
                           defaultValue={field.value}
@@ -183,7 +188,7 @@ export default function Home() {
               )}
             />
             <AnimatePresence>
-              {[...Array(numApplicant)].map((_, i) => {
+              {form.watch("applicant").map((_, i) => {
                 const number = `${i + 1}${i ? "" : " (대표자)"}`;
                 return (
                   <motion.div
