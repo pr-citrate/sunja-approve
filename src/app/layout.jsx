@@ -12,10 +12,8 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html
-    suppressHydrationWarning={true}  lang="en">
-      <body
-        className={inter.className}>
+    <html suppressHydrationWarning={true} lang="en">
+      <body className={inter.className}>
         <Script
           data-name="BMC-Widget"
           data-cfasync="false"

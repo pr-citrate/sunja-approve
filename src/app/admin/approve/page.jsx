@@ -132,7 +132,7 @@ const columns = (data, setData) => [
 ];
 
 export default function Homeadmin() {
-  const router = useRouter()
+  const router = useRouter();
 
   const [password, setPassword] = useState("");
   const [isPasswordCorrect, setIsPasswordCorrect] = useState(false);
@@ -220,11 +220,7 @@ export default function Homeadmin() {
               <Button type="submit" className="text-lg mt-4 w-full">
                 로그인
               </Button>
-              <Button
-                type="button"
-                onClick={() => router.push("/admin")}
-                className="text-lg mt-4"
-              >
+              <Button type="button" onClick={() => router.push("/admin")} className="text-lg mt-4">
                 뒤로
               </Button>
             </form>
@@ -266,10 +262,7 @@ export default function Homeadmin() {
               )}
             </div>
             <div className="flex space-x-4 mt-4">
-              <Button
-                className="text-lg mb-4 w-full"
-                onClick={() => router.push("/admin/status")}
-              >
+              <Button className="text-lg mb-4 w-full" onClick={() => router.push("/admin/status")}>
                 승인 현황
               </Button>
               <Button className="text-lg mb-4 w-full" onClick={() => router.push("/admin")}>

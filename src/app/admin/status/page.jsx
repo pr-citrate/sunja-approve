@@ -36,7 +36,7 @@ const columns = [
 ];
 
 export default function RequestsPage() {
-  const router = useRouter()
+  const router = useRouter();
 
   const [data1, setData1] = useState([]);
   const [data2, setData2] = useState([]);
@@ -218,7 +218,7 @@ export default function RequestsPage() {
             )}
           </div>
         </Card>
-        <Button type="button" onClick={()=>router.back()} className="mt-4">
+        <Button type="button" onClick={() => router.back()} className="mt-4">
           뒤로
         </Button>
       </main>

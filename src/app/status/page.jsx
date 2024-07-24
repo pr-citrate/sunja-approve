@@ -112,7 +112,7 @@ export default function RequestsPage() {
               </Table>
             )}
           </div>
-          <Button type="button" onClick={()=>router.back()} className="mt-4">
+          <Button type="button" onClick={() => router.back()} className="mt-4">
             뒤로
           </Button>
         </Card>

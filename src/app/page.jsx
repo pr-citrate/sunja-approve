@@ -3,7 +3,14 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -22,7 +29,7 @@ import formSchema from "@/schema";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
-  const router = useRouter()
+  const router = useRouter();
 
   const [numApplicant, setNumApplicant] = useState(2);
   const form = useForm({
@@ -51,7 +58,7 @@ export default function Home() {
       const result = await response.json();
       console.log("Data submitted successfully:", result);
       alert("제출되었습니다.");
-      router.refresh()
+      router.refresh();
     } catch (error) {
       console.error("Error submitting data:", error);
       alert("제출 실패");
@@ -244,11 +251,7 @@ export default function Home() {
             <Button type="submit" className="text-lg mt-4">
               제출
             </Button>
-            <Button
-              type="button"
-              onClick={() => router.push("/status")}
-              className="text-lg mt-4"
-            >
+            <Button type="button" onClick={() => router.push("/status")} className="text-lg mt-4">
               신청 현황
             </Button>
           </form>
