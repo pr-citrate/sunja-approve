@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -30,13 +30,13 @@ import { useRouter } from "next/navigation";
 
 export default function Home() {
   const router = useRouter();
-
   const [numApplicant, setNumApplicant] = useState(2);
+
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       time: "",
-      applicant: Array(5).fill({ name: "", number: "" }),
+      applicant: Array(2).fill({ name: "", number: "" }),
       reason: "",
       contact: "",
       applicantNum: "2",
@@ -58,12 +58,20 @@ export default function Home() {
       const result = await response.json();
       console.log("Data submitted successfully:", result);
       alert("제출되었습니다.");
-      router.refresh();
+      window.location.reload();
     } catch (error) {
       console.error("Error submitting data:", error);
       alert("제출 실패");
     }
   };
+
+  const handleApplicantNumChange = (value) => {
+    setNumApplicant(parseInt(value));
+  };
+
+  useEffect(() => {
+    form.setValue("applicant", Array(numApplicant).fill({ name: "", number: "" }));
+  }, [numApplicant]);
 
   return (
     <main className="grid justify-items-center items-center w-full min-h-full">
@@ -122,7 +130,7 @@ export default function Home() {
                       render={({ field }) => (
                         <Select
                           onValueChange={(value) => {
-                            setNumApplicant(parseInt(value));
+                            handleApplicantNumChange(value);
                             field.onChange(value);
                           }}
                           defaultValue={field.value}
@@ -190,7 +198,7 @@ export default function Home() {
               )}
             />
             <AnimatePresence>
-              {[...Array(numApplicant)].map((_, i) => {
+              {form.watch("applicant").map((_, i) => {
                 const number = `${i + 1}${i ? "" : " (대표자)"}`;
                 return (
                   <motion.div
@@ -251,7 +259,11 @@ export default function Home() {
             <Button type="submit" className="text-lg mt-4">
               제출
             </Button>
-            <Button type="button" onClick={() => router.push("/status")} className="text-lg mt-4">
+            <Button
+              type="button"
+              onClick={() => router.push("/status")}
+              className="text-lg mt-4"
+            >
               신청 현황
             </Button>
           </form>
