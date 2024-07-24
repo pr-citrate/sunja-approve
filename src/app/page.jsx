@@ -51,7 +51,7 @@ export default function Home() {
       const result = await response.json();
       console.log("Data submitted successfully:", result);
       alert("제출되었습니다.");
-      router.refresh();
+      window.location.reload();
     } catch (error) {
       console.error("Error submitting data:", error);
       alert("제출 실패");
