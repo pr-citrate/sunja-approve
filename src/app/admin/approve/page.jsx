@@ -100,37 +100,42 @@ const columns = (data, setData) => [
     ),
   },
   {
-    id: "reject",
-    header: "거부",
     cell: ({ row }) => (
       <Button
         onClick={async () => {
           try {
+            const isApproved = row.original.isApproved;
+            const newStatus = !isApproved;
+
             const response = await fetch(`/api/requests?id=${row.original.id}`, {
-              method: "DELETE",
+              method: "PATCH",
               headers: {
                 "Content-Type": "application/json",
               },
+              body: JSON.stringify({
+                isApproved: newStatus,
+              }),
             });
 
             if (!response.ok) {
-              throw new Error("Request deletion failed");
+              throw new Error("Request update failed");
             }
 
-            const updatedData = data.filter((d) => d.id !== row.original.id);
+            const updatedData = data.map((d) =>
+              d.id === row.original.id ? { ...d, isApproved: newStatus } : d,
+            );
             setData(updatedData);
-            alert("거부 되었습니다.");
+            alert(newStatus ? "승인 되었습니다." : "승인 취소 되었습니다.");
           } catch (error) {
-            console.error("Error deleting request:", error);
+            console.error("Error updating status:", error);
           }
         }}
       >
-        거부
+        {row.original.isApproved ? "승인 취소" : "승인"}
       </Button>
     ),
   },
-];
-
+]
 export default function Homeadmin() {
   const router = useRouter();
 
