@@ -100,42 +100,37 @@ const columns = (data, setData) => [
     ),
   },
   {
+    id: "reject",
+    header: "거부",
     cell: ({ row }) => (
       <Button
         onClick={async () => {
           try {
-            const isApproved = row.original.isApproved;
-            const newStatus = !isApproved;
-
             const response = await fetch(`/api/requests?id=${row.original.id}`, {
-              method: "PATCH",
+              method: "DELETE",
               headers: {
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify({
-                isApproved: newStatus,
-              }),
             });
 
             if (!response.ok) {
-              throw new Error("Request update failed");
+              throw new Error("Request deletion failed");
             }
 
-            const updatedData = data.map((d) =>
-              d.id === row.original.id ? { ...d, isApproved: newStatus } : d,
-            );
+            const updatedData = data.filter((d) => d.id !== row.original.id);
             setData(updatedData);
-            alert(newStatus ? "승인 되었습니다." : "승인 취소 되었습니다.");
+            alert("거부 되었습니다.");
           } catch (error) {
-            console.error("Error updating status:", error);
+            console.error("Error deleting request:", error);
           }
         }}
       >
-        {row.original.isApproved ? "승인 취소" : "승인"}
+        거부
       </Button>
     ),
   },
-]
+];
+
 export default function Homeadmin() {
   const router = useRouter();
 
@@ -231,13 +226,13 @@ export default function Homeadmin() {
             </form>
           </Card>
         ) : (
-          <Card className="min-w-screen grid justify-items-center items-center p-8 m-12 min-h-screen">
-            <div className="rounded-md border mb-4 w-full">
+          <Card className="min-w-screen grid justify-items-center items-center p-8 m-12 min-h-96 min-w-96">
               {isLoading ? (
                 <p>로딩 중...</p>
               ) : !data || data.length === 0 ? (
                 <p>신청 목록이 없습니다</p>
               ) : (
+                  <div className="rounded-md border mb-4 w-full">
                 <Table className="w-full">
                   <TableHeader>
                     {table.getHeaderGroups().map((headerGroup) => (
@@ -264,8 +259,8 @@ export default function Homeadmin() {
                     ))}
                   </TableBody>
                 </Table>
-              )}
             </div>
+              )}
             <div className="flex space-x-4 mt-4">
               <Button className="text-lg mb-4 w-full" onClick={() => router.push("/admin/status")}>
                 승인 현황

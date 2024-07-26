@@ -78,7 +78,7 @@ export default function RequestsPage() {
                 },
               },
             ],
-          }),
+          })
       );
       const result = await response.json();
       console.log("클라이언트에서 받아온 데이터:", result.requests);
@@ -120,15 +120,15 @@ export default function RequestsPage() {
 
   return (
     <FormProvider {...methods}>
-      <main className="flex flex-col justify-center items-center w-screen h-screen">
-        <Card className="w-5/6 grid justify-items-center items-center p-8 m-4">
+      <main className="flex flex-col justify-center items-center w-screen h-screen ">
+        <Card className="w-5/6 grid justify-items-center items-center p-8 m-4 min-w-80 min-h-36">
           <Label className="text-2xl mb-4">1교시 신청 목록</Label>
-          <div className="rounded-md border mb-4 w-full">
-            {isLoading ? (
-              <p>로딩 중...</p>
-            ) : !data1 || data1.length === 0 ? (
-              <p>신청 목록이 없습니다</p>
-            ) : (
+          {isLoading ? (
+            <p>로딩 중...</p>
+          ) : !data1 || data1.length === 0 ? (
+            <p>신청 목록이 없습니다</p>
+          ) : (
+            <div className="rounded-md border mb-4 w-full">
               <Table className="w-full">
                 <TableHeader>
                   {table1.getHeaderGroups().map((headerGroup) => (
@@ -155,17 +155,17 @@ export default function RequestsPage() {
                   ))}
                 </TableBody>
               </Table>
-            )}
-          </div>
+            </div>
+          )}
         </Card>
-        <Card className="w-5/6 grid justify-items-center items-center p-8 m-4">
+        <Card className="w-5/6 grid justify-items-center items-center p-8 m-4 min-w-80 min-h-36">
           <Label className="text-2xl mb-4">2교시 신청 목록</Label>
-          <div className="rounded-md border mb-4 w-full">
-            {isLoading ? (
-              <p>로딩 중...</p>
-            ) : !data2 || data2.length === 0 ? (
-              <p>신청 목록이 없습니다</p>
-            ) : (
+          {isLoading ? (
+            <p>로딩 중...</p>
+          ) : !data2 || data2.length === 0 ? (
+            <p>신청 목록이 없습니다</p>
+          ) : (
+            <div className="rounded-md border mb-4 w-full">
               <Table className="w-full">
                 <TableHeader>
                   {table2.getHeaderGroups().map((headerGroup) => (
@@ -192,17 +192,17 @@ export default function RequestsPage() {
                   ))}
                 </TableBody>
               </Table>
-            )}
-          </div>
+            </div>
+          )}
         </Card>
-        <Card className="w-5/6 grid justify-items-center items-center p-8 m-4">
+        <Card className="w-5/6 grid justify-items-center items-center p-8 m-4 min-w-80 min-h-36">
           <Label className="text-2xl mb-4">3교시 신청 목록</Label>
-          <div className="rounded-md border mb-4 w-full">
-            {isLoading ? (
-              <p>로딩 중...</p>
-            ) : !data3 || data3.length === 0 ? (
-              <p>신청 목록이 없습니다</p>
-            ) : (
+          {isLoading ? (
+            <p>로딩 중...</p>
+          ) : !data3 || data3.length === 0 ? (
+            <p>신청 목록이 없습니다</p>
+          ) : (
+            <div className="rounded-md border mb-4 w-full">
               <Table className="w-full">
                 <TableHeader>
                   {table3.getHeaderGroups().map((headerGroup) => (
@@ -229,8 +229,8 @@ export default function RequestsPage() {
                   ))}
                 </TableBody>
               </Table>
-            )}
-          </div>
+            </div>
+          )}
         </Card>
         <Button type="button" onClick={() => router.back()} className="mt-4">
           뒤로
