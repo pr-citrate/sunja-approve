@@ -50,7 +50,7 @@ export default function Home() {
     toast[type](message, {
       style: {
         width: '300px',
-        height: '300px',
+        height: '100px',
       },
       position: "top-center",
       autoClose: 3000, // 3초 동안 표시
