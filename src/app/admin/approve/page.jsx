@@ -14,7 +14,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-table";
+import {
+  useReactTable,
+  getCoreRowModel,
+  flexRender,
+  getPaginationRowModel,
+} from "@tanstack/react-table";
 import { stringify } from "qs";
 import { useRouter } from "next/navigation";
 import { ToastContainer, toast } from "react-toastify";
@@ -143,12 +148,19 @@ export default function Homeadmin() {
   const [isPasswordCorrect, setIsPasswordCorrect] = useState(false);
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize] = useState(8); // 페이지당 항목 수를 8로 설정
   const methods = useForm();
 
   const table = useReactTable({
     data,
     columns: columns(data, setData),
+    pageCount: Math.ceil(data.length / pageSize),
+    state: {
+      pagination: { pageIndex, pageSize },
+    },
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
   });
 
   const handlePasswordSubmit = (e) => {
@@ -187,7 +199,7 @@ export default function Homeadmin() {
         count: `${request.applicant.length}명`,
         time: `${request.time}교시`,
         isApproved: request.isApproved === null ? false : request.isApproved,
-      }));
+      })).sort((a, b) => new Date(b.xata.createdAt) - new Date(a.xata.createdAt)); // 최신순으로 정렬
 
       console.log("변환된 데이터:", transformedData);
       setData(transformedData);
@@ -205,6 +217,14 @@ export default function Homeadmin() {
       fetchData();
     }
   }, [isPasswordCorrect]);
+
+  const handleNextPage = () => {
+    setPageIndex((prev) => Math.min(prev + 1, table.getPageCount() - 1));
+  };
+
+  const handlePreviousPage = () => {
+    setPageIndex((prev) => Math.max(prev - 1, 0));
+  };
 
   return (
     <FormProvider {...methods}>
@@ -238,34 +258,53 @@ export default function Homeadmin() {
             ) : !data || data.length === 0 ? (
               <p>신청 목록이 없습니다</p>
             ) : (
-              <div className="rounded-md border mb-4 w-full">
-                <Table className="w-full">
-                  <TableHeader>
-                    {table.getHeaderGroups().map((headerGroup) => (
-                      <TableRow key={headerGroup.id}>
-                        {headerGroup.headers.map((header) => (
-                          <TableHead key={header.id}>
-                            {header.isPlaceholder
-                              ? null
-                              : flexRender(header.column.columnDef.header, header.getContext())}
-                          </TableHead>
-                        ))}
-                      </TableRow>
-                    ))}
-                  </TableHeader>
-                  <TableBody>
-                    {table.getRowModel().rows.map((row) => (
-                      <TableRow key={row.id}>
-                        {row.getVisibleCells().map((cell) => (
-                          <TableCell key={cell.id}>
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
+              <>
+                <div className="rounded-md border mb-4 w-full">
+                  <Table className="w-full">
+                    <TableHeader>
+                      {table.getHeaderGroups().map((headerGroup) => (
+                        <TableRow key={headerGroup.id}>
+                          {headerGroup.headers.map((header) => (
+                            <TableHead key={header.id}>
+                              {header.isPlaceholder
+                                ? null
+                                : flexRender(header.column.columnDef.header, header.getContext())}
+                            </TableHead>
+                          ))}
+                        </TableRow>
+                      ))}
+                    </TableHeader>
+                    <TableBody>
+                      {table.getRowModel().rows.map((row) => (
+                        <TableRow key={row.id}>
+                          {row.getVisibleCells().map((cell) => (
+                            <TableCell key={cell.id}>
+                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+                <div className="flex justify-between items-center w-full">
+                  <Button
+                    onClick={handlePreviousPage}
+                    disabled={!table.getCanPreviousPage()}
+                  >
+                    이전
+                  </Button>
+                  <span>
+                    {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
+                  </span>
+                  <Button
+                    onClick={handleNextPage}
+                    disabled={!table.getCanNextPage()}
+                  >
+                    다음
+                  </Button>
+                </div>
+              </>
             )}
             <div className="flex space-x-4 mt-4">
               <Button className="text-lg mb-4 w-full" onClick={() => router.push("/admin/status")}>
