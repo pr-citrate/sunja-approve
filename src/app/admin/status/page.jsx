@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/table";
 import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
-import { stringify } from 'qs'; // qs 라이브러리에서 stringify 함수 가져오기
+import { stringify } from 'qs'; 
 
 const columns = [
   {

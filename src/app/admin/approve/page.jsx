@@ -25,7 +25,7 @@ import { useRouter } from "next/navigation";
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
-const columns = (data, setData) => [
+const columns = (data, setData, buttonColors, setButtonColors) => [
   {
     accessorKey: "name",
     header: "대표자",
@@ -97,11 +97,19 @@ const columns = (data, setData) => [
               d.id === row.original.id ? { ...d, isApproved: newStatus } : d,
             );
             setData(updatedData);
-            toast.success(newStatus ? "승인 되었습니다." : "승인 취소 되었습니다.", { autoClose: 500, position: "top-center" });
+            setButtonColors((prevColors) => ({
+              ...prevColors,
+              [row.original.id]: newStatus ? "red" : "green",
+            }));
+            toast.success(newStatus ? "승인 되었습니다." : "승인 취소 되었습니다.", { autoClose: 500, position: "top-center",style: {color: newStatus ? "green" : "red"}, });
           } catch (error) {
             console.error("Error updating status:", error);
             toast.error("상태 업데이트 중 오류 발생", { autoClose: 500, position: "top-center" });
           }
+        }}
+        style={{
+          backgroundColor: buttonColors[row.original.id] || (row.original.isApproved ? "red" : "green"),
+          color: "white",
         }}
       >
         {row.original.isApproved ? "승인 취소" : "승인"}
@@ -149,12 +157,13 @@ export default function Homeadmin() {
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize] = useState(8); // 페이지당 항목 수를 8로 설정
+  const [pageSize] = useState(8); // 한 페이지에 보여줄 데이터 개수
+  const [buttonColors, setButtonColors] = useState({});
   const methods = useForm();
 
   const table = useReactTable({
     data,
-    columns: columns(data, setData),
+    columns: columns(data, setData, buttonColors, setButtonColors),
     pageCount: Math.ceil(data.length / pageSize),
     state: {
       pagination: { pageIndex, pageSize },
@@ -203,6 +212,12 @@ export default function Homeadmin() {
 
       console.log("변환된 데이터:", transformedData);
       setData(transformedData);
+      // 초기 버튼 색상을 설정합니다.
+      const initialButtonColors = transformedData.reduce((colors, request) => {
+        colors[request.id] = request.isApproved ? "red" : "green";
+        return colors;
+      }, {});
+      setButtonColors(initialButtonColors);
     } catch (error) {
       console.error("데이터 가져오기 오류:", error);
       toast.error("데이터 가져오기 중 오류 발생", { autoClose: 500, position: "top-center" });
