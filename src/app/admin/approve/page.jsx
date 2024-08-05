@@ -101,7 +101,7 @@ const columns = (data, setData, buttonColors, setButtonColors) => [
               ...prevColors,
               [row.original.id]: newStatus ? "red" : "green",
             }));
-            toast.success(newStatus ? "승인 되었습니다." : "승인 취소 되었습니다.", { autoClose: 500, position: "top-center",style: {color: newStatus ? "green" : "red"}, });
+            toast.success(newStatus ? "승인 되었습니다." : "승인 취소 되었습니다.", { autoClose: 500, position: "top-center", style: {color: newStatus ? "green" : "red"}, });
           } catch (error) {
             console.error("Error updating status:", error);
             toast.error("상태 업데이트 중 오류 발생", { autoClose: 500, position: "top-center" });
@@ -121,32 +121,58 @@ const columns = (data, setData, buttonColors, setButtonColors) => [
     header: "거부",
     cell: ({ row }) => (
       <Button
-        onClick={async () => {
-          try {
-            const response = await fetch(`/api/requests?id=${row.original.id}`, {
-              method: "DELETE",
-              headers: {
-                "Content-Type": "application/json",
-              },
-            });
-
-            if (!response.ok) {
-              throw new Error("Request deletion failed");
-            }
-
-            const updatedData = data.filter((d) => d.id !== row.original.id);
-            setData(updatedData);
-            toast.success("거부 되었습니다.", { autoClose: 500, position: "top-center" });
-          } catch (error) {
-            console.error("Error deleting request:", error);
-            toast.error("거부 중 오류 발생", { autoClose: 500, position: "top-center" });
-          }
+        onClick={() => {
+          // 거부 확인 토스트 표시
+          const rejectToastId = toast(
+            <div className="flex flex-col items-center">
+              <p className="mb-2">정말 거부하시겠습니까?</p>
+              <div className="flex space-x-4">
+                <Button
+                  onClick={async () => {
+                    try {
+                      // 거부 요청
+                      const response = await fetch(`/api/requests?id=${row.original.id}`, {
+                        method: "DELETE",
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                      });
+  
+                      if (!response.ok) {
+                        throw new Error("요청 삭제 실패");
+                      }
+  
+                      // 데이터에서 삭제
+                      const updatedData = data.filter((d) => d.id !== row.original.id);
+                      setData(updatedData);
+                      toast.dismiss(rejectToastId);
+                      toast.success("거부 되었습니다.", { autoClose: 500, position: "top-center" });
+                    } catch (error) {
+                      console.error("거부 처리 오류:", error);
+                      toast.dismiss(rejectToastId);
+                      toast.error("거부 중 오류 발생", { autoClose: 500, position: "top-center" });
+                    }
+                  }}
+                  className="bg-red-500 text-white"
+                >
+                  거부
+                </Button>
+                <Button
+                  onClick={() => toast.dismiss(rejectToastId)}
+                  className="bg-gray-500 text-white"
+                >
+                  취소
+                </Button>
+              </div>
+            </div>,
+            { autoClose: false, position: "top-center" }
+          );
         }}
       >
         거부
       </Button>
     ),
-  },
+  },  
 ];
 
 export default function Homeadmin() {
