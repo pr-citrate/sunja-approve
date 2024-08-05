@@ -101,7 +101,7 @@ const columns = (data, setData, buttonColors, setButtonColors) => [
               ...prevColors,
               [row.original.id]: newStatus ? "red" : "green",
             }));
-            toast.success(newStatus ? "승인 되었습니다." : "승인 취소 되었습니다.", { autoClose: 500, position: "top-center", style: {color: newStatus ? "green" : "red"}, });
+            toast.success(newStatus ? "승인 되었습니다." : "승인 취소 되었습니다.", { autoClose: 500, position: "top-center", style: { color: newStatus ? "green" : "red" } });
           } catch (error) {
             console.error("Error updating status:", error);
             toast.error("상태 업데이트 중 오류 발생", { autoClose: 500, position: "top-center" });
@@ -146,11 +146,11 @@ const columns = (data, setData, buttonColors, setButtonColors) => [
                       const updatedData = data.filter((d) => d.id !== row.original.id);
                       setData(updatedData);
                       toast.dismiss(rejectToastId);
-                      toast.success("거부 되었습니다.", { autoClose: 500, position: "top-center" });
+                      toast.success("거부 되었습니다.", { autoClose: 500, position: "top-center", style: { color: "red" } });
                     } catch (error) {
                       console.error("거부 처리 오류:", error);
                       toast.dismiss(rejectToastId);
-                      toast.error("거부 중 오류 발생", { autoClose: 500, position: "top-center" });
+                      toast.error("거부 중 오류 발생", { autoClose: 500, position: "top-center", style: { color: "red" } });
                     }
                   }}
                   className="bg-red-500 text-white"
@@ -168,11 +168,12 @@ const columns = (data, setData, buttonColors, setButtonColors) => [
             { autoClose: false, position: "top-center" }
           );
         }}
+        className="bg-red-500 text-white"
       >
         거부
       </Button>
     ),
-  },  
+  },
 ];
 
 export default function Homeadmin() {
