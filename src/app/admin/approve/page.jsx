@@ -56,7 +56,7 @@ const columns = (data, setData) => [
             row.original.applicant
               .map((applicant) => `${applicant.name} (${applicant.number})`)
               .join("\n"),
-            { autoClose: 1000, position: "top-center" }
+            { position: "top-center", autoClose: false }
           );
         }}
       >
@@ -123,10 +123,10 @@ const columns = (data, setData) => [
 
             const updatedData = data.filter((d) => d.id !== row.original.id);
             setData(updatedData);
-            toast.success("거부 되었습니다.", { autoClose: 1000, position: "top-center" });
+            toast.success("거부 되었습니다.", { autoClose: 500, position: "top-center" });
           } catch (error) {
             console.error("Error deleting request:", error);
-            toast.error("거부 중 오류 발생", { autoClose: 1000, position: "top-center" });
+            toast.error("거부 중 오류 발생", { autoClose: 500, position: "top-center" });
           }
         }}
       >
