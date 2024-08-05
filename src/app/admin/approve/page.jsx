@@ -17,6 +17,8 @@ import {
 import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-table";
 import { stringify } from "qs";
 import { useRouter } from "next/navigation";
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 const columns = (data, setData) => [
   {
@@ -50,10 +52,11 @@ const columns = (data, setData) => [
     cell: ({ row }) => (
       <Button
         onClick={() => {
-          alert(
+          toast.info(
             row.original.applicant
               .map((applicant) => `${applicant.name} (${applicant.number})`)
               .join("\n"),
+            { autoClose: 1000, position: "top-center" }
           );
         }}
       >
@@ -89,9 +92,10 @@ const columns = (data, setData) => [
               d.id === row.original.id ? { ...d, isApproved: newStatus } : d,
             );
             setData(updatedData);
-            alert(newStatus ? "승인 되었습니다." : "승인 취소 되었습니다.");
+            toast.success(newStatus ? "승인 되었습니다." : "승인 취소 되었습니다.", { autoClose: 500, position: "top-center" });
           } catch (error) {
             console.error("Error updating status:", error);
+            toast.error("상태 업데이트 중 오류 발생", { autoClose: 500, position: "top-center" });
           }
         }}
       >
@@ -119,9 +123,10 @@ const columns = (data, setData) => [
 
             const updatedData = data.filter((d) => d.id !== row.original.id);
             setData(updatedData);
-            alert("거부 되었습니다.");
+            toast.success("거부 되었습니다.", { autoClose: 1000, position: "top-center" });
           } catch (error) {
             console.error("Error deleting request:", error);
+            toast.error("거부 중 오류 발생", { autoClose: 1000, position: "top-center" });
           }
         }}
       >
@@ -151,7 +156,7 @@ export default function Homeadmin() {
     if (password === "000000") {
       setIsPasswordCorrect(true);
     } else {
-      alert("비밀번호가 틀렸습니다. 다시 시도해주세요.");
+      toast.error("비밀번호가 틀렸습니다. 다시 시도해주세요.", { autoClose: 500, position: "top-center" });
     }
   };
 
@@ -188,6 +193,7 @@ export default function Homeadmin() {
       setData(transformedData);
     } catch (error) {
       console.error("데이터 가져오기 오류:", error);
+      toast.error("데이터 가져오기 중 오류 발생", { autoClose: 500, position: "top-center" });
       setData([]);
     } finally {
       setIsLoading(false);
@@ -227,12 +233,12 @@ export default function Homeadmin() {
           </Card>
         ) : (
           <Card className="min-w-screen grid justify-items-center items-center p-8 m-12 min-h-96 min-w-96">
-              {isLoading ? (
-                <p>로딩 중...</p>
-              ) : !data || data.length === 0 ? (
-                <p>신청 목록이 없습니다</p>
-              ) : (
-                  <div className="rounded-md border mb-4 w-full">
+            {isLoading ? (
+              <p>로딩 중...</p>
+            ) : !data || data.length === 0 ? (
+              <p>신청 목록이 없습니다</p>
+            ) : (
+              <div className="rounded-md border mb-4 w-full">
                 <Table className="w-full">
                   <TableHeader>
                     {table.getHeaderGroups().map((headerGroup) => (
@@ -259,8 +265,8 @@ export default function Homeadmin() {
                     ))}
                   </TableBody>
                 </Table>
-            </div>
-              )}
+              </div>
+            )}
             <div className="flex space-x-4 mt-4">
               <Button className="text-lg mb-4 w-full" onClick={() => router.push("/admin/status")}>
                 승인 현황
@@ -272,6 +278,7 @@ export default function Homeadmin() {
           </Card>
         )}
       </main>
+      <ToastContainer position="top-center" />
     </FormProvider>
   );
 }
