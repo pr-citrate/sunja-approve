@@ -43,7 +43,7 @@ const DataTable = ({ title, data, isLoading }) => {
       {isLoading ? (
         <p>로딩 중...</p>
       ) : !data || data.length === 0 ? (
-        <p>신청 목록이 없습니다</p>
+        <p>거절 목록이 없습니다</p>
       ) : (
         <div className="rounded-md border mb-4 w-full">
           <Table className="w-full">
@@ -142,7 +142,7 @@ export default function RequestsPage() {
         {["1교시", "2교시", "3교시"].map((title, index) => (
           <DataTable
             key={index}
-            title={`${title} 신청 거절 목록`}
+            title={`${title} 신청 거절 항목`}
             data={dataByTime[index + 1]}
             isLoading={isLoading}
           />
