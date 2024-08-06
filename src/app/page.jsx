@@ -286,7 +286,15 @@ export default function Home() {
                 className="text-lg mt-4"
                 disabled={isSubmitting || isFormDisabled}
               >
-                신청 현황
+                승인 현황
+              </Button>
+              <Button
+                type="button"
+                onClick={() => router.push("/statusfalse")}
+                className="text-lg mt-4"
+                disabled={isSubmitting || isFormDisabled}
+              >
+                거절 현황
               </Button>
             </form>
           </Form>

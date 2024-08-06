@@ -349,12 +349,16 @@ export default function Homeadmin() {
               </>
             )}
             <div className="flex space-x-4 mt-4">
-              <Button className="text-lg mb-4 w-full" onClick={() => router.push("/admin/status")}>
-                승인 현황
-              </Button>
+            <Button className="text-lg mb-4 w-full" onClick={() => router.push("/statusfalse")}>
+                거절 현황
+              </Button> 
               <Button className="text-lg mb-4 w-full" onClick={() => router.push("/admin")}>
                 홈
               </Button>
+              <Button className="text-lg mb-4 w-full" onClick={() => router.push("/admin/status")}>
+                승인 현황
+              </Button>
+             
             </div>
           </Card>
         )}
