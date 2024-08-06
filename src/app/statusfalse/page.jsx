@@ -76,7 +76,7 @@ export default function RequestsPage() {
       const result = await response.json();
       console.log("클라이언트에서 받아온 데이터:", result.requests);
 
-      const approvedData = result.requests.filter((request) => request.isApproved);
+      const unapprovedData = result.requests.filter((request) => !request.isApproved);
 
       const dataByTime = {
         1: [],
@@ -84,7 +84,7 @@ export default function RequestsPage() {
         3: [],
       };
 
-      approvedData.forEach((request) => {
+      unapprovedData.forEach((request) => {
         if (request.time >= 1 && request.time <= 3) {
           dataByTime[request.time].push({
             ...request,
@@ -115,11 +115,11 @@ export default function RequestsPage() {
     <FormProvider {...methods}>
       <main className="flex flex-col justify-center items-center w-screen h-screen ">
         <Card className="w-5/6 grid justify-items-center items-center p-8 m-4 min-w-80 min-h-36">
-          <Label className="text-2xl mb-4">1교시 신청 목록</Label>
+          <Label className="text-2xl mb-4">1교시 신청 거절 목록</Label>
           {isLoading ? (
             <p>로딩 중...</p>
           ) : !data1 || data1.length === 0 ? (
-            <p>신청 목록이 없습니다</p>
+            <p>신청 거절 목록이 없습니다</p>
           ) : (
             <div className="rounded-md border mb-4 w-full">
               <Table className="w-full">
@@ -152,11 +152,11 @@ export default function RequestsPage() {
           )}
         </Card>
         <Card className="w-5/6 grid justify-items-center items-center p-8 m-4 min-w-80 min-h-36">
-          <Label className="text-2xl mb-4">2교시 신청 목록</Label>
+          <Label className="text-2xl mb-4">2교시 신청 거절 목록</Label>
           {isLoading ? (
             <p>로딩 중...</p>
           ) : !data2 || data2.length === 0 ? (
-            <p>신청 목록이 없습니다</p>
+            <p>신청 거절 목록이 없습니다</p>
           ) : (
             <div className="rounded-md border mb-4 w-full">
               <Table className="w-full">
@@ -189,11 +189,11 @@ export default function RequestsPage() {
           )}
         </Card>
         <Card className="w-5/6 grid justify-items-center items-center p-8 m-4 min-w-80 min-h-36">
-          <Label className="text-2xl mb-4">3교시 신청 목록</Label>
+          <Label className="text-2xl mb-4">3교시 신청 거절 목록</Label>
           {isLoading ? (
             <p>로딩 중...</p>
           ) : !data3 || data3.length === 0 ? (
-            <p>신청 목록이 없습니다</p>
+            <p>신청 거절 목록이 없습니다</p>
           ) : (
             <div className="rounded-md border mb-4 w-full">
               <Table className="w-full">
