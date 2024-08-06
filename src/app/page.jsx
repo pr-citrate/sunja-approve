@@ -11,7 +11,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -28,7 +27,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import formSchema from "@/schema";
 import { useRouter } from "next/navigation";
 import { ToastContainer, toast } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
+import FormInput from "@/components/form/FormInput";
 
 export default function Home() {
   const router = useRouter();
@@ -49,8 +49,8 @@ export default function Home() {
   const showToast = (message, type) => {
     toast[type](message, {
       style: {
-        width: '300px',
-        height: '100px',
+        width: "300px",
+        height: "100px",
       },
       position: "top-center",
       autoClose: 3000, // 3초 동안 표시
@@ -123,7 +123,11 @@ export default function Home() {
                       사용 시간
                     </FormLabel>
                     <FormControl>
-                      <Select onValueChange={field.onChange} value={field.value} disabled={isSubmitting || isFormDisabled}>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                        disabled={isSubmitting || isFormDisabled}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="사용 시간" />
                         </SelectTrigger>
@@ -176,49 +180,19 @@ export default function Home() {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="reason"
-                render={({ field }) => (
-                  <FormItem className="mb-4 w-full">
-                    <FormLabel htmlFor="reason" className="block mb-1">
-                      사유
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        id="reason"
-                        placeholder="사유"
-                        type="text"
-                        className="text-g w-full"
-                        {...field}
-                        disabled={isSubmitting || isFormDisabled}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+              <FormInput
+                form={form}
+                id={"reason"}
+                name={"사유"}
+                isSubmitting={isSubmitting}
+                isFormdisabled={isFormDisabled}
               />
-              <FormField
-                control={form.control}
-                name="contact"
-                render={({ field }) => (
-                  <FormItem className="mb-4 w-full">
-                    <Label htmlFor="contact" className="block mb-1">
-                      전화번호 (대표자)
-                    </Label>
-                    <FormControl>
-                      <Input
-                        id="contact"
-                        placeholder="전화번호 (대표자)"
-                        type="tel"
-                        className="text-g w-full"
-                        {...field}
-                        disabled={isSubmitting || isFormDisabled}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+              <FormInput
+                form={form}
+                id={"contact"}
+                name={"연락처 (대표자)"}
+                isSubmitting={isSubmitting}
+                isFormdisabled={isFormDisabled}
               />
               <AnimatePresence>
                 {form.watch("applicant").map((_, i) => (
@@ -230,54 +204,28 @@ export default function Home() {
                     exit={{ opacity: 0, y: 20 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <FormField
-                      control={form.control}
-                      name={`applicant[${i}].name`}
-                      render={({ field }) => (
-                        <FormItem className="flex-1">
-                          <Label htmlFor={`name${i}`} className="block mb-1">
-                            {`이름 ${i + 1}${i ? "" : " (대표자)"}`}
-                          </Label>
-                          <FormControl>
-                            <Input
-                              id={`name${i}`}
-                              placeholder={`이름 ${i + 1}${i ? "" : " (대표자)"}`}
-                              type="text"
-                              className="text-g"
-                              {...field}
-                              disabled={isSubmitting || isFormDisabled}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+                    <FormInput
+                      form={form}
+                      id={`applicant${i}.name`}
+                      name={`이름 ${i + 1}${i ? "" : " (대표자)"}`}
+                      isSubmitting={isSubmitting}
+                      isFormdisabled={isFormDisabled}
                     />
-                    <FormField
-                      control={form.control}
-                      name={`applicant[${i}].number`}
-                      render={({ field }) => (
-                        <FormItem className="flex-1">
-                          <Label htmlFor={`id${i}`} className="block mb-1">
-                            {`학번 ${i + 1}${i ? "" : " (대표자)"}`}
-                          </Label>
-                          <FormControl>
-                            <Input
-                              id={`id${i}`}
-                              placeholder={`학번 ${i + 1}${i ? "" : " (대표자)"}`}
-                              type="text"
-                              className="text-g"
-                              {...field}
-                              disabled={isSubmitting || isFormDisabled}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+                    <FormInput
+                      form={form}
+                      id={`applicant${i}.number`}
+                      name={`학번 ${i + 1}${i ? "" : " (대표자)"}`}
+                      isSubmitting={isSubmitting}
+                      isFormdisabled={isFormDisabled}
                     />
                   </motion.div>
                 ))}
               </AnimatePresence>
-              <Button type="submit" className="text-lg mt-4" disabled={isSubmitting || isFormDisabled}>
+              <Button
+                type="submit"
+                className="text-lg mt-4"
+                disabled={isSubmitting || isFormDisabled}
+              >
                 제출
               </Button>
               <Button

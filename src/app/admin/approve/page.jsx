@@ -23,7 +23,7 @@ import {
 import { stringify } from "qs";
 import { useRouter } from "next/navigation";
 import { ToastContainer, toast } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 
 const columns = (data, setData, buttonColors, setButtonColors) => [
   {
@@ -61,7 +61,7 @@ const columns = (data, setData, buttonColors, setButtonColors) => [
             row.original.applicant
               .map((applicant) => `${applicant.name} (${applicant.number})`)
               .join("\n"),
-            { position: "top-center", autoClose: false }
+            { position: "top-center", autoClose: false },
           );
         }}
       >
@@ -101,14 +101,19 @@ const columns = (data, setData, buttonColors, setButtonColors) => [
               ...prevColors,
               [row.original.id]: newStatus ? "red" : "green",
             }));
-            toast.success(newStatus ? "승인 되었습니다." : "승인 취소 되었습니다.", { autoClose: 500, position: "top-center", style: { color: newStatus ? "green" : "red" } });
+            toast.success(newStatus ? "승인 되었습니다." : "승인 취소 되었습니다.", {
+              autoClose: 500,
+              position: "top-center",
+              style: { color: newStatus ? "green" : "red" },
+            });
           } catch (error) {
             console.error("Error updating status:", error);
             toast.error("상태 업데이트 중 오류 발생", { autoClose: 500, position: "top-center" });
           }
         }}
         style={{
-          backgroundColor: buttonColors[row.original.id] || (row.original.isApproved ? "red" : "green"),
+          backgroundColor:
+            buttonColors[row.original.id] || (row.original.isApproved ? "red" : "green"),
           color: "white",
         }}
       >
@@ -137,20 +142,28 @@ const columns = (data, setData, buttonColors, setButtonColors) => [
                           "Content-Type": "application/json",
                         },
                       });
-  
+
                       if (!response.ok) {
                         throw new Error("요청 삭제 실패");
                       }
-  
+
                       // 데이터에서 삭제
                       const updatedData = data.filter((d) => d.id !== row.original.id);
                       setData(updatedData);
                       toast.dismiss(rejectToastId);
-                      toast.success("거부 되었습니다.", { autoClose: 500, position: "top-center", style: { color: "red" } });
+                      toast.success("거부 되었습니다.", {
+                        autoClose: 500,
+                        position: "top-center",
+                        style: { color: "red" },
+                      });
                     } catch (error) {
                       console.error("거부 처리 오류:", error);
                       toast.dismiss(rejectToastId);
-                      toast.error("거부 중 오류 발생", { autoClose: 500, position: "top-center", style: { color: "red" } });
+                      toast.error("거부 중 오류 발생", {
+                        autoClose: 500,
+                        position: "top-center",
+                        style: { color: "red" },
+                      });
                     }
                   }}
                   className="bg-red-500 text-white"
@@ -165,7 +178,7 @@ const columns = (data, setData, buttonColors, setButtonColors) => [
                 </Button>
               </div>
             </div>,
-            { autoClose: false, position: "top-center" }
+            { autoClose: false, position: "top-center" },
           );
         }}
         className="bg-red-500 text-white"
@@ -204,7 +217,10 @@ export default function Homeadmin() {
     if (password === "000000") {
       setIsPasswordCorrect(true);
     } else {
-      toast.error("비밀번호가 틀렸습니다. 다시 시도해주세요.", { autoClose: 500, position: "top-center" });
+      toast.error("비밀번호가 틀렸습니다. 다시 시도해주세요.", {
+        autoClose: 500,
+        position: "top-center",
+      });
     }
   };
 
@@ -229,13 +245,15 @@ export default function Homeadmin() {
       const result = await response.json();
       console.log("클라이언트에서 받아온 데이터:", result.requests);
 
-      const transformedData = result.requests.map((request) => ({
-        ...request,
-        name: request.applicant[0]?.name || "N/A",
-        count: `${request.applicant.length}명`,
-        time: `${request.time}교시`,
-        isApproved: request.isApproved === null ? false : request.isApproved,
-      })).sort((a, b) => new Date(b.xata.createdAt) - new Date(a.xata.createdAt)); // 최신순으로 정렬
+      const transformedData = result.requests
+        .map((request) => ({
+          ...request,
+          name: request.applicant[0]?.name || "N/A",
+          count: `${request.applicant.length}명`,
+          time: `${request.time}교시`,
+          isApproved: request.isApproved === null ? false : request.isApproved,
+        }))
+        .sort((a, b) => new Date(b.xata.createdAt) - new Date(a.xata.createdAt)); // 최신순으로 정렬
 
       console.log("변환된 데이터:", transformedData);
       setData(transformedData);
@@ -330,35 +348,28 @@ export default function Homeadmin() {
                   </Table>
                 </div>
                 <div className="flex justify-between items-center w-full">
-                  <Button
-                    onClick={handlePreviousPage}
-                    disabled={!table.getCanPreviousPage()}
-                  >
+                  <Button onClick={handlePreviousPage} disabled={!table.getCanPreviousPage()}>
                     이전
                   </Button>
                   <span>
                     {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
                   </span>
-                  <Button
-                    onClick={handleNextPage}
-                    disabled={!table.getCanNextPage()}
-                  >
+                  <Button onClick={handleNextPage} disabled={!table.getCanNextPage()}>
                     다음
                   </Button>
                 </div>
               </>
             )}
             <div className="flex space-x-4 mt-4">
-            <Button className="text-lg mb-4 w-full" onClick={() => router.push("/statusfalse")}>
+              <Button className="text-lg mb-4 w-full" onClick={() => router.push("/statusfalse")}>
                 거절 현황
-              </Button> 
+              </Button>
               <Button className="text-lg mb-4 w-full" onClick={() => router.push("/admin")}>
                 홈
               </Button>
               <Button className="text-lg mb-4 w-full" onClick={() => router.push("/admin/status")}>
                 승인 현황
               </Button>
-             
             </div>
           </Card>
         )}

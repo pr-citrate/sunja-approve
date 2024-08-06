@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/table";
 import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
-import { stringify } from 'qs';
+import { stringify } from "qs";
 
 // 테이블 컬럼 정의
 const columns = [
@@ -102,7 +102,7 @@ export default function RequestsPage() {
                 },
               },
             ],
-          })
+          }),
       );
       const result = await response.json();
       console.log("클라이언트에서 받아온 데이터:", result.requests);
