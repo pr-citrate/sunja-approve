@@ -142,7 +142,7 @@ export default function RequestsPage() {
         {["1교시", "2교시", "3교시"].map((title, index) => (
           <DataTable
             key={index}
-            title={`${title} 신청 거절 항목`}
+            title={`${title} 신청 거절 목록`}
             data={dataByTime[index + 1]}
             isLoading={isLoading}
           />
