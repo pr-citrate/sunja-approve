@@ -20,6 +20,7 @@ import {
   flexRender,
   getPaginationRowModel,
 } from "@tanstack/react-table";
+import { stringify } from "qs";
 import { useRouter } from "next/navigation";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -311,7 +312,21 @@ export default function Homeadmin() {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/requests");
+      const response = await fetch(
+        "/api/requests?" +
+          stringify({
+            $all: [
+              {
+                "xata.createdAt": { $ge: new Date(new Date().setHours(0, 0, 0, 0)).toISOString() },
+              },
+              {
+                "xata.createdAt": {
+                  $le: new Date(new Date().setHours(23, 59, 59, 999)).toISOString(),
+                },
+              },
+            ],
+          }),
+      );
       const result = await response.json();
       const transformedData = result.requests
         .map((request) => ({
