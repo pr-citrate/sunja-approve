@@ -100,16 +100,15 @@ const columns = (data, setData) => [
   },
 ];
 
-// 승인 핸들러 함수
-const handleApprove = async (row, data, setData) => {
+// 상태 업데이트 핸들러 함수
+const handleUpdateStatus = async (row, data, setData, isApproved) => {
   try {
-    const newStatus = !row.isApproved;
     const response = await fetch(`/api/requests?id=${row.id}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ isApproved: newStatus }),
+      body: JSON.stringify({ isApproved }),
     });
 
     if (!response.ok) {
@@ -117,10 +116,11 @@ const handleApprove = async (row, data, setData) => {
     }
 
     const updatedData = data.map((d) =>
-      d.id === row.id ? { ...d, isApproved: newStatus } : d,
+      d.id === row.id ? { ...d, isApproved } : d,
     );
     setData(updatedData);
-    toast.success(newStatus ? "승인 되었습니다." : "승인 취소 되었습니다.", {
+
+    toast.success(isApproved ? "승인 되었습니다." : "거부되었습니다.", {
       autoClose: 500,
       position: "top-center",
     });
@@ -130,57 +130,14 @@ const handleApprove = async (row, data, setData) => {
   }
 };
 
+// 승인 핸들러 함수
+const handleApprove = (row, data, setData) => {
+  handleUpdateStatus(row, data, setData, true);
+};
+
 // 거부 핸들러 함수
-const handleReject = async (row, data, setData) => {
-  const rejectToastId = toast(
-    <div className="flex flex-col items-center">
-      <p className="mb-2">정말 거부하시겠습니까?</p>
-      <div className="flex space-x-4">
-        <Button
-          onClick={async () => {
-            try {
-              const response = await fetch(`/api/requests?id=${row.id}`, {
-                method: "PATCH",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ isApproved: false }),
-              });
-
-              if (!response.ok) {
-                throw new Error("요청 업데이트 실패");
-              }
-
-              const updatedData = data.map((d) =>
-                d.id === row.id ? { ...d, isApproved: false } : d,
-              );
-              setData(updatedData);
-              toast.dismiss(rejectToastId);
-              toast.success("거부되었습니다.", {
-                autoClose: 500,
-                position: "top-center",
-              });
-            } catch (error) {
-              console.error("거부 처리 오류:", error);
-              toast.dismiss(rejectToastId);
-              toast.error("거부 중 오류 발생", {
-                autoClose: 500,
-                position: "top-center",
-                style: { color: "#FF0000" },
-              });
-            }
-          }}
-          className="bg-red-500 text-white"
-        >
-          거부
-        </Button>
-        <Button onClick={() => toast.dismiss(rejectToastId)} className="bg-gray-500 text-white">
-          취소
-        </Button>
-      </div>
-    </div>,
-    { autoClose: false, position: "top-center" },
-  );
+const handleReject = (row, data, setData) => {
+  handleUpdateStatus(row, data, setData, false);
 };
 
 const PasswordForm = ({ handlePasswordSubmit, password, setPassword, router }) => (
