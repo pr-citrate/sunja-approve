@@ -212,7 +212,6 @@ const DataTable = ({
   isLoading,
   handlePreviousPage,
   handleNextPage,
-  pageIndex,
   router,
 }) => (
   <Card className="min-w-screen grid justify-items-center items-center p-8 m-12 min-h-96 min-w-96">
