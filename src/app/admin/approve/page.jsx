@@ -1,4 +1,3 @@
-import { jsPDF } from 'jspdf';
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -178,10 +177,8 @@ const handleReject = async (row, data, setData) => {
         <Button onClick={() => toast.dismiss(rejectToastId)} className="bg-gray-500 text-white">
           취소
         </Button>
-        <button onClick={generatePDF}>Download PDF</button>
-</div>
-      <button onClick={generatePDF}>Download PDF</button>
-</div>,
+      </div>
+    </div>,
     { autoClose: false, position: "top-center" },
   );
 };
@@ -252,8 +249,7 @@ const DataTable = ({
               ))}
             </TableBody>
           </Table>
-          <button onClick={generatePDF}>Download PDF</button>
-</div>
+        </div>
         <div className="flex justify-between items-center w-full">
           <Button onClick={handlePreviousPage} disabled={!table.getCanPreviousPage()}>
             이전
@@ -264,8 +260,7 @@ const DataTable = ({
           <Button onClick={handleNextPage} disabled={!table.getCanNextPage()}>
             다음
           </Button>
-          <button onClick={generatePDF}>Download PDF</button>
-</div>
+        </div>
       </>
     )}
     <div className="flex space-x-4 mt-4">
@@ -278,8 +273,7 @@ const DataTable = ({
       <Button className="text-lg mb-4 w-full" onClick={() => router.push("/admin/status")}>
         승인 현황
       </Button>
-      <button onClick={generatePDF}>Download PDF</button>
-</div>
+    </div>
   </Card>
 );
 
