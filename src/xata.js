@@ -12,6 +12,7 @@ const tables = [
       { name: "time", type: "string" },
       { name: "isApproved", type: "bool" },
       { name: "status", type: "string" },
+      { name: "ip", type: "text" },
     ],
   },
   {
