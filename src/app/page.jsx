@@ -28,7 +28,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import formSchema from "@/schema";
 import { useRouter } from "next/navigation";
 import { ToastContainer, toast } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Home() {
   const router = useRouter();
@@ -49,8 +49,8 @@ export default function Home() {
   const showToast = (message, type) => {
     toast[type](message, {
       style: {
-        width: '300px',
-        height: '100px',
+        width: "300px",
+        height: "100px",
       },
       position: "top-center",
       autoClose: 3000, // 3초 동안 표시
@@ -123,7 +123,11 @@ export default function Home() {
                       사용 시간
                     </FormLabel>
                     <FormControl>
-                      <Select onValueChange={field.onChange} value={field.value} disabled={isSubmitting || isFormDisabled}>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                        disabled={isSubmitting || isFormDisabled}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="사용 시간" />
                         </SelectTrigger>
@@ -277,7 +281,11 @@ export default function Home() {
                   </motion.div>
                 ))}
               </AnimatePresence>
-              <Button type="submit" className="text-lg mt-4" disabled={isSubmitting || isFormDisabled}>
+              <Button
+                type="submit"
+                className="text-lg mt-4"
+                disabled={isSubmitting || isFormDisabled}
+              >
                 제출
               </Button>
               <Button

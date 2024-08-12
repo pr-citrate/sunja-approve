@@ -12,8 +12,9 @@ export async function GET(req) {
 }
 
 export async function POST(req) {
+  const ip = req.headers.get("X-Forwarded-For").split(",")[0];
   const body = await req.json();
-  const data = await xata.db.requests.create(body);
+  const data = await xata.db.requests.create({ ...body, ip: ip });
 
   return NextResponse.json(data);
 }
