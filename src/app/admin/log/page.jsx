@@ -164,18 +164,16 @@ export default function Homeadmin() {
         throw new Error("서버에서 요청 데이터를 받지 못했습니다.");
       }
 
-      // 데이터를 최신 순으로 정렬하기 위해 배열을 뒤집음
-      const transformedData = result.requests
-        .map((request) => ({
-          ...request,
-          name: request.applicant[0]?.name || "N/A",
-          count: `${request.applicant.length}명`,
-          time: `${request.time}교시`,
-          ip: request.ip || "N/A",
-          isApproved: request.isApproved || false,
-          createdAt: request.createdAt || new Date(),
-        }))
-        .reverse(); // 데이터 순서를 반대로 바꿔 최신 데이터가 앞에 오게 함
+      // applicant 배열이 존재하는지, 첫 번째 요소가 있는지 확인
+      const transformedData = result.requests.map((request) => ({
+        ...request,
+        name: request.applicant?.[0]?.name || "N/A", // 안전하게 접근
+        count: `${request.applicant?.length || 0}명`,
+        time: `${request.time}교시`,
+        ip: request.ip || "N/A",
+        isApproved: request.isApproved || false,
+        createdAt: request.createdAt || new Date(),
+      })).reverse(); // 최신 데이터를 가장 앞으로
 
       setData(transformedData);
     } catch (error) {
