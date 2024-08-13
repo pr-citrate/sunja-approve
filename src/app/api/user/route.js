@@ -6,15 +6,14 @@ const xata = getXataClient();
 
 export async function GET(req) {
   const params = parse(req.nextUrl.search, { ignoreQueryPrefix: true });
-  const data = await xata.db.requests.filter(params).getAll();
+  const data = await xata.db.requests.filter(params).getMany();
 
   return NextResponse.json({ requests: data });
 }
 
 export async function POST(req) {
-  const ip = req.headers.get("X-Forwarded-For").split(",")[0];
   const body = await req.json();
-  const data = await xata.db.requests.create({ ...body, ip: ip });
+  const data = await xata.db.requests.create(body);
 
   return NextResponse.json(data);
 }
