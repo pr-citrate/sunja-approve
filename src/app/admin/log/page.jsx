@@ -23,7 +23,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 // 테이블 열 정의
-const columns = (data) => [
+const columns = () => [
   {
     accessorKey: "name",
     header: "대표자",
@@ -193,7 +193,7 @@ export default function Homeadmin() {
 
   const table = useReactTable({
     data,
-    columns: columns(data),
+    columns: columns(),
     pageCount: Math.ceil(data.length / 8),
     state: {
       pagination: { pageIndex, pageSize: 8 },
