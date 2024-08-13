@@ -54,9 +54,9 @@ const columns = (data) => [
     header: "IP 주소",
   },
   {
-    accessorKey: "createdAt", // createdAt 필드 추가
+    accessorKey: "createdAt", 
     header: "신청일",
-    cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString(), // 날짜 형식으로 표시
+    cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString(),
   },
   {
     id: "details",
@@ -122,13 +122,13 @@ const DataTable = ({
           </Table>
         </div>
         <div className="flex justify-between items-center w-full">
-          <Button onClick={handlePreviousPage} disabled={!table.getCanPreviousPage()}>
+          <Button onClick={handlePreviousPage} disabled={isLoading || !table.getCanPreviousPage()}>
             이전
           </Button>
           <span>
             {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
           </span>
-          <Button onClick={handleNextPage} disabled={!table.getCanNextPage()}>
+          <Button onClick={handleNextPage} disabled={isLoading || !table.getCanNextPage()}>
             다음
           </Button>
         </div>
@@ -149,6 +149,48 @@ export default function Homeadmin() {
   const [pageIndex, setPageIndex] = useState(0);
   const methods = useForm();
 
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/requests");
+      
+      if (!response.ok) {
+        throw new Error("데이터를 가져오는 중 네트워크 오류가 발생했습니다.");
+      }
+
+      const result = await response.json();
+      
+      if (!result.requests) {
+        throw new Error("서버에서 요청 데이터를 받지 못했습니다.");
+      }
+
+      // 데이터를 최신 순으로 정렬하기 위해 배열을 뒤집음
+      const transformedData = result.requests
+        .map((request) => ({
+          ...request,
+          name: request.applicant[0]?.name || "N/A",
+          count: `${request.applicant.length}명`,
+          time: `${request.time}교시`,
+          ip: request.ip || "N/A",
+          isApproved: request.isApproved || false,
+          createdAt: request.createdAt || new Date(),
+        }))
+        .reverse(); // 데이터 순서를 반대로 바꿔 최신 데이터가 앞에 오게 함
+
+      setData(transformedData);
+    } catch (error) {
+      console.error("데이터 가져오기 오류:", error);
+      toast.error(`데이터 가져오기 중 오류 발생: ${error.message}`, { autoClose: 500, position: "top-center" });
+      setData([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   const table = useReactTable({
     data,
     columns: columns(data),
@@ -159,37 +201,6 @@ export default function Homeadmin() {
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   });
-
-  const fetchData = async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch("/api/requests");
-      const result = await response.json();
-      const transformedData = result.requests
-        .map((request) => ({
-          ...request,
-          name: request.applicant[0]?.name || "N/A",
-          count: `${request.applicant.length}명`,
-          time: `${request.time}교시`,
-          ip: request.ip || "N/A",
-          isApproved: request.isApproved || false,
-          createdAt: request.createdAt || new Date(), // createdAt 필드 추가
-        }))
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-      setData(transformedData);
-    } catch (error) {
-      console.error("데이터 가져오기 오류:", error);
-      toast.error("데이터 가져오기 중 오류 발생", { autoClose: 500, position: "top-center" });
-      setData([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
 
   const handleNextPage = () => {
     setPageIndex((prev) => Math.min(prev + 1, table.getPageCount() - 1));
