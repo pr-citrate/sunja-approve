@@ -6,7 +6,7 @@ const xata = getXataClient();
 
 export async function GET(req) {
   const params = parse(req.nextUrl.search, { ignoreQueryPrefix: true });
-  const data = await xata.db.requests.filter(params).getMany();
+  const data = await xata.db.requests.filter(params).getAll();
 
   return NextResponse.json({ requests: data });
 }
