@@ -54,12 +54,9 @@ const columns = () => [
     header: "IP 주소",
   },
   {
-    accessorKey: "createdAt",
+    accessorKey: "createdAt", 
     header: "신청일",
-    cell: ({ row }) =>
-      row.original.createdAt
-        ? new Date(row.original.createdAt).toLocaleDateString()
-        : "날짜 없음", // createdAt 필드가 없을 때 표시할 기본 값
+    cell: ({ row }) => new Date(row.original.xata.createdAt).toLocaleDateString(),
   },
   {
     id: "details",
@@ -71,7 +68,7 @@ const columns = () => [
             row.original.applicant
               .map((applicant) => `${applicant.name} (${applicant.number})`)
               .join("\n"),
-            { position: "top-center", autoClose: false }
+            { position: "top-center", autoClose: false },
           );
         }}
       >
@@ -105,10 +102,7 @@ const DataTable = ({
                     <TableHead key={header.id}>
                       {header.isPlaceholder
                         ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                        : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   ))}
                 </TableRow>
@@ -119,10 +113,7 @@ const DataTable = ({
                 <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -131,19 +122,13 @@ const DataTable = ({
           </Table>
         </div>
         <div className="flex justify-between items-center w-full">
-          <Button
-            onClick={handlePreviousPage}
-            disabled={isLoading || !table.getCanPreviousPage()}
-          >
+          <Button onClick={handlePreviousPage} disabled={isLoading || !table.getCanPreviousPage()}>
             이전
           </Button>
           <span>
             {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
           </span>
-          <Button
-            onClick={handleNextPage}
-            disabled={isLoading || !table.getCanNextPage()}
-          >
+          <Button onClick={handleNextPage} disabled={isLoading || !table.getCanNextPage()}>
             다음
           </Button>
         </div>
@@ -168,17 +153,18 @@ export default function Homeadmin() {
     setIsLoading(true);
     try {
       const response = await fetch("/api/requests");
-
+      
       if (!response.ok) {
         throw new Error("데이터를 가져오는 중 네트워크 오류가 발생했습니다.");
       }
 
       const result = await response.json();
-
+      
       if (!result.requests) {
         throw new Error("서버에서 요청 데이터를 받지 못했습니다.");
       }
 
+      // applicant 배열이 존재하는지, 첫 번째 요소가 있는지 확인
       const transformedData = result.requests.map((request) => ({
         ...request,
         name: request.applicant?.[0]?.name || "N/A", // 안전하게 접근
@@ -186,17 +172,13 @@ export default function Homeadmin() {
         time: `${request.time}교시`,
         ip: request.ip || "N/A",
         isApproved: request.isApproved || false,
-        createdAt: request.createdAt || null, // 기본값 제거
-      }));
+        createdAt: request.createdAt || new Date(),
+      })).reverse(); // 최신 데이터를 가장 앞으로
 
-      setData(transformedData.reverse()); // 최신 데이터를 가장 앞으로
-
+      setData(transformedData);
     } catch (error) {
       console.error("데이터 가져오기 오류:", error);
-      toast.error(`데이터 가져오기 중 오류 발생: ${error.message}`, {
-        autoClose: 500,
-        position: "top-center",
-      });
+      toast.error(`데이터 가져오기 중 오류 발생: ${error.message}`, { autoClose: 500, position: "top-center" });
       setData([]);
     } finally {
       setIsLoading(false);
@@ -243,4 +225,3 @@ export default function Homeadmin() {
     </FormProvider>
   );
 }
-3
