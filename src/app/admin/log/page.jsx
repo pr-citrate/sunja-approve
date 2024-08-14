@@ -56,7 +56,7 @@ const columns = () => [
   {
     accessorKey: "createdAt", 
     header: "신청일",
-    cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString(),
+    cell: ({ row }) => new Date(row.original.xata.createdAt).toLocaleDateString(),
   },
   {
     id: "details",
