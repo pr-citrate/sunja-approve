@@ -1,0 +1,16 @@
+{
+    "name": "순자",
+    "short_name": "순자",
+    "description": "순자를 신청하세요",
+    "display": "standalone",
+    "scope": "/",
+    "start_url": "/",
+    "icons": [
+        {
+            "src": "/public/logo.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}
