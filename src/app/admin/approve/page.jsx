@@ -256,7 +256,7 @@ export default function Homeadmin() {
 
   const handlePasswordSubmit = (e) => {
     e.preventDefault();
-    if (password === "000000") {
+    if (fetch("/api/password", { method: "POST", body: password }) === 200) {
       setIsPasswordCorrect(true);
     } else {
       toast.error("비밀번호가 틀렸습니다. 다시 시도해주세요.", {

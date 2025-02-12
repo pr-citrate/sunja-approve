@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import Link from "next/link";
 import {
   Form,
   FormControl,
@@ -304,6 +305,7 @@ export default function Home() {
               >
                 거절 현황
               </Button>
+              <Link href={"/admin"} classname={"bg-white text-white"}>admin</Link>
             </form>
           </Form>
         </Card>
