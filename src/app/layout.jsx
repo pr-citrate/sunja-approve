@@ -1,9 +1,8 @@
-"use client";
-import { useEffect } from "react";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
+import ServiceWorkerRegister from "@/components/ServiceWorkerRegister"; // ✅ 클라이언트 컴포넌트 추가
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -13,19 +12,6 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
-  useEffect(() => {
-    // 서비스 워커 등록
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/firebase-messaging-sw.js")
-        .then((registration) => {
-          console.log("Service Worker 등록 완료:", registration.scope);
-        })
-        .catch((error) => {
-          console.error("Service Worker 등록 실패:", error);
-        });
-    }
-  }, []);
-
   return (
     <html suppressHydrationWarning={true} lang="en">
       <head>
@@ -44,6 +30,10 @@ export default function RootLayout({ children }) {
           data-x_margin="18"
           data-y_margin="18"
         />
+
+        {/* ✅ 서비스 워커 등록을 클라이언트 컴포넌트에서 처리 */}
+        <ServiceWorkerRegister />
+
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
