@@ -254,9 +254,10 @@ export default function Homeadmin() {
     getPaginationRowModel: getPaginationRowModel(),
   });
 
-  const handlePasswordSubmit = (e) => {
+  const handlePasswordSubmit = async (e) => {
     e.preventDefault();
-    if (fetch("/api/password", { method: "POST", body: password }).then(res=>res.json().success)) {
+    const value = await fetch("/api/password", { method: "POST", body: password }).then(res=>res.json()).catch(err=>console.error(err));
+    if (value.success) {
       setIsPasswordCorrect(true);
     } else {
       toast.error("비밀번호가 틀렸습니다. 다시 시도해주세요.", {

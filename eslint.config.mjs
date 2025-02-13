@@ -23,4 +23,9 @@ export default [
   {
     ignores: ["src/components/ui"],
   },
+  {
+    env: {
+      node: true,
+    },
+  },
 ];
