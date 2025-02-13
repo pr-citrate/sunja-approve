@@ -26,7 +26,59 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useMediaQuery } from "react-responsive";
 
-// ─── 데스크톱용 테이블 열 정의 ───────────────────────────────
+// ─── 삭제 확인 토스트 (커스텀 컴포넌트) ─────────────────────────────
+const confirmDelete = (row, data, setData) => {
+  toast(
+    ({ closeToast }) => (
+      <div>
+        <div className="mb-2">정말 삭제하시겠습니까?</div>
+        <div className="flex justify-end space-x-2">
+          <button
+            className="px-3 py-1 bg-green-500 text-white rounded"
+            onClick={() => {
+              closeToast();
+              handleDeleteConfirmed(row, data, setData);
+            }}
+          >
+            확인
+          </button>
+          <button
+            className="px-3 py-1 bg-gray-500 text-white rounded"
+            onClick={closeToast}
+          >
+            취소
+          </button>
+        </div>
+      </div>
+    ),
+    { autoClose: false, position: "top-center" }
+  );
+};
+
+const handleDeleteConfirmed = async (row, data, setData) => {
+  try {
+    const response = await fetch(`/api/requests?id=${row.id}`, {
+      method: "DELETE",
+    });
+    if (!response.ok) {
+      throw new Error("삭제 실패");
+    }
+    const updatedData = data.filter((d) => d.id !== row.id);
+    setData(updatedData);
+    toast.success("삭제되었습니다.", {
+      autoClose: 500,
+      position: "top-center",
+    });
+  } catch (error) {
+    console.error("삭제 중 오류 발생:", error);
+    toast.error("삭제 중 오류 발생", {
+      autoClose: 500,
+      position: "top-center",
+    });
+  }
+};
+
+// ─── 데스크톱용 테이블 열 정의 ─────────────────────────────
 const columns = (data, setData) => [
   {
     accessorKey: "name",
@@ -95,7 +147,7 @@ const columns = (data, setData) => [
     header: "삭제",
     cell: ({ row }) => (
       <Button
-        onClick={() => handleDelete(row.original, data, setData)}
+        onClick={() => confirmDelete(row.original, data, setData)}
         className="bg-gray-500 text-white w-full"
       >
         삭제
@@ -103,31 +155,6 @@ const columns = (data, setData) => [
     ),
   },
 ];
-
-// ─── 삭제 핸들러 함수 ─────────────────────────────────────────
-const handleDelete = async (row, data, setData) => {
-  if (!window.confirm("정말 삭제하시겠습니까?")) return;
-  try {
-    const response = await fetch(`/api/requests?id=${row.id}`, {
-      method: "DELETE",
-    });
-    if (!response.ok) {
-      throw new Error("삭제 실패");
-    }
-    const updatedData = data.filter((d) => d.id !== row.id);
-    setData(updatedData);
-    toast.success("삭제되었습니다.", {
-      autoClose: 500,
-      position: "top-center",
-    });
-  } catch (error) {
-    console.error("삭제 중 오류 발생:", error);
-    toast.error("삭제 중 오류 발생", {
-      autoClose: 500,
-      position: "top-center",
-    });
-  }
-};
 
 // ─── 상태 업데이트, 승인/거부 핸들러 ─────────────────────────
 const handleUpdateStatus = async (row, data, setData, isApproved) => {
@@ -170,7 +197,7 @@ const handleReject = (row, data, setData) => {
   handleUpdateStatus(row, data, setData, false);
 };
 
-// ─── 로그인 전 비밀번호 입력 폼 ─────────────────────────────────
+// ─── 로그인 전 비밀번호 입력 폼 ─────────────────────────────
 const PasswordForm = ({ handlePasswordSubmit, password, setPassword, router }) => (
   <Card className="w-96 grid justify-items-center items-center p-8">
     <form onSubmit={handlePasswordSubmit} className="w-full grid justify-items-center">
@@ -273,7 +300,7 @@ const MobileDataView = ({ table, data, setData, isLoading, handlePreviousPage, h
         <Card key={item.id} className="relative p-4 m-2">
           {/* 카드 우측 상단의 삭제 버튼 */}
           <span
-            onClick={() => handleDelete(item, data, setData)}
+            onClick={() => confirmDelete(item, data, setData)}
             className="absolute top-1 right-1 text-gray-500 cursor-pointer"
           >
             X
