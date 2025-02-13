@@ -26,7 +26,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useMediaQuery } from "react-responsive"; // react-responsive 임포트
 
-// 테이블 열 정의 (데스크톱용)
+// 데스크톱용 테이블 열 정의
 const columns = (data, setData) => [
   {
     accessorKey: "name",
@@ -39,6 +39,27 @@ const columns = (data, setData) => [
   {
     accessorKey: "count",
     header: "총인원",
+    cell: ({ row }) => (
+      <>
+        {row.original.count}{" "}
+        <Button
+          size="sm"
+          onClick={() => {
+            toast.info(
+              row.original.applicant
+                .map(
+                  (applicant) =>
+                    `${applicant.name} (${applicant.number})`,
+                )
+                .join("\n"),
+              { position: "top-center", autoClose: false },
+            );
+          }}
+        >
+          더보기
+        </Button>
+      </>
+    ),
   },
   {
     accessorKey: "time",
@@ -49,53 +70,21 @@ const columns = (data, setData) => [
     header: "사유",
   },
   {
-    accessorKey: "status",
-    header: "승인 상태",
-    cell: ({ row }) => (row.original.isApproved ? "승인" : "미승인"),
-  },
-  {
-    id: "details",
-    header: "총신청자",
-    cell: ({ row }) => (
-      <Button
-        onClick={() => {
-          toast.info(
-            row.original.applicant
-              .map((applicant) => `${applicant.name} (${applicant.number})`)
-              .join("\n"),
-            { position: "top-center", autoClose: false },
-          );
-        }}
-      >
-        더보기
-      </Button>
-    ),
-  },
-  {
     id: "approve",
     header: "확인",
     cell: ({ row }) => (
       <Button
-        onClick={() => handleApprove(row.original, data, setData)}
-        className={`bg-green-500 text-white ${row.original.isApproved ? "opacity-50 cursor-not-allowed" : ""
+        onClick={() => {
+          if (!row.original.isApproved) {
+            handleApprove(row.original, data, setData);
+          } else {
+            handleReject(row.original, data, setData);
+          }
+        }}
+        className={`bg-green-500 text-white ${row.original.isApproved ? "bg-red-500" : ""
           }`}
-        disabled={row.original.isApproved} // 이미 승인된 경우 비활성화
       >
-        승인
-      </Button>
-    ),
-  },
-  {
-    id: "reject",
-    header: "거부",
-    cell: ({ row }) => (
-      <Button
-        onClick={() => handleReject(row.original, data, setData)}
-        className={`bg-red-500 text-white ${!row.original.isApproved ? "opacity-50 cursor-not-allowed" : ""
-          }`}
-        disabled={!row.original.isApproved} // 승인되지 않은 경우 비활성화
-      >
-        거부
+        {row.original.isApproved ? "거부" : "승인"}
       </Button>
     ),
   },
@@ -272,8 +261,11 @@ const DataTable = ({
 );
 
 // 모바일용 간소화 데이터 리스트
+// 데이터 항목마다 "사유" 표시, 총인원 옆에 "더보기" 버튼, 그리고 승인/거부 버튼(상태에 따라 토글)
 const MobileDataView = ({
   table,
+  data,
+  setData,
   isLoading,
   handlePreviousPage,
   handleNextPage,
@@ -296,15 +288,45 @@ const MobileDataView = ({
             <strong>전화번호:</strong> {item.contact}
           </p>
           <p>
-            <strong>총인원:</strong> {item.count}
+            <strong>총인원:</strong> {item.count}{" "}
+            <Button
+              size="sm"
+              className="ml-2"
+              onClick={() => {
+                toast.info(
+                  item.applicant
+                    .map(
+                      (applicant) =>
+                        `${applicant.name} (${applicant.number})`,
+                    )
+                    .join("\n"),
+                  { position: "top-center", autoClose: false },
+                );
+              }}
+            >
+              더보기
+            </Button>
           </p>
           <p>
             <strong>신청교시:</strong> {item.time}
           </p>
           <p>
-            <strong>상태:</strong>{" "}
-            {item.isApproved ? "승인" : "미승인"}
+            <strong>사유:</strong> {item.reason}
           </p>
+          <div className="mt-2">
+            <Button
+              className="w-full"
+              onClick={() => {
+                if (!item.isApproved) {
+                  handleApprove(item, data, setData);
+                } else {
+                  handleReject(item, data, setData);
+                }
+              }}
+            >
+              {item.isApproved ? "거부" : "승인"}
+            </Button>
+          </div>
         </Card>
       ))}
       <div className="flex justify-between items-center w-full mt-4">
@@ -358,7 +380,7 @@ export default function Homeadmin() {
   const [pageIndex, setPageIndex] = useState(0);
   const methods = useForm();
 
-  // react-responsive를 사용해 픽셀 기반 미디어 쿼리 적용 (예: 최대 768px 이하이면 모바일)
+  // react-responsive를 사용해 픽셀 기반 미디어 쿼리 적용 (최대 768px 이하이면 모바일)
   const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
 
   const table = useReactTable({
@@ -419,6 +441,7 @@ export default function Homeadmin() {
           contact: request.contact || "N/A",
           count: `${request.applicant.length}명`,
           time: `${request.time}교시`,
+          reason: request.reason || "", // 사유 필드 추가
           isApproved: request.isApproved || false,
         }))
         .sort(
@@ -466,6 +489,8 @@ export default function Homeadmin() {
         ) : isMobile ? (
           <MobileDataView
             table={table}
+            data={data}
+            setData={setData}
             isLoading={isLoading}
             handlePreviousPage={handlePreviousPage}
             handleNextPage={handleNextPage}
