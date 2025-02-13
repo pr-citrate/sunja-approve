@@ -305,7 +305,7 @@ export default function Home() {
               >
                 거절 현황
               </Button>
-              <Link href={"/admin"} classname={"bg-white text-transparent"}>admin</Link>
+              <Link href={"/admin"} className={"bg-white text-transparent"}>admin</Link>
             </form>
           </Form>
         </Card>
