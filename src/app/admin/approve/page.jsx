@@ -26,7 +26,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useMediaQuery } from "react-responsive";
 
-// 데스크톱용 테이블 열 정의
+// ─── 데스크톱용 테이블 열 정의 ───────────────────────────────
 const columns = (data, setData) => [
   {
     accessorKey: "name",
@@ -46,7 +46,10 @@ const columns = (data, setData) => [
           onClick={() => {
             toast.info(
               row.original.applicant
-                .map((applicant) => `${applicant.name} (${applicant.number})`)
+                .map(
+                  (applicant) =>
+                    `${applicant.name} (${applicant.number})`
+                )
                 .join("\n"),
               { position: "top-center", autoClose: false }
             );
@@ -87,9 +90,46 @@ const columns = (data, setData) => [
       </Button>
     ),
   },
+  {
+    id: "delete",
+    header: "삭제",
+    cell: ({ row }) => (
+      <Button
+        onClick={() => handleDelete(row.original, data, setData)}
+        className="bg-gray-500 text-white w-full"
+      >
+        삭제
+      </Button>
+    ),
+  },
 ];
 
-// 상태 업데이트 핸들러 함수
+// ─── 삭제 핸들러 함수 ─────────────────────────────────────────
+const handleDelete = async (row, data, setData) => {
+  if (!window.confirm("정말 삭제하시겠습니까?")) return;
+  try {
+    const response = await fetch(`/api/requests?id=${row.id}`, {
+      method: "DELETE",
+    });
+    if (!response.ok) {
+      throw new Error("삭제 실패");
+    }
+    const updatedData = data.filter((d) => d.id !== row.id);
+    setData(updatedData);
+    toast.success("삭제되었습니다.", {
+      autoClose: 500,
+      position: "top-center",
+    });
+  } catch (error) {
+    console.error("삭제 중 오류 발생:", error);
+    toast.error("삭제 중 오류 발생", {
+      autoClose: 500,
+      position: "top-center",
+    });
+  }
+};
+
+// ─── 상태 업데이트, 승인/거부 핸들러 ─────────────────────────
 const handleUpdateStatus = async (row, data, setData, isApproved) => {
   try {
     const response = await fetch(`/api/requests?id=${row.id}`, {
@@ -122,28 +162,18 @@ const handleUpdateStatus = async (row, data, setData, isApproved) => {
   }
 };
 
-// 승인 핸들러 함수
 const handleApprove = (row, data, setData) => {
   handleUpdateStatus(row, data, setData, true);
 };
 
-// 거부 핸들러 함수
 const handleReject = (row, data, setData) => {
   handleUpdateStatus(row, data, setData, false);
 };
 
-// 로그인 전 비밀번호 입력 폼
-const PasswordForm = ({
-  handlePasswordSubmit,
-  password,
-  setPassword,
-  router,
-}) => (
+// ─── 로그인 전 비밀번호 입력 폼 ─────────────────────────────────
+const PasswordForm = ({ handlePasswordSubmit, password, setPassword, router }) => (
   <Card className="w-96 grid justify-items-center items-center p-8">
-    <form
-      onSubmit={handlePasswordSubmit}
-      className="w-full grid justify-items-center"
-    >
+    <form onSubmit={handlePasswordSubmit} className="w-full grid justify-items-center">
       <Label htmlFor="password" className="text-xl mb-4">
         비밀번호 입력
       </Label>
@@ -158,26 +188,15 @@ const PasswordForm = ({
       <Button type="submit" className="text-lg mt-4 w-full">
         로그인
       </Button>
-      <Button
-        type="button"
-        onClick={() => router.push("/admin")}
-        className="text-lg mt-4 w-full"
-      >
+      <Button type="button" onClick={() => router.push("/admin")} className="text-lg mt-4 w-full">
         뒤로
       </Button>
     </form>
   </Card>
 );
 
-// 데스크톱용 데이터 테이블 (react-table 사용)
-const DataTable = ({
-  table,
-  data,
-  isLoading,
-  handlePreviousPage,
-  handleNextPage,
-  router,
-}) => (
+// ─── 데스크톱용 데이터 테이블 (react-table 사용) ─────────────────
+const DataTable = ({ table, data, isLoading, handlePreviousPage, handleNextPage, router }) => (
   <Card className="min-w-screen grid justify-items-center items-center p-8 m-12 min-h-96 min-w-96">
     {isLoading ? (
       <p>로딩 중...</p>
@@ -194,10 +213,7 @@ const DataTable = ({
                     <TableHead key={header.id}>
                       {header.isPlaceholder
                         ? null
-                        : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                        : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   ))}
                 </TableRow>
@@ -208,10 +224,7 @@ const DataTable = ({
                 <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -220,40 +233,24 @@ const DataTable = ({
           </Table>
         </div>
         <div className="flex justify-between items-center w-full">
-          <Button
-            onClick={handlePreviousPage}
-            disabled={!table.getCanPreviousPage()}
-          >
+          <Button onClick={handlePreviousPage} disabled={!table.getCanPreviousPage()}>
             이전
           </Button>
           <span>
-            {table.getState().pagination.pageIndex + 1} /{" "}
-            {table.getPageCount()}
+            {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
           </span>
-          <Button
-            onClick={handleNextPage}
-            disabled={!table.getCanNextPage()}
-          >
+          <Button onClick={handleNextPage} disabled={!table.getCanNextPage()}>
             다음
           </Button>
         </div>
         <div className="flex space-x-4 mt-4">
-          <Button
-            className="text-lg mb-4 w-full"
-            onClick={() => router.push("/statusfalse")}
-          >
+          <Button className="text-lg mb-4 w-full" onClick={() => router.push("/statusfalse")}>
             거절 현황
           </Button>
-          <Button
-            className="text-lg mb-4 w-full"
-            onClick={() => router.push("/admin")}
-          >
+          <Button className="text-lg mb-4 w-full" onClick={() => router.push("/admin")}>
             홈
           </Button>
-          <Button
-            className="text-lg mb-4 w-full"
-            onClick={() => router.push("/admin/status")}
-          >
+          <Button className="text-lg mb-4 w-full" onClick={() => router.push("/admin/status")}>
             승인 현황
           </Button>
         </div>
@@ -262,17 +259,8 @@ const DataTable = ({
   </Card>
 );
 
-// 모바일용 간소화 데이터 리스트
-// "사유" 표시, "총인원" 옆에 더보기(텍스트로) 추가, 승인/거부 버튼에 상태에 따른 색상 적용
-const MobileDataView = ({
-  table,
-  data,
-  setData,
-  isLoading,
-  handlePreviousPage,
-  handleNextPage,
-  router,
-}) => {
+// ─── 모바일용 간소화 데이터 리스트 ─────────────────────────────
+const MobileDataView = ({ table, data, setData, isLoading, handlePreviousPage, handleNextPage, router }) => {
   if (isLoading) return <p>로딩 중...</p>;
 
   // react-table의 현재 페이지 데이터에서 원본 데이터를 추출
@@ -282,7 +270,14 @@ const MobileDataView = ({
   return (
     <div className="w-full p-4">
       {currentPageData.map((item) => (
-        <Card key={item.id} className="p-4 m-2">
+        <Card key={item.id} className="relative p-4 m-2">
+          {/* 카드 우측 상단의 삭제 버튼 */}
+          <span
+            onClick={() => handleDelete(item, data, setData)}
+            className="absolute top-1 right-1 text-gray-500 cursor-pointer"
+          >
+            X
+          </span>
           <p>
             <strong>대표자:</strong> {item.name}
           </p>
@@ -334,40 +329,24 @@ const MobileDataView = ({
         </Card>
       ))}
       <div className="flex justify-between items-center w-full mt-4">
-        <Button
-          onClick={handlePreviousPage}
-          disabled={!table.getCanPreviousPage()}
-        >
+        <Button onClick={handlePreviousPage} disabled={!table.getCanPreviousPage()}>
           이전
         </Button>
         <span>
-          {table.getState().pagination.pageIndex + 1} /{" "}
-          {table.getPageCount()}
+          {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
         </span>
-        <Button
-          onClick={handleNextPage}
-          disabled={!table.getCanNextPage()}
-        >
+        <Button onClick={handleNextPage} disabled={!table.getCanNextPage()}>
           다음
         </Button>
       </div>
       <div className="flex space-x-4 mt-4">
-        <Button
-          className="text-lg w-full"
-          onClick={() => router.push("/statusfalse")}
-        >
+        <Button className="text-lg w-full" onClick={() => router.push("/statusfalse")}>
           거절 현황
         </Button>
-        <Button
-          className="text-lg w-full"
-          onClick={() => router.push("/admin")}
-        >
+        <Button className="text-lg w-full" onClick={() => router.push("/admin")}>
           홈
         </Button>
-        <Button
-          className="text-lg w-full"
-          onClick={() => router.push("/admin/status")}
-        >
+        <Button className="text-lg w-full" onClick={() => router.push("/admin/status")}>
           승인 현황
         </Button>
       </div>
