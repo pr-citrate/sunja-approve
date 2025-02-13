@@ -115,6 +115,7 @@ export default function Home() {
               onSubmit={form.handleSubmit(onSubmit)}
             >
               <Label className="text-xl mb-4">순자증 신청</Label>
+              <Label className="text-md mb-4">문의: 010-8602-9329</Label>
               <FormField
                 control={form.control}
                 name="time"
@@ -305,7 +306,9 @@ export default function Home() {
               >
                 거절 현황
               </Button>
-              <Link href={"/admin"} className={"bg-white text-transparent"}>admin</Link>
+              <Link href={"/admin"} className={"bg-white text-transparent"}>
+                admin
+              </Link>
             </form>
           </Form>
         </Card>

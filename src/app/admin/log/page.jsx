@@ -54,7 +54,7 @@ const columns = () => [
     header: "IP 주소",
   },
   {
-    accessorKey: "createdAt", 
+    accessorKey: "createdAt",
     header: "신청일",
     cell: ({ row }) => new Date(row.original.xata.createdAt).toLocaleDateString(),
   },
@@ -78,14 +78,7 @@ const columns = () => [
   },
 ];
 
-const DataTable = ({
-  table,
-  data,
-  isLoading,
-  handlePreviousPage,
-  handleNextPage,
-  router,
-}) => (
+const DataTable = ({ table, data, isLoading, handlePreviousPage, handleNextPage, router }) => (
   <Card className="min-w-screen grid justify-items-center items-center p-8 m-12 min-h-96 min-w-96">
     {isLoading ? (
       <p>로딩 중...</p>
@@ -153,32 +146,37 @@ export default function Homeadmin() {
     setIsLoading(true);
     try {
       const response = await fetch("/api/requests");
-      
+
       if (!response.ok) {
         throw new Error("데이터를 가져오는 중 네트워크 오류가 발생했습니다.");
       }
 
       const result = await response.json();
-      
+
       if (!result.requests) {
         throw new Error("서버에서 요청 데이터를 받지 못했습니다.");
       }
 
       // applicant 배열이 존재하는지, 첫 번째 요소가 있는지 확인
-      const transformedData = result.requests.map((request) => ({
-        ...request,
-        name: request.applicant?.[0]?.name || "N/A", // 안전하게 접근
-        count: `${request.applicant?.length || 0}명`,
-        time: `${request.time}교시`,
-        ip: request.ip || "N/A",
-        isApproved: request.isApproved || false,
-        createdAt: request.createdAt || new Date(),
-      })).reverse(); // 최신 데이터를 가장 앞으로
+      const transformedData = result.requests
+        .map((request) => ({
+          ...request,
+          name: request.applicant?.[0]?.name || "N/A", // 안전하게 접근
+          count: `${request.applicant?.length || 0}명`,
+          time: `${request.time}교시`,
+          ip: request.ip || "N/A",
+          isApproved: request.isApproved || false,
+          createdAt: request.createdAt || new Date(),
+        }))
+        .reverse(); // 최신 데이터를 가장 앞으로
 
       setData(transformedData);
     } catch (error) {
       console.error("데이터 가져오기 오류:", error);
-      toast.error(`데이터 가져오기 중 오류 발생: ${error.message}`, { autoClose: 500, position: "top-center" });
+      toast.error(`데이터 가져오기 중 오류 발생: ${error.message}`, {
+        autoClose: 500,
+        position: "top-center",
+      });
       setData([]);
     } finally {
       setIsLoading(false);
