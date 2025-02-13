@@ -19,6 +19,7 @@ const messaging = getMessaging(firebaseApp);
 // 브라우저에서 푸시 알림을 받을 권한 요청
 export const requestNotificationPermission = async () => {
   try {
+    // eslint-disable-next-line no-undef
     const permission = await Notification.requestPermission();
     if (permission === "granted") {
       console.log("알림 권한이 허용되었습니다.");

@@ -5,8 +5,12 @@ import { fixupConfigRules } from "@eslint/compat";
 
 export default [
   { files: ["**/*.{js,mjs,cjs,jsx}"] },
-  { languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } } },
-  { languageOptions: { globals: globals.browser } },
+  {
+    languageOptions: {
+      parserOptions: { ecmaFeatures: { jsx: true } },
+      globals: { ...globals.node },
+    },
+  },
   pluginJs.configs.recommended,
   ...fixupConfigRules(pluginReactConfig),
   {
@@ -22,10 +26,5 @@ export default [
   },
   {
     ignores: ["src/components/ui"],
-  },
-  {
-    env: {
-      node: true,
-    },
   },
 ];
