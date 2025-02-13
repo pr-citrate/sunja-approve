@@ -16,6 +16,7 @@ import {
 import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 import { stringify } from "qs";
+import { useMediaQuery } from "react-responsive"; // react-responsive 임포트
 
 // 테이블 컬럼 정의
 const columns = [
@@ -85,24 +86,27 @@ export default function RequestsPage() {
   const [isLoading, setIsLoading] = useState(false);
   const methods = useForm();
 
+  // react-responsive를 사용해 픽셀 기반 미디어 쿼리 적용 (예: 최대 768px 이하일 때 모바일)
+  const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
+
   // 데이터 가져오는 함수
   const fetchData = async () => {
     setIsLoading(true);
     try {
       const response = await fetch(
         "/api/requests?" +
-          stringify({
-            $all: [
-              {
-                "xata.createdAt": { $ge: new Date(new Date().setHours(0, 0, 0, 0)).toISOString() },
+        stringify({
+          $all: [
+            {
+              "xata.createdAt": { $ge: new Date(new Date().setHours(0, 0, 0, 0)).toISOString() },
+            },
+            {
+              "xata.createdAt": {
+                $le: new Date(new Date().setHours(23, 59, 59, 999)).toISOString(),
               },
-              {
-                "xata.createdAt": {
-                  $le: new Date(new Date().setHours(23, 59, 59, 999)).toISOString(),
-                },
-              },
-            ],
-          }),
+            },
+          ],
+        })
       );
       const result = await response.json();
       console.log("클라이언트에서 받아온 데이터:", result.requests);
@@ -139,7 +143,11 @@ export default function RequestsPage() {
 
   return (
     <FormProvider {...methods}>
-      <main className="flex flex-col justify-center items-center w-screen h-screen">
+      {/* 모바일일 때는 min-h-screen과 overflow-auto를 적용해 스크롤 가능하도록, 데스크톱은 h-screen 고정 */}
+      <main
+        className={`flex flex-col justify-center items-center w-screen ${isMobile ? "min-h-screen overflow-auto" : "h-screen"
+          }`}
+      >
         {["1교시", "2교시", "3교시"].map((title, index) => (
           <DataTable
             key={index}
