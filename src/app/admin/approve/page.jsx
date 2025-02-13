@@ -24,7 +24,7 @@ import { stringify } from "qs";
 import { useRouter } from "next/navigation";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useMediaQuery } from "react-responsive"; // react-responsive 임포트
+import { useMediaQuery } from "react-responsive";
 
 // 데스크톱용 테이블 열 정의
 const columns = (data, setData) => [
@@ -46,12 +46,9 @@ const columns = (data, setData) => [
           onClick={() => {
             toast.info(
               row.original.applicant
-                .map(
-                  (applicant) =>
-                    `${applicant.name} (${applicant.number})`,
-                )
+                .map((applicant) => `${applicant.name} (${applicant.number})`)
                 .join("\n"),
-              { position: "top-center", autoClose: false },
+              { position: "top-center", autoClose: false }
             );
           }}
           className="ml-1 text-sm text-gray-500 underline cursor-pointer"
@@ -81,7 +78,9 @@ const columns = (data, setData) => [
             handleReject(row.original, data, setData);
           }
         }}
-        className={`bg-green-500 text-white ${row.original.isApproved ? "bg-red-500" : ""
+        className={`w-full ${row.original.isApproved
+            ? "bg-red-500 text-white"
+            : "bg-green-500 text-white"
           }`}
       >
         {row.original.isApproved ? "거부" : "승인"}
@@ -106,7 +105,7 @@ const handleUpdateStatus = async (row, data, setData, isApproved) => {
     }
 
     const updatedData = data.map((d) =>
-      d.id === row.id ? { ...d, isApproved } : d,
+      d.id === row.id ? { ...d, isApproved } : d
     );
     setData(updatedData);
 
@@ -197,7 +196,7 @@ const DataTable = ({
                         ? null
                         : flexRender(
                           header.column.columnDef.header,
-                          header.getContext(),
+                          header.getContext()
                         )}
                     </TableHead>
                   ))}
@@ -211,7 +210,7 @@ const DataTable = ({
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext(),
+                        cell.getContext()
                       )}
                     </TableCell>
                   ))}
@@ -231,7 +230,10 @@ const DataTable = ({
             {table.getState().pagination.pageIndex + 1} /{" "}
             {table.getPageCount()}
           </span>
-          <Button onClick={handleNextPage} disabled={!table.getCanNextPage()}>
+          <Button
+            onClick={handleNextPage}
+            disabled={!table.getCanNextPage()}
+          >
             다음
           </Button>
         </div>
@@ -261,7 +263,7 @@ const DataTable = ({
 );
 
 // 모바일용 간소화 데이터 리스트
-// "사유" 표시, "총인원" 옆에 더보기(텍스트로) 추가, 승인/거부 버튼 통합
+// "사유" 표시, "총인원" 옆에 더보기(텍스트로) 추가, 승인/거부 버튼에 상태에 따른 색상 적용
 const MobileDataView = ({
   table,
   data,
@@ -295,10 +297,10 @@ const MobileDataView = ({
                   item.applicant
                     .map(
                       (applicant) =>
-                        `${applicant.name} (${applicant.number})`,
+                        `${applicant.name} (${applicant.number})`
                     )
                     .join("\n"),
-                  { position: "top-center", autoClose: false },
+                  { position: "top-center", autoClose: false }
                 );
               }}
               className="ml-1 text-sm text-gray-500 underline cursor-pointer"
@@ -314,7 +316,6 @@ const MobileDataView = ({
           </p>
           <div className="mt-2">
             <Button
-              className="w-full"
               onClick={() => {
                 if (!item.isApproved) {
                   handleApprove(item, data, setData);
@@ -322,6 +323,10 @@ const MobileDataView = ({
                   handleReject(item, data, setData);
                 }
               }}
+              className={`w-full ${item.isApproved
+                  ? "bg-red-500 text-white"
+                  : "bg-green-500 text-white"
+                }`}
             >
               {item.isApproved ? "거부" : "승인"}
             </Button>
@@ -381,7 +386,6 @@ export default function Homeadmin() {
 
   // react-responsive를 사용해 픽셀 기반 미디어 쿼리 적용 (최대 768px 이하이면 모바일)
   const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
-
   // 모바일이면 페이지 당 3개, 데스크톱이면 8개씩 보여주기
   const pageSize = isMobile ? 3 : 8;
 
@@ -427,13 +431,11 @@ export default function Homeadmin() {
             },
             {
               "xata.createdAt": {
-                $le: new Date(
-                  new Date().setHours(23, 59, 59, 999),
-                ).toISOString(),
+                $le: new Date(new Date().setHours(23, 59, 59, 999)).toISOString(),
               },
             },
           ],
-        }),
+        })
       );
       const result = await response.json();
       const transformedData = result.requests
@@ -443,12 +445,12 @@ export default function Homeadmin() {
           contact: request.contact || "N/A",
           count: `${request.applicant.length}명`,
           time: `${request.time}교시`,
-          reason: request.reason || "", // 사유 필드 추가
+          reason: request.reason || "",
           isApproved: request.isApproved || false,
         }))
         .sort(
           (a, b) =>
-            new Date(b.xata.createdAt) - new Date(a.xata.createdAt),
+            new Date(b.xata.createdAt) - new Date(a.xata.createdAt)
         );
 
       setData(transformedData);
@@ -509,7 +511,14 @@ export default function Homeadmin() {
           />
         )}
       </main>
-      <ToastContainer position="top-center" />
+      <ToastContainer
+        position="top-center"
+        toastStyle={
+          isMobile
+            ? {}
+            : { minHeight: "80px", minWidth: "400px", padding: "20px" }
+        }
+      />
     </FormProvider>
   );
 }
