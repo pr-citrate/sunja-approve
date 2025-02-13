@@ -382,12 +382,15 @@ export default function Homeadmin() {
   // react-responsive를 사용해 픽셀 기반 미디어 쿼리 적용 (최대 768px 이하이면 모바일)
   const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
 
+  // 모바일이면 페이지 당 3개, 데스크톱이면 8개씩 보여주기
+  const pageSize = isMobile ? 3 : 8;
+
   const table = useReactTable({
     data,
     columns: columns(data, setData),
-    pageCount: Math.ceil(data.length / 8),
+    pageCount: Math.ceil(data.length / pageSize),
     state: {
-      pagination: { pageIndex, pageSize: 8 },
+      pagination: { pageIndex, pageSize },
     },
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
