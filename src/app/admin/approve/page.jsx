@@ -77,8 +77,9 @@ const columns = (data, setData) => [
     cell: ({ row }) => (
       <Button
         onClick={() => handleApprove(row.original, data, setData)}
-        className={`bg-green-500 text-white ${row.original.isApproved ? "opacity-50 cursor-not-allowed" : ""
-          }`}
+        className={`bg-green-500 text-white ${
+          row.original.isApproved ? "opacity-50 cursor-not-allowed" : ""
+        }`}
         disabled={row.original.isApproved} // 이미 승인된 경우 비활성화
       >
         승인
@@ -91,8 +92,9 @@ const columns = (data, setData) => [
     cell: ({ row }) => (
       <Button
         onClick={() => handleReject(row.original, data, setData)}
-        className={`bg-red-500 text-white ${!row.original.isApproved ? "opacity-50 cursor-not-allowed" : ""
-          }`}
+        className={`bg-red-500 text-white ${
+          !row.original.isApproved ? "opacity-50 cursor-not-allowed" : ""
+        }`}
         disabled={!row.original.isApproved} // 승인되지 않은 경우 비활성화
       >
         거부
@@ -116,9 +118,7 @@ const handleUpdateStatus = async (row, data, setData, isApproved) => {
       throw new Error("Request update failed");
     }
 
-    const updatedData = data.map((d) =>
-      d.id === row.id ? { ...d, isApproved } : d,
-    );
+    const updatedData = data.map((d) => (d.id === row.id ? { ...d, isApproved } : d));
     setData(updatedData);
 
     toast.success(isApproved ? "승인 되었습니다." : "거부되었습니다.", {
@@ -145,17 +145,9 @@ const handleReject = (row, data, setData) => {
 };
 
 // 로그인 전 비밀번호 입력 폼
-const PasswordForm = ({
-  handlePasswordSubmit,
-  password,
-  setPassword,
-  router,
-}) => (
+const PasswordForm = ({ handlePasswordSubmit, password, setPassword, router }) => (
   <Card className="w-96 grid justify-items-center items-center p-8">
-    <form
-      onSubmit={handlePasswordSubmit}
-      className="w-full grid justify-items-center"
-    >
+    <form onSubmit={handlePasswordSubmit} className="w-full grid justify-items-center">
       <Label htmlFor="password" className="text-xl mb-4">
         비밀번호 입력
       </Label>
@@ -170,11 +162,7 @@ const PasswordForm = ({
       <Button type="submit" className="text-lg mt-4 w-full">
         로그인
       </Button>
-      <Button
-        type="button"
-        onClick={() => router.push("/admin")}
-        className="text-lg mt-4 w-full"
-      >
+      <Button type="button" onClick={() => router.push("/admin")} className="text-lg mt-4 w-full">
         뒤로
       </Button>
     </form>
@@ -182,14 +170,7 @@ const PasswordForm = ({
 );
 
 // 데스크톱용 데이터 테이블 (react-table 사용)
-const DataTable = ({
-  table,
-  data,
-  isLoading,
-  handlePreviousPage,
-  handleNextPage,
-  router,
-}) => (
+const DataTable = ({ table, data, isLoading, handlePreviousPage, handleNextPage, router }) => (
   <Card className="min-w-screen grid justify-items-center items-center p-8 m-12 min-h-96 min-w-96">
     {isLoading ? (
       <p>로딩 중...</p>
@@ -206,10 +187,7 @@ const DataTable = ({
                     <TableHead key={header.id}>
                       {header.isPlaceholder
                         ? null
-                        : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
+                        : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   ))}
                 </TableRow>
@@ -220,10 +198,7 @@ const DataTable = ({
                 <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -232,37 +207,24 @@ const DataTable = ({
           </Table>
         </div>
         <div className="flex justify-between items-center w-full">
-          <Button
-            onClick={handlePreviousPage}
-            disabled={!table.getCanPreviousPage()}
-          >
+          <Button onClick={handlePreviousPage} disabled={!table.getCanPreviousPage()}>
             이전
           </Button>
           <span>
-            {table.getState().pagination.pageIndex + 1} /{" "}
-            {table.getPageCount()}
+            {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
           </span>
           <Button onClick={handleNextPage} disabled={!table.getCanNextPage()}>
             다음
           </Button>
         </div>
         <div className="flex space-x-4 mt-4">
-          <Button
-            className="text-lg mb-4 w-full"
-            onClick={() => router.push("/statusfalse")}
-          >
+          <Button className="text-lg mb-4 w-full" onClick={() => router.push("/statusfalse")}>
             거절 현황
           </Button>
-          <Button
-            className="text-lg mb-4 w-full"
-            onClick={() => router.push("/admin")}
-          >
+          <Button className="text-lg mb-4 w-full" onClick={() => router.push("/admin")}>
             홈
           </Button>
-          <Button
-            className="text-lg mb-4 w-full"
-            onClick={() => router.push("/admin/status")}
-          >
+          <Button className="text-lg mb-4 w-full" onClick={() => router.push("/admin/status")}>
             승인 현황
           </Button>
         </div>
@@ -272,13 +234,7 @@ const DataTable = ({
 );
 
 // 모바일용 간소화 데이터 리스트
-const MobileDataView = ({
-  table,
-  isLoading,
-  handlePreviousPage,
-  handleNextPage,
-  router,
-}) => {
+const MobileDataView = ({ table, isLoading, handlePreviousPage, handleNextPage, router }) => {
   if (isLoading) return <p>로딩 중...</p>;
 
   // react-table의 현재 페이지 데이터에서 원본 데이터를 추출
@@ -302,46 +258,29 @@ const MobileDataView = ({
             <strong>신청교시:</strong> {item.time}
           </p>
           <p>
-            <strong>상태:</strong>{" "}
-            {item.isApproved ? "승인" : "미승인"}
+            <strong>상태:</strong> {item.isApproved ? "승인" : "미승인"}
           </p>
         </Card>
       ))}
       <div className="flex justify-between items-center w-full mt-4">
-        <Button
-          onClick={handlePreviousPage}
-          disabled={!table.getCanPreviousPage()}
-        >
+        <Button onClick={handlePreviousPage} disabled={!table.getCanPreviousPage()}>
           이전
         </Button>
         <span>
-          {table.getState().pagination.pageIndex + 1} /{" "}
-          {table.getPageCount()}
+          {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
         </span>
-        <Button
-          onClick={handleNextPage}
-          disabled={!table.getCanNextPage()}
-        >
+        <Button onClick={handleNextPage} disabled={!table.getCanNextPage()}>
           다음
         </Button>
       </div>
       <div className="flex space-x-4 mt-4">
-        <Button
-          className="text-lg w-full"
-          onClick={() => router.push("/statusfalse")}
-        >
+        <Button className="text-lg w-full" onClick={() => router.push("/statusfalse")}>
           거절 현황
         </Button>
-        <Button
-          className="text-lg w-full"
-          onClick={() => router.push("/admin")}
-        >
+        <Button className="text-lg w-full" onClick={() => router.push("/admin")}>
           홈
         </Button>
-        <Button
-          className="text-lg w-full"
-          onClick={() => router.push("/admin/status")}
-        >
+        <Button className="text-lg w-full" onClick={() => router.push("/admin/status")}>
           승인 현황
         </Button>
       </div>
@@ -374,7 +313,9 @@ export default function Homeadmin() {
 
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
-    const value = await fetch("/api/password", { method: "POST", body: password }).then(res=>res.json()).catch(err=>console.error(err));
+    const value = await fetch("/api/password", { method: "POST", body: password })
+      .then((res) => res.json())
+      .catch((err) => console.error(err));
     if (value.success) {
       setIsPasswordCorrect(true);
     } else {
@@ -390,22 +331,20 @@ export default function Homeadmin() {
     try {
       const response = await fetch(
         "/api/requests?" +
-        stringify({
-          $all: [
-            {
-              "xata.createdAt": {
-                $ge: new Date(new Date().setHours(0, 0, 0, 0)).toISOString(),
+          stringify({
+            $all: [
+              {
+                "xata.createdAt": {
+                  $ge: new Date(new Date().setHours(0, 0, 0, 0)).toISOString(),
+                },
               },
-            },
-            {
-              "xata.createdAt": {
-                $le: new Date(
-                  new Date().setHours(23, 59, 59, 999),
-                ).toISOString(),
+              {
+                "xata.createdAt": {
+                  $le: new Date(new Date().setHours(23, 59, 59, 999)).toISOString(),
+                },
               },
-            },
-          ],
-        }),
+            ],
+          }),
       );
       const result = await response.json();
       const transformedData = result.requests
@@ -416,10 +355,7 @@ export default function Homeadmin() {
           time: `${request.time}교시`,
           isApproved: request.isApproved || false,
         }))
-        .sort(
-          (a, b) =>
-            new Date(b.xata.createdAt) - new Date(a.xata.createdAt),
-        );
+        .sort((a, b) => new Date(b.xata.createdAt) - new Date(a.xata.createdAt));
 
       setData(transformedData);
     } catch (error) {
