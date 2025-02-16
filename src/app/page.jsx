@@ -70,13 +70,16 @@ export default function Home() {
   const onSubmit = async (data) => {
     setIsFormDisabled(true);
 
+    // 데이터를 보낼 때 isApproved 필드를 null로 추가
+    const payload = { ...data, isApproved: null };
+
     try {
       const response = await fetch("/api/requests", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       });
 
       if (response.ok) {

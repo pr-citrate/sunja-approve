@@ -127,18 +127,18 @@ const columns = (data, setData) => [
     cell: ({ row }) => (
       <Button
         onClick={() => {
-          if (!row.original.isApproved) {
-            handleApprove(row.original, data, setData);
-          } else {
+          if (row.original.status === "approved") {
             handleReject(row.original, data, setData);
+          } else {
+            handleApprove(row.original, data, setData);
           }
         }}
-        className={`w-full ${row.original.isApproved
+        className={`w-full ${row.original.status === "approved"
             ? "bg-red-500 text-white"
             : "bg-green-500 text-white"
           }`}
       >
-        {row.original.isApproved ? "거부" : "승인"}
+        {row.original.status === "approved" ? "거부" : "승인"}
       </Button>
     ),
   },
@@ -158,13 +158,15 @@ const columns = (data, setData) => [
 
 // ─── 상태 업데이트, 승인/거부 핸들러 ─────────────────────────
 const handleUpdateStatus = async (row, data, setData, isApproved) => {
+  // isApproved true => status "approved", false => status "rejected"
+  const newStatus = isApproved ? "approved" : "rejected";
   try {
     const response = await fetch(`/api/requests?id=${row.id}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ isApproved }),
+      body: JSON.stringify({ status: newStatus }),
     });
 
     if (!response.ok) {
@@ -172,7 +174,7 @@ const handleUpdateStatus = async (row, data, setData, isApproved) => {
     }
 
     const updatedData = data.map((d) =>
-      d.id === row.id ? { ...d, isApproved } : d
+      d.id === row.id ? { ...d, status: newStatus } : d
     );
     setData(updatedData);
 
@@ -339,18 +341,18 @@ const MobileDataView = ({ table, data, setData, isLoading, handlePreviousPage, h
           <div className="mt-2">
             <Button
               onClick={() => {
-                if (!item.isApproved) {
-                  handleApprove(item, data, setData);
-                } else {
+                if (item.status === "approved") {
                   handleReject(item, data, setData);
+                } else {
+                  handleApprove(item, data, setData);
                 }
               }}
-              className={`w-full ${item.isApproved
+              className={`w-full ${item.status === "approved"
                   ? "bg-red-500 text-white"
                   : "bg-green-500 text-white"
                 }`}
             >
-              {item.isApproved ? "거부" : "승인"}
+              {item.status === "approved" ? "거부" : "승인"}
             </Button>
           </div>
         </Card>
@@ -452,12 +454,10 @@ export default function Homeadmin() {
           count: `${request.applicant.length}명`,
           time: `${request.time}교시`,
           reason: request.reason || "",
-          isApproved: request.isApproved || false,
+          // status 값이 없으면 "rejected"로 기본 처리 (pending도 rejected로 취급)
+          status: request.status || "rejected",
         }))
-        .sort(
-          (a, b) =>
-            new Date(b.xata.createdAt) - new Date(a.xata.createdAt)
-        );
+        .sort((a, b) => new Date(b.xata.createdAt) - new Date(a.xata.createdAt));
 
       setData(transformedData);
     } catch (error) {
