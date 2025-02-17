@@ -1,4 +1,5 @@
 "use client";
+/* eslint-env browser */
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
