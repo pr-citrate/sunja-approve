@@ -1,7 +1,8 @@
-// src/lib/firebaseClient.js
+"use client";
+/* eslint-env browser */
+
 import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, onMessage as firebaseOnMessage } from "firebase/messaging";
-import { getAnalytics } from "firebase/analytics";
 
 // Firebase 콘솔에서 제공하는 설정값으로 변경하세요.
 const firebaseConfig = {
@@ -15,13 +16,8 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-let analytics;
-// 클라이언트에서만 Analytics를 초기화합니다.
-if (typeof window !== "undefined") {
-  analytics = getAnalytics(app);
-}
 
-// 클라이언트에서만 Messaging 초기화를 진행합니다.
+// 클라이언트 환경에서만 Messaging 초기화 진행
 let messaging = null;
 if (typeof window !== "undefined") {
   messaging = getMessaging(app);
