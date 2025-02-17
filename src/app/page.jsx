@@ -31,6 +31,9 @@ import { useRouter } from "next/navigation";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+// Firebase 관련 import
+import { messaging, getToken, onMessage } from "@/lib/firebaseClient";
+
 export default function Home() {
   const router = useRouter();
   const [numApplicant, setNumApplicant] = useState(2);
@@ -100,6 +103,38 @@ export default function Home() {
   useEffect(() => {
     form.setValue("applicant", Array(numApplicant).fill({ name: "", number: "" }));
   }, [numApplicant, form]);
+
+  // Firebase 푸시 알림 권한 요청 및 토큰 발급
+  useEffect(() => {
+    // 브라우저에서 Notification API 지원 여부 확인
+    if ("Notification" in window && Notification.permission !== "granted") {
+      Notification.requestPermission().then((permission) => {
+        if (permission === "granted") {
+          console.log("알림 권한이 허용되었습니다.");
+          // FCM 토큰 요청 (vapidKey는 Firebase 콘솔 Cloud Messaging에 있음)
+          getToken(messaging, { vapidKey: "BG3Lkx50aYdOnzR-mWxNCpPi7LXfaI__UiUmJ-XlMOF0UY4l2v9Fhin0R4OZ1dlJMonXKaOC6IQgdcr-c6ozxf4" })
+            .then((currentToken) => {
+              if (currentToken) {
+                console.log("FCM 토큰:", currentToken);
+                // 이 토큰을 서버에 저장하여 나중에 푸시 메시지 전송 시 사용할 수 있습니다.
+              } else {
+                console.log("토큰을 가져올 수 없습니다.");
+              }
+            })
+            .catch((err) => {
+              console.error("토큰 가져오기 중 오류 발생:", err);
+            });
+        } else {
+          console.log("알림 권한이 거부되었습니다.");
+        }
+      });
+    }
+    // 포그라운드 메시지 수신 처리 (옵션)
+    onMessage(messaging, (payload) => {
+      console.log("포그라운드 메시지 수신:", payload);
+      // 필요시 UI 알림 또는 toast로 표시할 수 있습니다.
+    });
+  }, []);
 
   const { isSubmitting } = form.formState;
 
@@ -293,22 +328,33 @@ export default function Home() {
               >
                 제출
               </Button>
-              <Button
-                type="button"
-                onClick={() => router.push("/status")}
-                className="text-lg mt-4"
-                disabled={isSubmitting || isFormDisabled}
-              >
-                승인 현황
-              </Button>
-              <Button
-                type="button"
-                onClick={() => router.push("/statusfalse")}
-                className="text-lg mt-4"
-                disabled={isSubmitting || isFormDisabled}
-              >
-                거절 현황
-              </Button>
+              {/* 현황 버튼들을 묶는 div */}
+              <div className="flex flex-row gap-4 mt-4">
+                <Button
+                  type="button"
+                  onClick={() => router.push("/status")}
+                  disabled={isSubmitting || isFormDisabled}
+                  variant="outline"
+                >
+                  승인 현황
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => router.push("/statusfalse")}
+                  disabled={isSubmitting || isFormDisabled}
+                  variant="outline"
+                >
+                  거절 현황
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => router.push("/statuspending")}
+                  disabled={isSubmitting || isFormDisabled}
+                  variant="outline"
+                >
+                  확인 현황
+                </Button>
+              </div>
               <Link href={"/admin"} className={"bg-white text-transparent"}>
                 admin
               </Link>
