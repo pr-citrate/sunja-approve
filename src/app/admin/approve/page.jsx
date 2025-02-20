@@ -156,11 +156,12 @@ const columns = (data, setData) => [
   },
 ];
 
-// ─── 상태 업데이트, 승인/거부 핸들러 ─────────────────────────
+// ─── 상태 업데이트, 승인/거부 핸들러 (알림 전송 포함) ─────────────────────────
 const handleUpdateStatus = async (row, data, setData, isApproved) => {
   // isApproved true => status "approved", false => status "rejected"
   const newStatus = isApproved ? "approved" : "rejected";
   try {
+    // PATCH 요청으로 상태 업데이트
     const response = await fetch(`/api/requests?id=${row.id}`, {
       method: "PATCH",
       headers: {
@@ -182,6 +183,19 @@ const handleUpdateStatus = async (row, data, setData, isApproved) => {
       autoClose: 500,
       position: "top-center",
     });
+
+    // 승인 시, 알림 전송 (요청 레코드의 fcm 토큰으로)
+    if (isApproved) {
+      const notifyResponse = await fetch("/api/notify-approval", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: row.id }),
+      });
+      const notifyData = await notifyResponse.json();
+      console.log("알림 전송 결과:", notifyData);
+    }
   } catch (error) {
     console.error("Error updating status:", error);
     toast.error("상태 업데이트 중 오류 발생", {
@@ -250,7 +264,7 @@ const DataTable = ({ table, data, isLoading, handlePreviousPage, handleNextPage,
             </TableHeader>
             <TableBody>
               {table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
+                <TableRow key={row.original.id}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -292,7 +306,6 @@ const DataTable = ({ table, data, isLoading, handlePreviousPage, handleNextPage,
 const MobileDataView = ({ table, data, setData, isLoading, handlePreviousPage, handleNextPage, router }) => {
   if (isLoading) return <p>로딩 중...</p>;
 
-  // react-table의 현재 페이지 데이터에서 원본 데이터를 추출
   const currentPageData = table.getRowModel().rows.map((row) => row.original);
   if (currentPageData.length === 0) return <p>신청 목록이 없습니다</p>;
 
@@ -300,7 +313,6 @@ const MobileDataView = ({ table, data, setData, isLoading, handlePreviousPage, h
     <div className="w-full p-4">
       {currentPageData.map((item) => (
         <Card key={item.id} className="relative p-4 m-2">
-          {/* 카드 우측 상단의 삭제 버튼 */}
           <span
             onClick={() => confirmDelete(item, data, setData)}
             className="absolute top-1 right-1 text-gray-500 cursor-pointer"
@@ -348,8 +360,8 @@ const MobileDataView = ({ table, data, setData, isLoading, handlePreviousPage, h
                 }
               }}
               className={`w-full ${item.status === "approved"
-                  ? "bg-red-500 text-white"
-                  : "bg-green-500 text-white"
+                ? "bg-red-500 text-white"
+                : "bg-green-500 text-white"
                 }`}
             >
               {item.status === "approved" ? "거부" : "승인"}
@@ -392,9 +404,7 @@ export default function Homeadmin() {
   const [pageIndex, setPageIndex] = useState(0);
   const methods = useForm();
 
-  // react-responsive를 사용해 픽셀 기반 미디어 쿼리 적용 (최대 768px 이하이면 모바일)
   const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
-  // 모바일이면 페이지 당 3개, 데스크톱이면 8개씩 보여주기
   const pageSize = isMobile ? 3 : 8;
 
   const table = useReactTable({
@@ -448,13 +458,13 @@ export default function Homeadmin() {
       const result = await response.json();
       const transformedData = result.requests
         .map((request) => ({
+          id: request.id, // id 값을 명시적으로 추가
           ...request,
           name: request.applicant[0]?.name || "N/A",
           contact: request.contact || "N/A",
           count: `${request.applicant.length}명`,
           time: `${request.time}교시`,
           reason: request.reason || "",
-          // status 값이 없으면 "rejected"로 기본 처리 (pending도 rejected로 취급)
           status: request.status || "rejected",
         }))
         .sort((a, b) => new Date(b.xata.createdAt) - new Date(a.xata.createdAt));

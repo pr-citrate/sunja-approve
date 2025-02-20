@@ -40,6 +40,7 @@ export default function Home() {
   const router = useRouter();
   const [numApplicant, setNumApplicant] = useState(2);
   const [isFormDisabled, setIsFormDisabled] = useState(false);
+  const [fcmToken, setFcmToken] = useState(null); // FCM 토큰을 상태로 관리
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -74,7 +75,8 @@ export default function Home() {
 
   const onSubmit = async (data) => {
     setIsFormDisabled(true);
-    const payload = { ...data, isApproved: null };
+    // 제출 시 fcmToken을 payload에 포함합니다.
+    const payload = { ...data, isApproved: null, fcm: fcmToken };
 
     try {
       const response = await fetch("/api/requests", {
@@ -101,9 +103,8 @@ export default function Home() {
     form.setValue("applicant", Array(numApplicant).fill({ name: "", number: "" }));
   }, [numApplicant, form]);
 
-  // Firebase 푸시 알림 권한 요청 및 토큰 발급
+  // Firebase 푸시 알림 권한 요청 및 토큰 발급 후 상태에 저장
   useEffect(() => {
-    // 브라우저 환경에서만 실행
     if (typeof window !== "undefined") {
       if ("Notification" in window) {
         if (Notification.permission === "granted") {
@@ -111,6 +112,7 @@ export default function Home() {
             .then((currentToken) => {
               if (currentToken) {
                 console.log("FCM 토큰:", currentToken);
+                setFcmToken(currentToken);
               } else {
                 console.log("토큰을 가져올 수 없습니다.");
               }
@@ -126,6 +128,7 @@ export default function Home() {
                 .then((currentToken) => {
                   if (currentToken) {
                     console.log("FCM 토큰:", currentToken);
+                    setFcmToken(currentToken);
                   } else {
                     console.log("토큰을 가져올 수 없습니다.");
                   }
@@ -142,6 +145,8 @@ export default function Home() {
       // 포그라운드 메시지 수신 처리
       onMessage(messaging, (payload) => {
         console.log("포그라운드 메시지 수신:", payload);
+        const { title, body } = payload.notification;
+        toast.info(`${title}: ${body}`);
       });
     }
   }, []);
