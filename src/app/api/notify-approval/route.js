@@ -17,9 +17,11 @@ if (!admin.apps.length) {
 
 export async function POST(req) {
   try {
-    const { id } = await req.json();
+    const { id, isApproved } = await req.json();
     console.log("notify-approval 요청 id:", id); // 디버그용
-    if (!id) {
+    console.log("isApproved:", isApproved); // isApproved 값 확인
+
+    if (!id || isApproved === undefined) {
       return NextResponse.json({ error: "필수 데이터가 누락되었습니다." }, { status: 400 });
     }
 
@@ -33,19 +35,37 @@ export async function POST(req) {
       return NextResponse.json({ error: "FCM 토큰이 없습니다." }, { status: 400 });
     }
 
+    let messageTitle = "";
+    let messageBody = "";
+
+    // isApproved 값에 따른 상태 메시지 설정
+    if (isApproved === true) {
+      messageTitle = "신청 승인";
+      messageBody = "당신의 신청이 승인되었습니다.";
+    } else if (isApproved === false) {
+      messageTitle = "신청 거부";
+      messageBody = "당신의 신청이 거부되었습니다.";
+    } else {
+      return NextResponse.json({ error: "유효하지 않은 상태입니다." }, { status: 400 });
+    }
+
     const message = {
       notification: {
-        title: "신청 승인",
-        body: "당신의 신청이 승인되었습니다.",
+        title: messageTitle,
+        body: messageBody,
       },
       token: fcmToken,
     };
 
     const response = await admin.messaging().send(message);
     console.log("알림 전송 성공:", response);
-    return NextResponse.json({ message: "알림 전송 성공", response });
+
+    // 응답 본문을 정확히 반환
+    return NextResponse.json({ message: "알림 전송 성공", response: response });
   } catch (error) {
     console.error("알림 전송 오류:", error);
+
+    // 에러 메시지를 JSON 형식으로 반환
     return NextResponse.json({ error: "알림 전송 실패", detail: error.message }, { status: 500 });
   }
 }
