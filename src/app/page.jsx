@@ -33,7 +33,8 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 // Firebase 관련 import
-import { messaging, getToken, onMessage } from "@/lib/firebaseClient";
+import { messaging } from "@/lib/firebaseClient";
+import { getToken, onMessage } from "firebase/messaging";
 
 export default function Home() {
   const router = useRouter();
@@ -58,7 +59,7 @@ export default function Home() {
         height: "100px",
       },
       position: "top-center",
-      autoClose: 3000, // 3초 동안 표시
+      autoClose: 3000,
       hideProgressBar: false,
       closeOnClick: true,
       pauseOnHover: true,
@@ -66,26 +67,21 @@ export default function Home() {
       progress: undefined,
       onClose: () => {
         setIsFormDisabled(false);
-        form.reset(); // 폼 초기화
+        form.reset();
       },
     });
   };
 
   const onSubmit = async (data) => {
     setIsFormDisabled(true);
-
-    // 데이터를 보낼 때 isApproved 필드를 null로 추가
     const payload = { ...data, isApproved: null };
 
     try {
       const response = await fetch("/api/requests", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-
       if (response.ok) {
         showToast("제출되었습니다.", "success");
       } else {
@@ -107,17 +103,14 @@ export default function Home() {
 
   // Firebase 푸시 알림 권한 요청 및 토큰 발급
   useEffect(() => {
-    // 브라우저에서 Notification API 지원 여부 확인
-    if ("Notification" in window && Notification.permission !== "granted") {
-      Notification.requestPermission().then((permission) => {
-        if (permission === "granted") {
-          console.log("알림 권한이 허용되었습니다.");
-          // FCM 토큰 요청 (vapidKey는 Firebase 콘솔 Cloud Messaging에 있음)
-          getToken(messaging, { vapidKey: process.env.VAPID_KEY })
+    // 브라우저 환경에서만 실행
+    if (typeof window !== "undefined") {
+      if ("Notification" in window) {
+        if (Notification.permission === "granted") {
+          getToken(messaging, { vapidKey: process.env.NEXT_PUBLIC_VAPID_KEY })
             .then((currentToken) => {
               if (currentToken) {
                 console.log("FCM 토큰:", currentToken);
-                // 이 토큰을 서버에 저장하여 나중에 푸시 메시지 전송 시 사용할 수 있습니다.
               } else {
                 console.log("토큰을 가져올 수 없습니다.");
               }
@@ -126,15 +119,31 @@ export default function Home() {
               console.error("토큰 가져오기 중 오류 발생:", err);
             });
         } else {
-          console.log("알림 권한이 거부되었습니다.");
+          Notification.requestPermission().then((permission) => {
+            console.log("알림 권한 요청 결과:", permission);
+            if (permission === "granted") {
+              getToken(messaging, { vapidKey: process.env.NEXT_PUBLIC_VAPID_KEY })
+                .then((currentToken) => {
+                  if (currentToken) {
+                    console.log("FCM 토큰:", currentToken);
+                  } else {
+                    console.log("토큰을 가져올 수 없습니다.");
+                  }
+                })
+                .catch((err) => {
+                  console.error("토큰 가져오기 중 오류 발생:", err);
+                });
+            } else {
+              console.log("알림 권한이 거부되었습니다.");
+            }
+          });
         }
+      }
+      // 포그라운드 메시지 수신 처리
+      onMessage(messaging, (payload) => {
+        console.log("포그라운드 메시지 수신:", payload);
       });
     }
-    // 포그라운드 메시지 수신 처리 (옵션)
-    onMessage(messaging, (payload) => {
-      console.log("포그라운드 메시지 수신:", payload);
-      // 필요시 UI 알림 또는 toast로 표시할 수 있습니다.
-    });
   }, []);
 
   const { isSubmitting } = form.formState;
@@ -329,7 +338,6 @@ export default function Home() {
               >
                 제출
               </Button>
-              {/* 현황 버튼들을 묶는 div */}
               <div className="flex flex-row gap-4 mt-4">
                 <Button
                   type="button"
