@@ -5,7 +5,6 @@ import admin from "firebase-admin";
 
 const xata = getXataClient();
 
-// Firebase Admin SDK 초기화 (이미 초기화된 경우 건너뛰기)
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert({
@@ -19,11 +18,11 @@ if (!admin.apps.length) {
 export async function POST(req) {
   try {
     const { id } = await req.json();
+    console.log("notify-approval 요청 id:", id); // 디버그용
     if (!id) {
-      return NextResponse.json({ error: "ID가 필요합니다." }, { status: 400 });
+      return NextResponse.json({ error: "필수 데이터가 누락되었습니다." }, { status: 400 });
     }
 
-    // 해당 요청 레코드를 Xata에서 읽기 (fcm 필드가 포함되어 있어야 함)
     const record = await xata.db.requests.read(id);
     if (!record) {
       return NextResponse.json({ error: "레코드를 찾을 수 없습니다." }, { status: 404 });
