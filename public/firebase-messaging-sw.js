@@ -15,6 +15,9 @@ const firebaseConfig = {
     measurementId: "G-3YJ3BXSTXD"
 };
 
+// Firebase 앱 초기화 추가
+firebase.initializeApp(firebaseConfig);
+
 const messaging = firebase.messaging();
 
 // 백그라운드 메시지 처리
