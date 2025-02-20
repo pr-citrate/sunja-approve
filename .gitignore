@@ -45,3 +45,4 @@ next-env.d.ts
 .vscode
 
 public/sw.js.map
+firebase.json

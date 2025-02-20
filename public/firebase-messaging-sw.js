@@ -23,7 +23,7 @@ messaging.onBackgroundMessage((payload) => {
     const notificationTitle = payload.notification?.title || "백그라운드 알림";
     const notificationOptions = {
         body: payload.notification?.body || "알림 내용이 없습니다.",
-        icon: "/icons/icon-192x192.png", // 아이콘 파일은 프로젝트 내에 준비해 주세요.
+        icon: "/logo.png", // 아이콘 파일은 프로젝트 내에 준비해 주세요.
     };
 
     self.registration.showNotification(notificationTitle, notificationOptions);

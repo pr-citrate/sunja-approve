@@ -113,7 +113,7 @@ export default function Home() {
         if (permission === "granted") {
           console.log("알림 권한이 허용되었습니다.");
           // FCM 토큰 요청 (vapidKey는 Firebase 콘솔 Cloud Messaging에 있음)
-          getToken(messaging, { vapidKey: "BG3Lkx50aYdOnzR-mWxNCpPi7LXfaI__UiUmJ-XlMOF0UY4l2v9Fhin0R4OZ1dlJMonXKaOC6IQgdcr-c6ozxf4" })
+          getToken(messaging, { vapidKey: process.env.VAPID_KEY })
             .then((currentToken) => {
               if (currentToken) {
                 console.log("FCM 토큰:", currentToken);
