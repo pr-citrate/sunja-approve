@@ -76,7 +76,7 @@ export default function Home() {
   const onSubmit = async (data) => {
     setIsFormDisabled(true);
     // 제출 시 fcmToken을 payload에 포함합니다.
-    const payload = { ...data, isApproved: null, fcm: fcmToken };
+    const payload = { ...data, isApproved: false, fcm: fcmToken };
 
     try {
       const response = await fetch("/api/requests", {
