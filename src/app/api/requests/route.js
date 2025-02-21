@@ -30,7 +30,7 @@ export async function POST(req) {
     // FCM 토큰을 fcm 컬럼에 저장
     fcm: body.fcm,                   // 클라이언트에서 body.fcm으로 전송된 값
     // 상태 관련 필드들
-    isApproved: body.isApproved ?? false, // 승인 여부 (없으면 null)
+    isApproved: body.isApproved !== undefined ? body.isApproved : false, // undefined가 아니면 그대로, 아니면 false 설정
     status: body.status || "pending",    // 상태 (기본값 "pending")
   });
 
