@@ -73,7 +73,6 @@ export default function Home() {
   const onSubmit = async (data) => {
     setIsFormDisabled(true);
     // 제출 시 fcmToken을 payload에 포함합니다.
-    // fcmToken은 레이아웃에서 설정된 값을 사용할 수 있도록 별도로 관리하세요.
     const payload = { ...data, isApproved: false, fcm: fcmToken };
 
     try {

@@ -1,3 +1,4 @@
+// app/api/notify-approval/route.js
 import { NextResponse } from "next/server";
 import { getXataClient } from "@/xata";
 import admin from "firebase-admin";
@@ -16,16 +17,14 @@ if (!admin.apps.length) {
 
 export async function POST(req) {
   try {
-    // 요청 본문을 JSON으로 파싱하고 id, isApproved 값을 추출
     const { id, isApproved } = await req.json();
-    console.log("서버에서 받은 데이터:", { id, isApproved }); // 받은 데이터 확인
+    console.log("notify-approval 요청 id:", id); // 디버그용
+    console.log("isApproved:", isApproved); // isApproved 값 확인
 
-    // 필수 데이터가 없으면 오류 반환
     if (!id || isApproved === undefined) {
       return NextResponse.json({ error: "필수 데이터가 누락되었습니다." }, { status: 400 });
     }
 
-    // Xata 데이터베이스에서 해당 요청을 읽어오기
     const record = await xata.db.requests.read(id);
     if (!record) {
       return NextResponse.json({ error: "레코드를 찾을 수 없습니다." }, { status: 404 });
@@ -58,7 +57,6 @@ export async function POST(req) {
       token: fcmToken,
     };
 
-    // Firebase Cloud Messaging을 사용하여 푸시 알림 전송
     const response = await admin.messaging().send(message);
     console.log("알림 전송 성공:", response);
 

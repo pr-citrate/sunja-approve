@@ -185,17 +185,17 @@ const handleUpdateStatus = async (row, data, setData, isApproved) => {
     });
 
     // 승인 시, 알림 전송 (요청 레코드의 fcm 토큰으로)
-    // 승인/거부에 관계없이 알림 전송이 필요하다면 조건문 없이 전송하거나, 조건에 따라 다른 메시지를 보낼 수 있습니다.
-    const notifyResponse = await fetch("/api/notify-approval", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ id: row.id, isApproved: isApproved }),
-    });
-    const notifyData = await notifyResponse.json();
-    console.log("알림 전송 결과:", notifyData);
-
+    if (isApproved) {
+      const notifyResponse = await fetch("/api/notify-approval", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: row.id }),
+      });
+      const notifyData = await notifyResponse.json();
+      console.log("알림 전송 결과:", notifyData);
+    }
   } catch (error) {
     console.error("Error updating status:", error);
     toast.error("상태 업데이트 중 오류 발생", {
