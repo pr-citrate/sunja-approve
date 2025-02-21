@@ -3,7 +3,6 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
-import FCMNotification from "@/components/FCMNotification"; // 클라이언트 컴포넌트
 
 const inter = Inter({ subsets: ["latin"] });
 
