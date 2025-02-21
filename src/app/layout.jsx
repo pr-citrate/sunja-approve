@@ -33,8 +33,6 @@ export default function RootLayout({ children }) {
         />
         {/* 서비스 워커 등록 */}
         <ServiceWorkerRegister />
-        {/* 알림 권한 요청 및 FCM 토큰 획득 컴포넌트 */}
-        <FCMNotification />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
