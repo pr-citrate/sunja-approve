@@ -2,7 +2,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
-import ServiceWorkerRegister from "@/components/ServiceWorkerRegister"; // ✅ 클라이언트 컴포넌트 추가
+import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
+import FCMNotification from "@/components/FCMNotification"; // 클라이언트 컴포넌트
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -30,10 +31,10 @@ export default function RootLayout({ children }) {
           data-x_margin="18"
           data-y_margin="18"
         />
-
-        {/* Firebase 관련 서비스 워커 등록 */}
+        {/* 서비스 워커 등록 */}
         <ServiceWorkerRegister />
-
+        {/* 알림 권한 요청 및 FCM 토큰 획득 컴포넌트 */}
+        <FCMNotification />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
