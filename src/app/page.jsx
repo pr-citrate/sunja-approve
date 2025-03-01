@@ -49,7 +49,6 @@ export default function Home() {
       reason: "",
       contact: "",
       applicantNum: "2",
-      isApproved: false, // 기본값 false
     },
   });
 
@@ -72,9 +71,8 @@ export default function Home() {
 
   const onSubmit = async (data) => {
     setIsFormDisabled(true);
-    // isApproved 값은 여기서 정적으로 false 처리 (필요시 로직 수정)
-    const isApproved = false;
-    const payload = { ...data, isApproved, fcm: fcmToken };
+    // 제출 시 fcmToken을 payload에 포함합니다.
+    const payload = { ...data, isApproved: false, fcm: fcmToken };
 
     try {
       const response = await fetch("/api/requests", {
