@@ -326,7 +326,7 @@ export default function Home() {
                             <Input
                               id={`id${i}`}
                               placeholder={`학번 ${i + 1}${i ? "" : " (대표자)"}`}
-                              type="text"
+                              type="te"
                               className="text-g"
                               {...field}
                               disabled={isSubmitting || isFormDisabled}
