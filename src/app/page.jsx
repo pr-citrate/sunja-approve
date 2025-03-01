@@ -32,14 +32,15 @@ import { useRouter } from "next/navigation";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-// FCM 관련 로직은 전역 Context에서 처리하므로 useFCM 훅을 사용
-import { useFCM } from "@/components/FCMContext";
+// Firebase 관련 import
+import { messaging } from "@/lib/firebaseClient";
+import { getToken, onMessage } from "firebase/messaging";
 
 export default function Home() {
   const router = useRouter();
-  const { fcmToken } = useFCM(); // 전역 FCMContext에서 토큰을 가져옴
   const [numApplicant, setNumApplicant] = useState(2);
   const [isFormDisabled, setIsFormDisabled] = useState(false);
+  const [fcmToken, setFcmToken] = useState(null); // FCM 토큰을 상태로 관리
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -49,12 +50,16 @@ export default function Home() {
       reason: "",
       contact: "",
       applicantNum: "2",
+      isApproved: false,  // Default to false
     },
   });
 
   const showToast = (message, type) => {
     toast[type](message, {
-      style: { width: "300px", height: "100px" },
+      style: {
+        width: "300px",
+        height: "100px",
+      },
       position: "top-center",
       autoClose: 3000,
       hideProgressBar: false,
@@ -71,8 +76,10 @@ export default function Home() {
 
   const onSubmit = async (data) => {
     setIsFormDisabled(true);
-    // 제출 시 fcmToken을 payload에 포함합니다.
-    const payload = { ...data, isApproved: false, fcm: fcmToken };
+    // Dynamically set isApproved if needed
+    const isApproved = false;  // For now, keeping it static, but you can modify this logic.
+
+    const payload = { ...data, isApproved, fcm: fcmToken };
 
     try {
       const response = await fetch("/api/requests", {
@@ -99,8 +106,53 @@ export default function Home() {
     form.setValue("applicant", Array(numApplicant).fill({ name: "", number: "" }));
   }, [numApplicant, form]);
 
-  // 기존의 FCM 토큰 발급 및 onMessage 관련 useEffect는 제거됨.
-  // FCMContext가 전역에서 이를 처리합니다.
+  // Firebase 푸시 알림 권한 요청 및 토큰 발급 후 상태에 저장
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      if ("Notification" in window) {
+        if (Notification.permission === "granted") {
+          getToken(messaging, { vapidKey: process.env.NEXT_PUBLIC_VAPID_KEY })
+            .then((currentToken) => {
+              if (currentToken) {
+                console.log("FCM 토큰:", currentToken);
+                setFcmToken(currentToken);
+              } else {
+                console.log("토큰을 가져올 수 없습니다.");
+              }
+            })
+            .catch((err) => {
+              console.error("토큰 가져오기 중 오류 발생:", err);
+            });
+        } else {
+          Notification.requestPermission().then((permission) => {
+            console.log("알림 권한 요청 결과:", permission);
+            if (permission === "granted") {
+              getToken(messaging, { vapidKey: process.env.NEXT_PUBLIC_VAPID_KEY })
+                .then((currentToken) => {
+                  if (currentToken) {
+                    console.log("FCM 토큰:", currentToken);
+                    setFcmToken(currentToken);
+                  } else {
+                    console.log("토큰을 가져올 수 없습니다.");
+                  }
+                })
+                .catch((err) => {
+                  console.error("토큰 가져오기 중 오류 발생:", err);
+                });
+            } else {
+              console.log("알림 권한이 거부되었습니다.");
+            }
+          });
+        }
+      }
+      // 포그라운드 메시지 수신 처리
+      onMessage(messaging, (payload) => {
+        console.log("포그라운드 메시지 수신:", payload);
+        const { title, body } = payload.notification;
+        toast.info(`${title}: ${body}`);
+      });
+    }
+  }, []);
 
   const { isSubmitting } = form.formState;
 
@@ -274,7 +326,7 @@ export default function Home() {
                             <Input
                               id={`id${i}`}
                               placeholder={`학번 ${i + 1}${i ? "" : " (대표자)"}`}
-                              type="text"
+                              type="te"
                               className="text-g"
                               {...field}
                               disabled={isSubmitting || isFormDisabled}
