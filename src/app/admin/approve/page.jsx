@@ -26,7 +26,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useMediaQuery } from "react-responsive";
 
-// ─── 삭제 확인 토스트 (커스텀 컴포넌트) ─────────────────────────────
+// ─── 삭제 확인 토스트 ─────────────────────────────
 const confirmDelete = (row, data, setData) => {
   toast(
     ({ closeToast }) => (
@@ -127,18 +127,18 @@ const columns = (data, setData) => [
     cell: ({ row }) => (
       <Button
         onClick={() => {
-          if (row.original.status === "approved") {
+          if (row.original.isApproved) {
             handleReject(row.original, data, setData);
           } else {
             handleApprove(row.original, data, setData);
           }
         }}
-        className={`w-full ${row.original.status === "approved"
-          ? "bg-red-500 text-white"
-          : "bg-green-500 text-white"
+        className={`w-full ${row.original.isApproved
+            ? "bg-red-500 text-white"
+            : "bg-green-500 text-white"
           }`}
       >
-        {row.original.status === "approved" ? "거부" : "승인"}
+        {row.original.isApproved ? "거부" : "승인"}
       </Button>
     ),
   },
@@ -156,26 +156,26 @@ const columns = (data, setData) => [
   },
 ];
 
-// ─── 상태 업데이트, 승인/거부 핸들러 (알림 전송 포함) ─────────────────────────
+// ─── 상태 업데이트 및 알림 전송 ─────────────────────────────
 const handleUpdateStatus = async (row, data, setData, isApproved) => {
-  // isApproved true => status "approved", false => status "rejected"
   const newStatus = isApproved ? "approved" : "rejected";
   try {
-    // PATCH 요청으로 상태 업데이트
+    // PATCH 요청: status와 isApproved를 모두 업데이트
     const response = await fetch(`/api/requests?id=${row.id}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ status: newStatus }),
+      body: JSON.stringify({ status: newStatus, isApproved }),
     });
 
     if (!response.ok) {
       throw new Error("Request update failed");
     }
 
+    // 로컬 데이터 업데이트
     const updatedData = data.map((d) =>
-      d.id === row.id ? { ...d, status: newStatus } : d
+      d.id === row.id ? { ...d, status: newStatus, isApproved } : d
     );
     setData(updatedData);
 
@@ -184,18 +184,16 @@ const handleUpdateStatus = async (row, data, setData, isApproved) => {
       position: "top-center",
     });
 
-    // 승인 시, 알림 전송 (요청 레코드의 fcm 토큰으로)
-    if (isApproved) {
-      const notifyResponse = await fetch("/api/notify-approval", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ id: row.id }),
-      });
-      const notifyData = await notifyResponse.json();
-      console.log("알림 전송 결과:", notifyData);
-    }
+    // 승인, 거부 관계없이 알림 전송
+    const notifyResponse = await fetch("/api/notify-approval", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id: row.id, isApproved }),
+    });
+    const notifyData = await notifyResponse.json();
+    console.log("알림 전송 결과:", notifyData);
   } catch (error) {
     console.error("Error updating status:", error);
     toast.error("상태 업데이트 중 오류 발생", {
@@ -238,7 +236,7 @@ const PasswordForm = ({ handlePasswordSubmit, password, setPassword, router }) =
   </Card>
 );
 
-// ─── 데스크톱용 데이터 테이블 (react-table 사용) ─────────────────
+// ─── 데스크톱용 데이터 테이블 ─────────────────────────────
 const DataTable = ({ table, data, isLoading, handlePreviousPage, handleNextPage, router }) => (
   <Card className="min-w-screen grid justify-items-center items-center p-8 m-12 min-h-96 min-w-96">
     {isLoading ? (
@@ -302,7 +300,7 @@ const DataTable = ({ table, data, isLoading, handlePreviousPage, handleNextPage,
   </Card>
 );
 
-// ─── 모바일용 간소화 데이터 리스트 ─────────────────────────────
+// ─── 모바일용 데이터 리스트 ─────────────────────────────
 const MobileDataView = ({ table, data, setData, isLoading, handlePreviousPage, handleNextPage, router }) => {
   if (isLoading) return <p>로딩 중...</p>;
 
@@ -353,18 +351,16 @@ const MobileDataView = ({ table, data, setData, isLoading, handlePreviousPage, h
           <div className="mt-2">
             <Button
               onClick={() => {
-                if (item.status === "approved") {
+                if (item.isApproved) {
                   handleReject(item, data, setData);
                 } else {
                   handleApprove(item, data, setData);
                 }
               }}
-              className={`w-full ${item.status === "approved"
-                ? "bg-red-500 text-white"
-                : "bg-green-500 text-white"
+              className={`w-full ${item.isApproved ? "bg-red-500 text-white" : "bg-green-500 text-white"
                 }`}
             >
-              {item.status === "approved" ? "거부" : "승인"}
+              {item.isApproved ? "거부" : "승인"}
             </Button>
           </div>
         </Card>
@@ -458,7 +454,7 @@ export default function Homeadmin() {
       const result = await response.json();
       const transformedData = result.requests
         .map((request) => ({
-          id: request.id, // id 값을 명시적으로 추가
+          id: request.id,
           ...request,
           name: request.applicant[0]?.name || "N/A",
           contact: request.contact || "N/A",
@@ -466,6 +462,7 @@ export default function Homeadmin() {
           time: `${request.time}교시`,
           reason: request.reason || "",
           status: request.status || "rejected",
+          isApproved: request.isApproved ?? false,
         }))
         .sort((a, b) => new Date(b.xata.createdAt) - new Date(a.xata.createdAt));
 
