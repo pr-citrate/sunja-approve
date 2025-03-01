@@ -3,6 +3,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
+import { FCMProvider } from "@/components/FCMContext"; // FCM Context 추가
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -38,8 +39,11 @@ export default function RootLayout({ children }) {
           enableSystem
           disableTransitionOnChange
         >
-          {children}
-          <Toaster />
+          {/* FCMProvider로 앱 전체를 감싸 전역에서 FCM 토큰을 사용할 수 있도록 */}
+          <FCMProvider>
+            {children}
+            <Toaster />
+          </FCMProvider>
         </ThemeProvider>
       </body>
     </html>
