@@ -57,7 +57,7 @@ export async function POST(req) {
       // 알림 메시지 구성 (제목과 본문: "신청이 들어왔습니다")
       const messagePayload = {
         notification: {
-          title: "신청이 들어왔습니다",
+          title: "신청 알림",
           body: "신청이 들어왔습니다",
         },
         data: {
