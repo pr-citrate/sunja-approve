@@ -92,6 +92,12 @@ export default function HomePage() {
         </Button>
         <Button
           className="text-lg mb-4 w-full"
+          onClick={() => router.push("/admin/download")}
+        >
+          다운로드
+        </Button>
+        <Button
+          className="text-lg mb-4 w-full"
           onClick={handleGetToken}
           disabled={isSaving}
         >
