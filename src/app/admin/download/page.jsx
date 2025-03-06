@@ -21,10 +21,23 @@ import { stringify } from "qs";
 import { useRouter } from "next/navigation";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import jsPDF from "jspdf";
-import nanumGothicBase64 from "./nanum-gothic-base64";
 
-// ─── 임시 승인/거부, 삭제 처리 함수 (실제 로직에 맞게 수정) ─────────────────────────────
+// pdf-lib와 downloadjs를 사용하여 템플릿 PDF를 불러와 데이터를 채워 다운로드하는 함수
+import { PDFDocument, rgb } from "pdf-lib";
+import download from "downloadjs";
+import fontkit from "@pdf-lib/fontkit";
+
+// 날짜 문자열을 파싱하여 { month, day } 객체로 반환하는 함수
+const formatDateParts = (dateStr) => {
+  if (!dateStr) return { month: "월", day: "일" };
+  const dateObj = new Date(dateStr);
+  if (isNaN(dateObj)) return { month: "오류", day: "오류" };
+  const month = dateObj.getMonth() + 1; // 월은 0부터 시작하므로 1을 더함
+  const day = dateObj.getDate();
+  return { month, day };
+};
+
+// ─── 임시 승인/거부, 삭제 처리 함수 ─────────────────────────────
 const handleApprove = (item, data, setData) => {
   const updatedData = data.map((d) =>
     d.id === item.id ? { ...d, isApproved: true } : d
@@ -49,38 +62,94 @@ const confirmDelete = (item, data, setData) => {
   }
 };
 
-// ─── 각 행별 PDF 다운로드 함수 ─────────────────────────────
-const downloadRowPDF = (rowData) => {
-  const doc = new jsPDF();
-  // 한글 폰트 등록 (매번 새 인스턴스에서 등록)
-  doc.addFileToVFS("NanumGothic.ttf", nanumGothicBase64);
-  doc.addFont("NanumGothic.ttf", "NanumGothic", "normal");
-  doc.setFont("NanumGothic");
+// ─── 템플릿 PDF에 데이터를 채워 다운로드하는 함수 ─────────────────────────────
+const downloadTemplatePDF = async (rowData) => {
+  // 템플릿 PDF 파일을 public 폴더에서 불러오기 (경로 조정 필요)
+  const existingPdfBytes = await fetch("/sunja.pdf").then((res) =>
+    res.arrayBuffer()
+  );
+  
+  // PDFDocument 생성 및 fontkit 등록
+  const pdfDoc = await PDFDocument.load(existingPdfBytes);
+  pdfDoc.registerFontkit(fontkit);
+  
+  const pages = pdfDoc.getPages();
+  const firstPage = pages[0];
+  const { width, height } = firstPage.getSize();
 
-  let y = 100;
-  doc.text(50, y, `총인원: ${rowData.count}`);
-  y += 10;
-  doc.text(50, y, `신청교시: ${rowData.time}`);
-  y += 10;
-  doc.text(50, y, `사유: ${rowData.reason}`);
-  y += 10;
+  // 한글 텍스트를 출력하기 위해 public 폴더에 위치한 NanumGothic.ttf 파일을 불러와 임베드
+  const fontBytes = await fetch("/NanumGothic.ttf").then((res) =>
+    res.arrayBuffer()
+  );
+  const customFont = await pdfDoc.embedFont(fontBytes);
+
+  // xata.createdAt에서 월, 일을 분리해서 추출
+  const { month, day } = formatDateParts(rowData.xata.createdAt);
+
+  // Time: "교시" 문구 제거 (예: "1교시" → "1")
+  const timeText = rowData.time ? rowData.time.replace("교시", "") : "정보 없음";
+
+  // 예시: 월과 일을 각각 다른 좌표에 출력 (좌표는 템플릿에 맞게 조정)
+  firstPage.drawText(`${month}`, {
+    x: 430,
+    y: height - 155,
+    size: 12,
+    font: customFont,
+    color: rgb(0, 0, 0),
+  });
+  firstPage.drawText(`${day}`, {
+    x: 480,
+    y: height - 155,
+    size: 12,
+    font: customFont,
+    color: rgb(0, 0, 0),
+  });
+  
+  // 사용시간과 사유 추가
+  firstPage.drawText(`야자 ${rowData.time} 교시`, {
+    x: 305,
+    y: height - 190,
+    size: 12,
+    font: customFont,
+    color: rgb(0, 0, 0),
+  });
+  firstPage.drawText(`${rowData.reason || "정보 없음"}`, {
+    x: 260,
+    y: height - 227,
+    size: 15,
+    font: customFont,
+    color: rgb(0, 0, 0),
+  });
+  
+  // 신청자 목록: 신청자 이름이 3개 이상일 경우 2개씩 그룹으로 묶어서 한 줄에 출력
   if (rowData.applicant && rowData.applicant.length > 0) {
-    y += 10;
-    rowData.applicant.forEach((applicant, index) => {
-      doc.text(50, y, `${applicant.number} ${applicant.name}`);
-      y += 10;
-      // 페이지 높이 초과 시 새 페이지 추가 (약 280mm 기준)
-      if (y > 280) {
-        doc.addPage();
-        y = 10;
-      }
+    const applicants = rowData.applicant;
+    const groups = [];
+    for (let i = 0; i < applicants.length; i += 2) {
+      groups.push(applicants.slice(i, i + 2));
+    }
+    let yPos = height - 270; // 시작 y 좌표 (템플릿에 맞게 조정)
+    groups.forEach((group) => {
+      const text = group
+        .map((applicant) => `${applicant.number} ${applicant.name}`)
+        .join(" / ");
+      firstPage.drawText(text, {
+        x: 245,
+        y: yPos,
+        size: 15,
+        font: customFont,
+        color: rgb(0, 0, 0),
+      });
+      yPos -= 17;
     });
   }
-  doc.save(`${rowData.name}_data.pdf`);
+
+  const pdfBytes = await pdfDoc.save();
+  download(pdfBytes, `${rowData.name}_template.pdf`, "application/pdf");
 };
 
 // ─── 데스크톱용 테이블 열 정의 ─────────────────────────────
-const columns = (data, setData, downloadRowPDF) => [
+const columns = (data, setData, downloadTemplatePDF) => [
   {
     accessorKey: "name",
     header: "대표자",
@@ -145,11 +214,11 @@ const columns = (data, setData, downloadRowPDF) => [
     ),
   },
   {
-    id: "download",
-    header: "다운로드",
+    id: "template",
+    header: "템플릿 다운로드",
     cell: ({ row }) => (
-      <Button onClick={() => downloadRowPDF(row.original)}>
-        다운로드
+      <Button onClick={() => downloadTemplatePDF(row.original)}>
+        템플릿 다운로드
       </Button>
     ),
   },
@@ -226,19 +295,7 @@ export default function Homeadmin() {
   const [pageIndex, setPageIndex] = useState(0);
   const pageSize = 8;
 
-  // 테이블 생성 시 downloadRowPDF 함수를 columns에 전달합니다.
-  const table = useReactTable({
-    data,
-    columns: columns(data, setData, downloadRowPDF),
-    pageCount: Math.ceil(data.length / pageSize),
-    state: {
-      pagination: { pageIndex, pageSize },
-    },
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-  });
-
-  // API에서 데이터 가져오기
+  // API에서 데이터 가져오기: xata.createdAt을 date 필드에 할당
   const fetchData = async () => {
     setIsLoading(true);
     try {
@@ -267,12 +324,15 @@ export default function Homeadmin() {
           name: request.applicant[0]?.name || "N/A",
           contact: request.contact || "N/A",
           count: `${request.applicant.length}명`,
-          time: `${request.time}교시`,
+          time: request.time, // 예: "1교시" -> 여기서 추후 "교시" 제거 처리함
           reason: request.reason || "",
           status: request.status || "rejected",
           isApproved: request.isApproved ?? false,
+          // xata.createdAt에서 날짜 정보를 받아 date 필드에 할당
+          "xata.createdAt": request["xata.createdAt"],
+          teacher: request.teacher, // 예: "김선생님"
         }))
-        .sort((a, b) => new Date(b.xata.createdAt) - new Date(a.xata.createdAt));
+        .sort((a, b) => new Date(b["xata.createdAt"]) - new Date(a["xata.createdAt"]));
 
       setData(transformedData);
     } catch (error) {
@@ -298,6 +358,17 @@ export default function Homeadmin() {
   const handlePreviousPage = () => {
     setPageIndex((prev) => Math.max(prev - 1, 0));
   };
+
+  const table = useReactTable({
+    data,
+    columns: columns(data, setData, downloadTemplatePDF),
+    pageCount: Math.ceil(data.length / pageSize),
+    state: {
+      pagination: { pageIndex, pageSize },
+    },
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+  });
 
   return (
     <main className="flex flex-col items-center w-screen min-h-screen p-4">
