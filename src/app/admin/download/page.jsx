@@ -21,6 +21,7 @@ import { stringify } from "qs";
 import { useRouter } from "next/navigation";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useMediaQuery } from "react-responsive";
 
 // pdf-lib와 downloadjs를 사용하여 템플릿 PDF를 불러와 데이터를 채워 다운로드하는 함수
 import { PDFDocument, rgb } from "pdf-lib";
@@ -149,7 +150,7 @@ const downloadTemplatePDF = async (rowData) => {
 };
 
 // ─── 데스크톱용 테이블 열 정의 ─────────────────────────────
-const columns = (data, setData, downloadTemplatePDF) => [
+const columnsDesktop = (data, setData, downloadTemplatePDF) => [
   {
     accessorKey: "name",
     header: "대표자",
@@ -224,6 +225,56 @@ const columns = (data, setData, downloadTemplatePDF) => [
   },
 ];
 
+// ─── 모바일용 리스트 뷰 컴포넌트 (한 화면에 3개씩 표시) ─────────────────────────────
+const MobileDataView = ({ data, downloadTemplatePDF, setData, router, pageIndex, totalPages, handleNextPage, handlePreviousPage }) => {
+  // 한 페이지에 mobilePageSize(3)개의 항목만 표시
+  const mobilePageSize = 3;
+  const itemsToShow = data.slice(pageIndex * mobilePageSize, pageIndex * mobilePageSize + mobilePageSize);
+
+  return (
+    <div className="w-full p-4">
+      {itemsToShow.map((item) => (
+        <Card key={item.id} className="p-4 m-2">
+          <p>
+            <strong>대표자:</strong> {item.name}
+          </p>
+          <p>
+            <strong>전화번호:</strong> {item.contact}
+          </p>
+          <p>
+            <strong>총인원:</strong> {item.count}
+          </p>
+          <p>
+            <strong>신청교시:</strong> {item.time}
+          </p>
+          <p>
+            <strong>사유:</strong> {item.reason}
+          </p>
+          <Button className="mt-2" onClick={() => downloadTemplatePDF(item)}>
+            템플릿 다운로드
+          </Button>
+        </Card>
+      ))}
+      <div className="flex justify-between mt-4">
+        <Button onClick={handlePreviousPage} disabled={pageIndex === 0}>
+          이전
+        </Button>
+        <span>
+          {pageIndex + 1} / {totalPages}
+        </span>
+        <Button onClick={handleNextPage} disabled={pageIndex + 1 === totalPages}>
+          다음
+        </Button>
+      </div>
+      <div className="flex justify-around mt-4">
+        <Button onClick={() => router.push("/admin")}>홈</Button>
+        <Button onClick={() => router.push("/admin/status")}>승인 현황</Button>
+        <Button onClick={() => router.push("/statusfalse")}>거절 현황</Button>
+      </div>
+    </div>
+  );
+};
+
 // ─── 데스크톱용 데이터 테이블 컴포넌트 ─────────────────────────────
 const DataTable = ({ table, data, isLoading, handlePreviousPage, handleNextPage, router }) => (
   <Card className="min-w-screen grid justify-items-center items-center p-8 m-12 min-h-96 min-w-96">
@@ -292,10 +343,15 @@ export default function Homeadmin() {
   const router = useRouter();
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  // 데스크톱용 페이지 인덱스
   const [pageIndex, setPageIndex] = useState(0);
+  // 모바일용 페이지 인덱스 (한 화면에 3개씩)
+  const [mobilePageIndex, setMobilePageIndex] = useState(0);
   const pageSize = 8;
+  const mobilePageSize = 3;
+  const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
 
-  // API에서 데이터 가져오기: xata.createdAt을 date 필드에 할당
+  // API에서 데이터 가져오기: xata.createdAt을 그대로 할당
   const fetchData = async () => {
     setIsLoading(true);
     try {
@@ -324,14 +380,16 @@ export default function Homeadmin() {
           name: request.applicant[0]?.name || "N/A",
           contact: request.contact || "N/A",
           count: `${request.applicant.length}명`,
-          time: request.time, // 예: "1교시" -> 여기서 추후 "교시" 제거 처리함
+          time: request.time, // 예: "1교시"
           reason: request.reason || "",
           status: request.status || "rejected",
           isApproved: request.isApproved ?? false,
-          // xata.createdAt에서 날짜 정보를 받아 date 필드에 할당
+          // xata.createdAt을 그대로 할당 (formatDateParts 함수 내에서 파싱)
           "xata.createdAt": request["xata.createdAt"],
           teacher: request.teacher, // 예: "김선생님"
         }))
+        // isApproved가 true인 값만 필터링
+        .filter((item) => item.isApproved)
         .sort((a, b) => new Date(b["xata.createdAt"]) - new Date(a["xata.createdAt"]));
 
       setData(transformedData);
@@ -359,9 +417,23 @@ export default function Homeadmin() {
     setPageIndex((prev) => Math.max(prev - 1, 0));
   };
 
+  // 모바일용 페이지네이션 핸들러 (한 화면에 mobilePageSize개씩)
+  const handleMobileNext = () => {
+    setMobilePageIndex((prev) =>
+      Math.min(prev + 1, Math.ceil(data.length / mobilePageSize) - 1)
+    );
+  };
+
+  const handleMobilePrevious = () => {
+    setMobilePageIndex((prev) => Math.max(prev - 1, 0));
+  };
+
+  const totalMobilePages = Math.ceil(data.length / mobilePageSize);
+
+  // 데스크톱용 테이블
   const table = useReactTable({
     data,
-    columns: columns(data, setData, downloadTemplatePDF),
+    columns: columnsDesktop(data, setData, downloadTemplatePDF),
     pageCount: Math.ceil(data.length / pageSize),
     state: {
       pagination: { pageIndex, pageSize },
@@ -372,14 +444,27 @@ export default function Homeadmin() {
 
   return (
     <main className="flex flex-col items-center w-screen min-h-screen p-4">
-      <DataTable
-        table={table}
-        data={data}
-        isLoading={isLoading}
-        handlePreviousPage={handlePreviousPage}
-        handleNextPage={handleNextPage}
-        router={router}
-      />
+      {isMobile ? (
+        <MobileDataView
+          data={data}
+          downloadTemplatePDF={downloadTemplatePDF}
+          setData={setData}
+          router={router}
+          pageIndex={mobilePageIndex}
+          totalPages={totalMobilePages}
+          handleNextPage={handleMobileNext}
+          handlePreviousPage={handleMobilePrevious}
+        />
+      ) : (
+        <DataTable
+          table={table}
+          data={data}
+          isLoading={isLoading}
+          handlePreviousPage={handlePreviousPage}
+          handleNextPage={handleNextPage}
+          router={router}
+        />
+      )}
       <ToastContainer position="top-center" />
     </main>
   );
