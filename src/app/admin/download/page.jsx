@@ -194,10 +194,10 @@ const columnsDesktop = (data, setData, downloadTemplatePDF) => [
   },
   {
     id: "template",
-    header: "템플릿 다운로드",
+    header: "다운로드",
     cell: ({ row }) => (
       <Button onClick={() => downloadTemplatePDF(row.original)}>
-        템플릿 다운로드
+        다운로드
       </Button>
     ),
   },
@@ -229,7 +229,7 @@ const MobileDataView = ({ data, downloadTemplatePDF, setData, router, pageIndex,
             <strong>사유:</strong> {item.reason}
           </p>
           <Button className="mt-2" onClick={() => downloadTemplatePDF(item)}>
-            템플릿 다운로드
+            다운로드
           </Button>
         </Card>
       ))}
