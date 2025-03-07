@@ -193,28 +193,6 @@ const columnsDesktop = (data, setData, downloadTemplatePDF) => [
     header: "사유",
   },
   {
-    id: "approve",
-    header: "확인",
-    cell: ({ row }) => (
-      <Button
-        onClick={() => {
-          if (row.original.isApproved) {
-            handleReject(row.original, data, setData);
-          } else {
-            handleApprove(row.original, data, setData);
-          }
-        }}
-        className={`w-full ${
-          row.original.isApproved
-            ? "bg-red-500 text-white"
-            : "bg-green-500 text-white"
-        }`}
-      >
-        {row.original.isApproved ? "거부" : "승인"}
-      </Button>
-    ),
-  },
-  {
     id: "template",
     header: "템플릿 다운로드",
     cell: ({ row }) => (
