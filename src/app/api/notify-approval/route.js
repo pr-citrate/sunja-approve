@@ -52,7 +52,7 @@ export async function POST(req) {
     // approvedStatus 값에 따라 메시지 결정
     if (approvedStatus === true) {
       messageTitle = "신청 승인";
-      messageBody = "링크로 이동해 PDF를 달라고 하세요.";
+      messageBody = "https://open.kakao.com/o/s66ruUkh 링크로 이동해 PDF를 달라고 하세요.";
     } else {
       messageTitle = "신청 거부";
       messageBody = "당신의 신청이 거부되었습니다.";
