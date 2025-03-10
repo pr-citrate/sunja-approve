@@ -166,7 +166,7 @@ export default function RequestsPage() {
                 {isLoading ? (
                   <p>로딩 중...</p>
                 ) : !slides[currentSlide].data || slides[currentSlide].data.length === 0 ? (
-                  <p>신청 목록이 없습니다</p>
+                  <p>확인된 신청이 없습니다</p>
                 ) : (
                   <div className="rounded-md border mb-4 w-full overflow-x-auto">
                     <Table className="w-full">
@@ -208,7 +208,7 @@ export default function RequestsPage() {
               {isLoading ? (
                 <p>로딩 중...</p>
               ) : !data1 || data1.length === 0 ? (
-                <p>신청 목록이 없습니다</p>
+                <p>확인된 신청이 없습니다</p>
               ) : (
                 <div className="rounded-md border mb-4 w-full">
                   <Table className="w-full">
@@ -245,7 +245,7 @@ export default function RequestsPage() {
               {isLoading ? (
                 <p>로딩 중...</p>
               ) : !data2 || data2.length === 0 ? (
-                <p>신청 목록이 없습니다</p>
+                <p>확인된 신청이 없습니다</p>
               ) : (
                 <div className="rounded-md border mb-4 w-full">
                   <Table className="w-full">
@@ -282,7 +282,7 @@ export default function RequestsPage() {
               {isLoading ? (
                 <p>로딩 중...</p>
               ) : !data3 || data3.length === 0 ? (
-                <p>신청 목록이 없습니다</p>
+                <p>확인된 신청이 없습니다</p>
               ) : (
                 <div className="rounded-md border mb-4 w-full">
                   <Table className="w-full">

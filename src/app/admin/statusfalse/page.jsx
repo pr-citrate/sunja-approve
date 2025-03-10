@@ -24,6 +24,14 @@ const columns = [
     header: "대표자",
   },
   {
+    accessorKey: "contact",
+    header: "전화번호",
+  },
+  {
+    accessorKey: "reason",
+    header: "사유",
+  },
+  {
     accessorKey: "count",
     header: "총인원",
   },
@@ -85,9 +93,9 @@ export default function RequestsPage() {
       const result = await response.json();
       console.log("클라이언트에서 받아온 데이터:", result.requests);
 
-      // status가 approved인 데이터만 필터링
+      // status가 rejected인 데이터만 필터링
       const approvedData = result.requests.filter(
-        (request) => request.status === "approved"
+        (request) => request.status === "rejected"
       );
 
       const dataByTime = { 1: [], 2: [], 3: [] };
@@ -158,7 +166,7 @@ export default function RequestsPage() {
                 {isLoading ? (
                   <p>로딩 중...</p>
                 ) : !slides[currentSlide].data || slides[currentSlide].data.length === 0 ? (
-                  <p>승인된 신청이 없습니다</p>
+                  <p>거절된 신청이 없습니다</p>
                 ) : (
                   <div className="rounded-md border mb-4 w-full overflow-x-auto">
                     <Table className="w-full">
@@ -200,7 +208,7 @@ export default function RequestsPage() {
               {isLoading ? (
                 <p>로딩 중...</p>
               ) : !data1 || data1.length === 0 ? (
-                <p>승인된 신청이 없습니다</p>
+                <p>거절된 신청이 없습니다</p>
               ) : (
                 <div className="rounded-md border mb-4 w-full">
                   <Table className="w-full">
@@ -237,7 +245,7 @@ export default function RequestsPage() {
               {isLoading ? (
                 <p>로딩 중...</p>
               ) : !data2 || data2.length === 0 ? (
-                <p>승인된 신청이 없습니다</p>
+                <p>거절된 신청이 없습니다</p>
               ) : (
                 <div className="rounded-md border mb-4 w-full">
                   <Table className="w-full">
@@ -274,7 +282,7 @@ export default function RequestsPage() {
               {isLoading ? (
                 <p>로딩 중...</p>
               ) : !data3 || data3.length === 0 ? (
-                <p>승인된 신청이 없습니다</p>
+                <p>거절된 신청이 없습니다</p>
               ) : (
                 <div className="rounded-md border mb-4 w-full">
                   <Table className="w-full">
@@ -312,7 +320,7 @@ export default function RequestsPage() {
           <Button
             type="button"
             onClick={() => router.back()}
-            className="mt-4 px-4 py-2 text-white rounded shadow"
+            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded shadow"
           >
             뒤로
           </Button>

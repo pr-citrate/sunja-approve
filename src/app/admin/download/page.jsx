@@ -223,12 +223,12 @@ const MobileDataView = ({ data, downloadTemplatePDF, setData, router, pageIndex,
             <strong>총인원:</strong> {item.count}
           </p>
           <p>
-            <strong>신청교시:</strong> {item.time}
+            <strong>신청교시:</strong> {item.time} 교시
           </p>
           <p>
             <strong>사유:</strong> {item.reason}
           </p>
-          <Button className="mt-2" onClick={() => downloadTemplatePDF(item)}>
+          <Button className="w-full mt-2" onClick={() => downloadTemplatePDF(item)}>
             다운로드
           </Button>
         </Card>
@@ -245,9 +245,9 @@ const MobileDataView = ({ data, downloadTemplatePDF, setData, router, pageIndex,
         </Button>
       </div>
       <div className="flex justify-around mt-4">
-        <Button onClick={() => router.push("/admin")}>홈</Button>
         <Button onClick={() => router.push("/admin/status")}>승인 현황</Button>
-        <Button onClick={() => router.push("/statusfalse")}>거절 현황</Button>
+        <Button onClick={() => router.push("/admin")}>홈</Button>
+        <Button onClick={() => router.push("/admin/statusfalse")}>거절 현황</Button>
       </div>
     </div>
   );
@@ -302,7 +302,7 @@ const DataTable = ({ table, data, isLoading, handlePreviousPage, handleNextPage,
           </Button>
         </div>
         <div className="flex space-x-4 mt-4 w-full">
-          <Button className="w-full" onClick={() => router.push("/statusfalse")}>
+          <Button className="w-full" onClick={() => router.push("/admin/statusfalse")}>
             거절 현황
           </Button>
           <Button className="w-full" onClick={() => router.push("/admin")}>

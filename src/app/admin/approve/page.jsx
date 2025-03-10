@@ -285,11 +285,11 @@ const DataTable = ({ table, data, isLoading, handlePreviousPage, handleNextPage,
           </Button>
         </div>
         <div className="flex space-x-4 mt-4">
-          <Button className="text-lg mb-4 w-full" onClick={() => router.push("/statusfalse")}>
+          <Button className="text-lg mb-4 w-full" onClick={() => router.push("/admin/statusfalse")}>
             거절 현황
           </Button>
-          <Button className="text-lg mb-4 w-full" onClick={() => router.push("/admin")}>
-            홈
+          <Button className="text-lg mb-4 w-full" onClick={() => router.push("/admin/download")}>
+            다운로드
           </Button>
           <Button className="text-lg mb-4 w-full" onClick={() => router.push("/admin/status")}>
             승인 현황
@@ -380,8 +380,8 @@ const MobileDataView = ({ table, data, setData, isLoading, handlePreviousPage, h
         <Button className="text-lg w-full" onClick={() => router.push("/statusfalse")}>
           거절 현황
         </Button>
-        <Button className="text-lg w-full" onClick={() => router.push("/admin")}>
-          홈
+        <Button className="text-lg w-full" onClick={() => router.push("/admin/download")}>
+          다운로드
         </Button>
         <Button className="text-lg w-full" onClick={() => router.push("/admin/status")}>
           승인 현황
