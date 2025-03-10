@@ -371,6 +371,14 @@ export default function Home() {
                 >
                   확인 현황
                 </Button>
+                <Button
+                  type="button"
+                  onClick={() => window.open("https://open.kakao.com/o/s66ruUkh", "_blank")}
+                  disabled={isSubmitting || isFormDisabled}
+                  variant="outline"
+                >     
+                  카카오톡
+                </Button>
               </div>
               <Link href={"/admin"} className={"bg-white text-transparent"}>
                 admin
