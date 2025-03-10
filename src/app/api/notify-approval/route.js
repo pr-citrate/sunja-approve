@@ -48,11 +48,13 @@ export async function POST(req) {
 
     let messageTitle = "";
     let messageBody = "";
+    let clickLink = "";
 
     // approvedStatus 값에 따라 메시지 결정
     if (approvedStatus === true) {
       messageTitle = "신청 승인";
-      messageBody = "https://open.kakao.com/o/s66ruUkh 링크로 이동해 PDF를 달라고 하세요.";
+      messageBody = "이 알림을 클릭해 PDF를 달라고 하세요.";
+      clickLink = "https://open.kakao.com/o/s66ruUkh"; // 승인 시 이동할 링크
     } else {
       messageTitle = "신청 거부";
       messageBody = "당신의 신청이 거부되었습니다.";
@@ -64,6 +66,11 @@ export async function POST(req) {
         body: messageBody,
       },
       token: fcmToken,
+      webpush: {
+        fcmOptions: {
+          link: clickLink, // 클릭 시 이동할 링크 설정
+        },
+      },
     };
 
     const response = await admin.messaging().send(message);
