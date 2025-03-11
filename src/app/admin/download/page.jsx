@@ -129,7 +129,7 @@ const downloadTemplatePDF = async (rowData) => {
     for (let i = 0; i < applicants.length; i += 2) {
       groups.push(applicants.slice(i, i + 2));
     }
-    let yPos = height - 270; // 시작 y 좌표 (템플릿에 맞게 조정)
+    let yPos = height - 258; // 시작 y 좌표 (템플릿에 맞게 조정)
     groups.forEach((group) => {
       const text = group
         .map((applicant) => `${applicant.number} ${applicant.name}`)
