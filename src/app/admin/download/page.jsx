@@ -80,7 +80,7 @@ const downloadTemplatePDF = async (rowData) => {
   const { width, height } = firstPage.getSize();
 
   // 한글 텍스트를 출력하기 위해 public 폴더에 위치한 NanumGothic.ttf 파일을 불러와 임베드
-  const fontBytes = await fetch("/NanumPen.ttf").then((res) =>
+  const fontBytes = await fetch("/malgun.ttf").then((res) =>
     res.arrayBuffer()
   );
   const customFont = await pdfDoc.embedFont(fontBytes);
@@ -95,29 +95,29 @@ const downloadTemplatePDF = async (rowData) => {
   firstPage.drawText(`${month}`, {
     x: 430,
     y: height - 155,
-    size: 20,
+    size: 15,
     font: customFont,
     color: rgb(0, 0, 0),
   });
   firstPage.drawText(`${day}`, {
-    x: 480,
+    x: 475,
     y: height - 155,
-    size: 20,
+    size: 15,
     font: customFont,
     color: rgb(0, 0, 0),
   });
   
   // 사용시간과 사유 추가
   firstPage.drawText(`야자 ${rowData.time} 교시`, {
-    x: 305,
-    y: height - 190,
+    x: 280,
+    y: height - 193,
     size: 20,
     font: customFont,
     color: rgb(0, 0, 0),
   });
   firstPage.drawText(`${rowData.reason || "정보 없음"}`, {
-    x: 260,
-    y: height - 227,
+    x: 240,
+    y: height - 230,
     size: 20,
     font: customFont,
     color: rgb(0, 0, 0),
@@ -137,13 +137,13 @@ const downloadTemplatePDF = async (rowData) => {
         .map((applicant) => `${applicant.number} ${applicant.name}`)
         .join(" / ");
       firstPage.drawText(text, {
-        x: 205,
+        x: 190,
         y: yPos,
-        size: 20,
+        size: 15,
         font: customFont,
         color: rgb(0, 0, 0),
       });
-      yPos -= 24;
+      yPos -= 22;
     });
   }
   
