@@ -28,6 +28,7 @@ import { PDFDocument, rgb } from "pdf-lib";
 import download from "downloadjs";
 import fontkit from "@pdf-lib/fontkit";
 
+
 // 날짜 문자열을 파싱하여 { month, day } 객체로 반환하는 함수
 const formatDateParts = (dateStr) => {
   if (!dateStr) return { month: "월", day: "일" };
@@ -79,7 +80,7 @@ const downloadTemplatePDF = async (rowData) => {
   const { width, height } = firstPage.getSize();
 
   // 한글 텍스트를 출력하기 위해 public 폴더에 위치한 NanumGothic.ttf 파일을 불러와 임베드
-  const fontBytes = await fetch("/NanumGothic.ttf").then((res) =>
+  const fontBytes = await fetch("/NanumPen.ttf").then((res) =>
     res.arrayBuffer()
   );
   const customFont = await pdfDoc.embedFont(fontBytes);
@@ -94,14 +95,14 @@ const downloadTemplatePDF = async (rowData) => {
   firstPage.drawText(`${month}`, {
     x: 430,
     y: height - 155,
-    size: 12,
+    size: 20,
     font: customFont,
     color: rgb(0, 0, 0),
   });
   firstPage.drawText(`${day}`, {
     x: 480,
     y: height - 155,
-    size: 12,
+    size: 20,
     font: customFont,
     color: rgb(0, 0, 0),
   });
@@ -110,24 +111,25 @@ const downloadTemplatePDF = async (rowData) => {
   firstPage.drawText(`야자 ${rowData.time} 교시`, {
     x: 305,
     y: height - 190,
-    size: 12,
+    size: 20,
     font: customFont,
     color: rgb(0, 0, 0),
   });
   firstPage.drawText(`${rowData.reason || "정보 없음"}`, {
     x: 260,
     y: height - 227,
-    size: 15,
+    size: 20,
     font: customFont,
     color: rgb(0, 0, 0),
   });
   
-  // 신청자 목록: 신청자 이름이 3개 이상일 경우 2개씩 그룹으로 묶어서 한 줄에 출력
   if (rowData.applicant && rowData.applicant.length > 0) {
     const applicants = rowData.applicant;
     const groups = [];
-    for (let i = 0; i < applicants.length; i += 2) {
-      groups.push(applicants.slice(i, i + 2));
+    // 신청자 수가 10명 초과면 한 줄에 3명씩, 아니면 2명씩 그룹화
+    const groupSize = applicants.length > 8 ? 3 : 2;
+    for (let i = 0; i < applicants.length; i += groupSize) {
+      groups.push(applicants.slice(i, i + groupSize));
     }
     let yPos = height - 258; // 시작 y 좌표 (템플릿에 맞게 조정)
     groups.forEach((group) => {
@@ -135,16 +137,16 @@ const downloadTemplatePDF = async (rowData) => {
         .map((applicant) => `${applicant.number} ${applicant.name}`)
         .join(" / ");
       firstPage.drawText(text, {
-        x: 245,
+        x: 205,
         y: yPos,
-        size: 15,
+        size: 20,
         font: customFont,
         color: rgb(0, 0, 0),
       });
-      yPos -= 17;
+      yPos -= 24;
     });
   }
-
+  
   const pdfBytes = await pdfDoc.save();
   download(pdfBytes, `${rowData.name}_template.pdf`, "application/pdf");
 };
