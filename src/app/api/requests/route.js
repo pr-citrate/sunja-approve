@@ -15,6 +15,32 @@ if (!admin.apps.length) {
   });
 }
 
+// FCM 토큰의 유효성을 확인하는 함수 (dryRun 옵션 사용)
+async function checkTokenValidity(token) {
+  try {
+    const message = {
+      token,
+      notification: {
+        title: "Token Validity Test",
+        body: "This is a dry run test message.",
+      },
+    };
+    // dryRun true로 실제 전송 없이 유효성 검증
+    await admin.messaging().send(message, true);
+    return true;
+  } catch (error) {
+    if (
+      error.errorInfo &&
+      error.errorInfo.code === "messaging/registration-token-not-registered"
+    ) {
+      // 유효하지 않은 토큰인 경우
+      return false;
+    }
+    // 기타 에러는 다시 throw
+    throw error;
+  }
+}
+
 export async function GET(req) {
   const params = parse(req.nextUrl.search, { ignoreQueryPrefix: true });
   const data = await xata.db.requests.filter(params).getAll();
@@ -43,16 +69,31 @@ export async function POST(req) {
       status: body.status || "pending",
     });
 
-    // 저장 후 password 테이블에서 name 필드(FCM 토큰)를 가진 모든 레코드를 조회
+    // password 테이블에서 FCM 토큰이 있는 모든 레코드 조회
     const passwordRecords = await xata.db.password.filter({ name: { $ne: null } }).getAll();
-    // 각 레코드의 name 필드를 토큰으로 보고 중복 제거
-    const tokens = Array.from(
-      new Set(passwordRecords.map((record) => record.name).filter(Boolean))
-    );
+    // 유효한 토큰만 보관할 배열 (토큰과 record id 같이 저장)
+    const validTokensRecords = [];
+    for (const record of passwordRecords) {
+      const token = record.name;
+      try {
+        const isValid = await checkTokenValidity(token);
+        if (isValid) {
+          validTokensRecords.push({ token, id: record.id });
+        } else {
+          console.warn("유효하지 않은 토큰:", token);
+          await xata.db.password.delete(record.id);
+        }
+      } catch (err) {
+        console.error(`토큰 검사 중 오류 발생 (${token}):`, err);
+        if (err.errorInfo && err.errorInfo.code === "messaging/registration-token-not-registered") {
+          await xata.db.password.delete(record.id);
+        }
+      }
+    }
 
     let notifResponses = [];
-    if (tokens.length === 0) {
-      console.warn("전송할 FCM 토큰이 없습니다.");
+    if (validTokensRecords.length === 0) {
+      console.warn("전송할 유효한 FCM 토큰이 없습니다.");
     } else {
       // 알림 메시지 구성 (제목과 본문: "신청이 들어왔습니다")
       const messagePayload = {
@@ -65,10 +106,21 @@ export async function POST(req) {
         },
       };
 
-      // 각 토큰에 대해 개별 메시지 전송
-      const sendPromises = tokens.map((token) => {
+      // 각 유효한 토큰에 대해 개별 메시지 전송
+      const sendPromises = validTokensRecords.map(async ({ token, id }) => {
         const message = { ...messagePayload, token };
-        return admin.messaging().send(message);
+        try {
+          const response = await admin.messaging().send(message);
+          return { token, response };
+        } catch (error) {
+          console.error(`메시지 전송 실패 (${token}):`, error);
+          // 만약 전송 오류가 유효하지 않은 토큰 관련이면 해당 토큰 삭제
+          if (error.errorInfo && error.errorInfo.code === "messaging/registration-token-not-registered") {
+            await xata.db.password.delete(id);
+            console.log(`토큰 ${token} 삭제 완료`);
+          }
+          return { token, error: error.message };
+        }
       });
 
       notifResponses = await Promise.all(sendPromises);
