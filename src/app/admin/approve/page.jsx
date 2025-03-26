@@ -83,43 +83,83 @@ const columns = (data, setData) => [
   {
     accessorKey: "name",
     header: "대표자",
+    cell: ({ row }) => {
+      const name = row.getValue("name");
+      const shouldFlash = name === "안채헌" || name === "윤석영";
+      return (
+        <div className={shouldFlash ? "flash-cell" : ""}>
+          {name}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "contact",
     header: "전화번호",
+    cell: ({ row }) => {
+      const shouldFlash =
+        row.original.name === "안채헌" || row.original.name === "윤석영";
+      return (
+        <div className={shouldFlash ? "flash-cell" : ""}>
+          {row.getValue("contact")}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "count",
     header: "총인원",
-    cell: ({ row }) => (
-      <>
-        {row.original.count}{" "}
-        <span
-          onClick={() => {
-            toast.info(
-              row.original.applicant
-                .map(
-                  (applicant) =>
-                    `${applicant.name} (${applicant.number})`
-                )
-                .join("\n"),
-              { position: "top-center", autoClose: false }
-            );
-          }}
-          className="ml-1 text-sm text-gray-500 underline cursor-pointer"
-        >
-          더보기
-        </span>
-      </>
-    ),
+    cell: ({ row }) => {
+      const shouldFlash =
+        row.original.name === "안채헌" || row.original.name === "윤석영";
+      return (
+        <div className={shouldFlash ? "flash-cell" : ""}>
+          {row.original.count}{" "}
+          <span
+            onClick={() => {
+              toast.info(
+                row.original.applicant
+                  .map(
+                    (applicant) =>
+                      `${applicant.name} (${applicant.number})`
+                  )
+                  .join("\n"),
+                { position: "top-center", autoClose: false }
+              );
+            }}
+            className="ml-1 text-sm text-gray-500 underline cursor-pointer"
+          >
+            더보기
+          </span>
+        </div>
+      );
+    },
   },
   {
     accessorKey: "time",
     header: "신청교시",
+    cell: ({ row }) => {
+      const shouldFlash =
+        row.original.name === "안채헌" || row.original.name === "윤석영";
+      return (
+        <div className={shouldFlash ? "flash-cell" : ""}>
+          {row.getValue("time")}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "reason",
     header: "사유",
+    cell: ({ row }) => {
+      const shouldFlash =
+        row.original.name === "안채헌" || row.original.name === "윤석영";
+      return (
+        <div className={shouldFlash ? "flash-cell" : ""}>
+          {row.getValue("reason")}
+        </div>
+      );
+    },
   },
   {
     id: "approve",
@@ -160,7 +200,6 @@ const columns = (data, setData) => [
 const handleUpdateStatus = async (row, data, setData, isApproved) => {
   const newStatus = isApproved ? "approved" : "rejected";
   try {
-    // PATCH 요청: status와 isApproved를 모두 업데이트
     const response = await fetch(`/api/requests?id=${row.id}`, {
       method: "PATCH",
       headers: {
@@ -173,7 +212,6 @@ const handleUpdateStatus = async (row, data, setData, isApproved) => {
       throw new Error("Request update failed");
     }
 
-    // 로컬 데이터 업데이트
     const updatedData = data.map((d) =>
       d.id === row.id ? { ...d, status: newStatus, isApproved } : d
     );
@@ -184,7 +222,6 @@ const handleUpdateStatus = async (row, data, setData, isApproved) => {
       position: "top-center",
     });
 
-    // 승인, 거부 관계없이 알림 전송
     const notifyResponse = await fetch("/api/notify-approval", {
       method: "POST",
       headers: {
@@ -318,13 +355,22 @@ const MobileDataView = ({ table, data, setData, isLoading, handlePreviousPage, h
             X
           </span>
           <p>
-            <strong>대표자:</strong> {item.name}
+            <strong>대표자:</strong>{" "}
+            <span className={item.name === "안채헌" || item.name === "윤석영" ? "flash-cell" : ""}>
+              {item.name}
+            </span>
           </p>
           <p>
-            <strong>전화번호:</strong> {item.contact}
+            <strong>전화번호:</strong>{" "}
+            <span className={item.name === "안채헌" || item.name === "윤석영" ? "flash-cell" : ""}>
+              {item.contact}
+            </span>
           </p>
           <p>
-            <strong>총인원:</strong> {item.count}{" "}
+            <strong>총인원:</strong>{" "}
+            <span className={item.name === "안채헌" || item.name === "윤석영" ? "flash-cell" : ""}>
+              {item.count}
+            </span>{" "}
             <span
               onClick={() => {
                 toast.info(
@@ -343,10 +389,16 @@ const MobileDataView = ({ table, data, setData, isLoading, handlePreviousPage, h
             </span>
           </p>
           <p>
-            <strong>신청교시:</strong> {item.time}
+            <strong>신청교시:</strong>{" "}
+            <span className={item.name === "안채헌" || item.name === "윤석영" ? "flash-cell" : ""}>
+              {item.time}
+            </span>
           </p>
           <p>
-            <strong>사유:</strong> {item.reason}
+            <strong>사유:</strong>{" "}
+            <span className={item.name === "안채헌" || item.name === "윤석영" ? "flash-cell" : ""}>
+              {item.reason}
+            </span>
           </p>
           <div className="mt-2">
             <Button
@@ -357,8 +409,7 @@ const MobileDataView = ({ table, data, setData, isLoading, handlePreviousPage, h
                   handleApprove(item, data, setData);
                 }
               }}
-              className={`w-full ${item.isApproved ? "bg-red-500 text-white" : "bg-green-500 text-white"
-                }`}
+              className={`w-full ${item.isApproved ? "bg-red-500 text-white" : "bg-green-500 text-white"}`}
             >
               {item.isApproved ? "거부" : "승인"}
             </Button>
@@ -464,7 +515,13 @@ export default function Homeadmin() {
           status: request.status || "rejected",
           isApproved: request.isApproved ?? false,
         }))
-        .sort((a, b) => new Date(b.xata.createdAt) - new Date(a.xata.createdAt));
+        .sort((a, b) => {
+          const aSpecial = a.name === "안채헌" || a.name === "윤석영";
+          const bSpecial = b.name === "안채헌" || b.name === "윤석영";
+          if (aSpecial && !bSpecial) return -1;
+          if (bSpecial && !aSpecial) return 1;
+          return new Date(b.xata.createdAt) - new Date(a.xata.createdAt);
+        });
 
       setData(transformedData);
     } catch (error) {
