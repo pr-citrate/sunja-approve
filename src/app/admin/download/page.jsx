@@ -70,11 +70,11 @@ const downloadTemplatePDF = async (rowData) => {
   const existingPdfBytes = await fetch("/sunja.pdf").then((res) =>
     res.arrayBuffer()
   );
-  
+
   // PDFDocument 생성 및 fontkit 등록
   const pdfDoc = await PDFDocument.load(existingPdfBytes);
   pdfDoc.registerFontkit(fontkit);
-  
+
   const pages = pdfDoc.getPages();
   const firstPage = pages[0];
   const { width, height } = firstPage.getSize();
@@ -106,7 +106,7 @@ const downloadTemplatePDF = async (rowData) => {
     font: customFont,
     color: rgb(0, 0, 0),
   });
-  
+
   // 사용시간과 사유 추가
   firstPage.drawText(`야자 ${rowData.time} 교시`, {
     x: 280,
@@ -116,13 +116,13 @@ const downloadTemplatePDF = async (rowData) => {
     color: rgb(0, 0, 0),
   });
   firstPage.drawText(`${rowData.reason || "정보 없음"}`, {
-    x: 240,
+    x: 160,
     y: height - 230,
-    size: 20,
+    size: 18,
     font: customFont,
     color: rgb(0, 0, 0),
   });
-  
+
   if (rowData.applicant && rowData.applicant.length > 0) {
     const applicants = rowData.applicant;
     const groups = [];
@@ -146,7 +146,7 @@ const downloadTemplatePDF = async (rowData) => {
       yPos -= 22;
     });
   }
-  
+
   const pdfBytes = await pdfDoc.save();
   download(pdfBytes, `${rowData.name}_template.pdf`, "application/pdf");
 };
@@ -337,20 +337,20 @@ export default function Homeadmin() {
     try {
       const response = await fetch(
         "/api/requests?" +
-          stringify({
-            $all: [
-              {
-                "xata.createdAt": {
-                  $ge: new Date(new Date().setHours(0, 0, 0, 0)).toISOString(),
-                },
+        stringify({
+          $all: [
+            {
+              "xata.createdAt": {
+                $ge: new Date(new Date().setHours(0, 0, 0, 0)).toISOString(),
               },
-              {
-                "xata.createdAt": {
-                  $le: new Date(new Date().setHours(23, 59, 59, 999)).toISOString(),
-                },
+            },
+            {
+              "xata.createdAt": {
+                $le: new Date(new Date().setHours(23, 59, 59, 999)).toISOString(),
               },
-            ],
-          })
+            },
+          ],
+        })
       );
       const result = await response.json();
       const transformedData = result.requests
