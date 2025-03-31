@@ -85,7 +85,7 @@ const columns = (data, setData) => [
     header: "대표자",
     cell: ({ row }) => {
       const name = row.getValue("name");
-      const shouldFlash = name === "안채헌" || name === "윤석영";
+      const shouldFlash = name === "안채헌" || name === "윤석영" || name === "정준호";
       return (
         <div className={shouldFlash ? "flash-cell" : ""}>
           {name}
@@ -98,7 +98,7 @@ const columns = (data, setData) => [
     header: "전화번호",
     cell: ({ row }) => {
       const shouldFlash =
-        row.original.name === "안채헌" || row.original.name === "윤석영";
+        row.original.name === "안채헌" || row.original.name === "윤석영" || row.original.name === "정준호";
       return (
         <div className={shouldFlash ? "flash-cell" : ""}>
           {row.getValue("contact")}
@@ -111,7 +111,7 @@ const columns = (data, setData) => [
     header: "총인원",
     cell: ({ row }) => {
       const shouldFlash =
-        row.original.name === "안채헌" || row.original.name === "윤석영";
+        row.original.name === "안채헌" || row.original.name === "윤석영" || row.original.name === "정준호";
       return (
         <div className={shouldFlash ? "flash-cell" : ""}>
           {row.original.count}{" "}
@@ -140,7 +140,7 @@ const columns = (data, setData) => [
     header: "신청교시",
     cell: ({ row }) => {
       const shouldFlash =
-        row.original.name === "안채헌" || row.original.name === "윤석영";
+        row.original.name === "안채헌" || row.original.name === "윤석영" || row.original.name === "정준호";
       return (
         <div className={shouldFlash ? "flash-cell" : ""}>
           {row.getValue("time")}
@@ -153,7 +153,7 @@ const columns = (data, setData) => [
     header: "사유",
     cell: ({ row }) => {
       const shouldFlash =
-        row.original.name === "안채헌" || row.original.name === "윤석영";
+        row.original.name === "안채헌" || row.original.name === "윤석영" || row.original.name === "정준호";
       return (
         <div className={shouldFlash ? "flash-cell" : ""}>
           {row.getValue("reason")}
@@ -356,19 +356,19 @@ const MobileDataView = ({ table, data, setData, isLoading, handlePreviousPage, h
           </span>
           <p>
             <strong>대표자:</strong>{" "}
-            <span className={item.name === "안채헌" || item.name === "윤석영" ? "flash-cell" : ""}>
+            <span className={item.name === "안채헌" || item.name === "윤석영" || item.name === "정준호" ? "flash-cell" : ""}>
               {item.name}
             </span>
           </p>
           <p>
             <strong>전화번호:</strong>{" "}
-            <span className={item.name === "안채헌" || item.name === "윤석영" ? "flash-cell" : ""}>
+            <span className={item.name === "안채헌" || item.name === "윤석영" || item.name === "정준호" ? "flash-cell" : ""}>
               {item.contact}
             </span>
           </p>
           <p>
             <strong>총인원:</strong>{" "}
-            <span className={item.name === "안채헌" || item.name === "윤석영" ? "flash-cell" : ""}>
+            <span className={item.name === "안채헌" || item.name === "윤석영" || item.name === "정준호" ? "flash-cell" : ""}>
               {item.count}
             </span>{" "}
             <span
@@ -390,13 +390,13 @@ const MobileDataView = ({ table, data, setData, isLoading, handlePreviousPage, h
           </p>
           <p>
             <strong>신청교시:</strong>{" "}
-            <span className={item.name === "안채헌" || item.name === "윤석영" ? "flash-cell" : ""}>
+            <span className={item.name === "안채헌" || item.name === "윤석영" || item.name === "정준호" ? "flash-cell" : ""}>
               {item.time}
             </span>
           </p>
           <p>
             <strong>사유:</strong>{" "}
-            <span className={item.name === "안채헌" || item.name === "윤석영" ? "flash-cell" : ""}>
+            <span className={item.name === "안채헌" || item.name === "윤석영" || item.name === "정준호" ? "flash-cell" : ""}>
               {item.reason}
             </span>
           </p>
@@ -516,8 +516,8 @@ export default function Homeadmin() {
           isApproved: request.isApproved ?? false,
         }))
         .sort((a, b) => {
-          const aSpecial = a.name === "안채헌" || a.name === "윤석영";
-          const bSpecial = b.name === "안채헌" || b.name === "윤석영";
+          const aSpecial = a.name === "안채헌" || a.name === "윤석영" || a.name === "정준호";
+          const bSpecial = b.name === "안채헌" || b.name === "윤석영" || b.name === "정준호";
           if (aSpecial && !bSpecial) return -1;
           if (bSpecial && !aSpecial) return 1;
           return new Date(b.xata.createdAt) - new Date(a.xata.createdAt);
