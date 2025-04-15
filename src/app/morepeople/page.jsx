@@ -226,6 +226,7 @@ export default function Page() {
                         <SelectContent>
                           <SelectGroup>
                             <SelectLabel>인원</SelectLabel>
+                            <SelectItem value="1">1명</SelectItem>
                             <SelectItem value="2">2명</SelectItem>
                             <SelectItem value="3">3명</SelectItem>
                             <SelectItem value="4">4명</SelectItem>
@@ -240,6 +241,11 @@ export default function Page() {
                             <SelectItem value="13">13명</SelectItem>
                             <SelectItem value="14">14명</SelectItem>
                             <SelectItem value="15">15명</SelectItem>
+                            <SelectItem value="16">16명</SelectItem>
+                            <SelectItem value="17">17명</SelectItem>
+                            <SelectItem value="18">18명</SelectItem>
+                            <SelectItem value="19">19명</SelectItem>
+                            <SelectItem value="20">20명</SelectItem>
                           </SelectGroup>
                         </SelectContent>
                       </Select>
