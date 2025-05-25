@@ -32,9 +32,16 @@ import fontkit from "@pdf-lib/fontkit";
 // 날짜 문자열을 파싱하여 { month, day } 객체로 반환하는 함수
 const formatDateParts = (dateStr) => {
   if (!dateStr) return { month: "월", day: "일" };
+
   const dateObj = new Date(dateStr);
   if (isNaN(dateObj)) return { month: "오류", day: "오류" };
-  const month = dateObj.getMonth() + 1; // 월은 0부터 시작하므로 1을 더함
+
+  // 금요일인 경우, 해당 주의 일요일 날짜로 조정
+  if (dateObj.getDay() === 5) {
+    dateObj.setDate(dateObj.getDate() + 2); // 일요일은 금요일보다 이틀 뒤
+  }
+
+  const month = dateObj.getMonth() + 1;
   const day = dateObj.getDate();
   return { month, day };
 };
