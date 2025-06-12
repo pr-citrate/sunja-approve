@@ -89,7 +89,13 @@ export default function HomePage() {
           onClick={handleGetToken}
           disabled={isSaving}
         >
-          {isSaving ? "저장 중..." : "FCM 토큰 저장하기"}
+          {isSaving ? "저장 중..." : "알림 받기"}
+        </Button>
+        <Button
+          className="text-lg mb-4 w-full"
+          onClick={() => router.push("/morepeople")}
+        >
+          1~20인 신청
         </Button>
         {fcmToken && (
           <p className="mt-4 break-all">토큰: {fcmToken}</p>

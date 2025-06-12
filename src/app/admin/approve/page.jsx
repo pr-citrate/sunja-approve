@@ -174,8 +174,8 @@ const columns = (data, setData) => [
           }
         }}
         className={`w-full ${row.original.isApproved
-            ? "bg-red-500 text-white"
-            : "bg-green-500 text-white"
+          ? "bg-red-500 text-white"
+          : "bg-green-500 text-white"
           }`}
       >
         {row.original.isApproved ? "거부" : "승인"}
