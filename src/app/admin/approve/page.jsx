@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import Link from "next/link";
 import {
   Table,
   TableBody,
@@ -553,9 +552,8 @@ export default function Homeadmin() {
 
   return (
     <FormProvider {...methods}>
-      <main className="flex flex-col justify-center items-center w-screen h-screen">
+      <main className="flex justify-center items-center w-screen h-screen">
         {!isPasswordCorrect ? (
-          <Link href={"/morepeople"}>morepeople</Link>
           <PasswordForm
             handlePasswordSubmit={handlePasswordSubmit}
             password={password}
