@@ -149,6 +149,19 @@ const columns = (data, setData) => [
     },
   },
   {
+    accessorKey: "createdTime",
+    header: "신청시간",
+    cell: ({ row }) => {
+      const shouldFlash =
+        row.original.name === "안채헌" || row.original.name === "윤석영" || row.original.name === "정준호";
+      return (
+        <div className={shouldFlash ? "flash-cell" : ""}>
+          {row.getValue("createdTime")}
+        </div>
+      );
+    },
+  },
+  {
     accessorKey: "reason",
     header: "사유",
     cell: ({ row }) => {
@@ -196,8 +209,42 @@ const columns = (data, setData) => [
   },
 ];
 
+// ─── 우선순위 확인 토스트 ─────────────────────────────
+const confirmPriorityApproval = (row, data, setData, earlierRequests) => {
+  const earlierNames = earlierRequests.map(req => req.name).join(", ");
+  toast(
+    ({ closeToast }) => (
+      <div>
+        <div className="mb-2">
+          같은 교시({row.time})에 먼저 신청한 사람이 있습니다:<br />
+          <strong>{earlierNames}</strong><br />
+          그래도 이 요청을 승인하시겠습니까?
+        </div>
+        <div className="flex justify-end space-x-2">
+          <button
+            className="px-3 py-1 bg-green-500 text-white rounded"
+            onClick={() => {
+              closeToast();
+              handleUpdateStatusConfirmed(row, data, setData, true);
+            }}
+          >
+            승인
+          </button>
+          <button
+            className="px-3 py-1 bg-gray-500 text-white rounded"
+            onClick={closeToast}
+          >
+            취소
+          </button>
+        </div>
+      </div>
+    ),
+    { autoClose: false, position: "top-center" }
+  );
+};
+
 // ─── 상태 업데이트 및 알림 전송 ─────────────────────────────
-const handleUpdateStatus = async (row, data, setData, isApproved) => {
+const handleUpdateStatusConfirmed = async (row, data, setData, isApproved) => {
   const newStatus = isApproved ? "approved" : "rejected";
   try {
     const response = await fetch(`/api/requests?id=${row.id}`, {
@@ -238,6 +285,31 @@ const handleUpdateStatus = async (row, data, setData, isApproved) => {
       position: "top-center",
     });
   }
+};
+
+const handleUpdateStatus = async (row, data, setData, isApproved) => {
+  // 승인하려는 경우에만 우선순위 체크
+  if (isApproved) {
+    // 같은 교시에 먼저 신청한 사람들 중 아직 승인되지 않은 사람들 찾기
+    const sameTimeRequests = data.filter(d =>
+      d.time === row.time &&
+      d.id !== row.id &&
+      !d.isApproved
+    );
+
+    const earlierRequests = sameTimeRequests.filter(d =>
+      new Date(d.xata.createdAt) < new Date(row.xata.createdAt)
+    );
+
+    // 먼저 신청한 사람이 있으면 확인 토스트 띄우기
+    if (earlierRequests.length > 0) {
+      confirmPriorityApproval(row, data, setData, earlierRequests);
+      return;
+    }
+  }
+
+  // 거부하거나 우선순위 문제가 없으면 바로 실행
+  handleUpdateStatusConfirmed(row, data, setData, isApproved);
 };
 
 const handleApprove = (row, data, setData) => {
@@ -395,6 +467,12 @@ const MobileDataView = ({ table, data, setData, isLoading, handlePreviousPage, h
             </span>
           </p>
           <p>
+            <strong>신청시간:</strong>{" "}
+            <span className={item.name === "안채헌" || item.name === "윤석영" || item.name === "정준호" ? "flash-cell" : ""}>
+              {item.createdTime}
+            </span>
+          </p>
+          <p>
             <strong>사유:</strong>{" "}
             <span className={item.name === "안채헌" || item.name === "윤석영" || item.name === "정준호" ? "flash-cell" : ""}>
               {item.reason}
@@ -504,23 +582,36 @@ export default function Homeadmin() {
       );
       const result = await response.json();
       const transformedData = result.requests
-        .map((request) => ({
-          id: request.id,
-          ...request,
-          name: request.applicant[0]?.name || "N/A",
-          contact: request.contact || "N/A",
-          count: `${request.applicant.length}명`,
-          time: `${request.time}교시`,
-          reason: request.reason || "",
-          status: request.status || "rejected",
-          isApproved: request.isApproved ?? false,
-        }))
+        .map((request) => {
+          const createdDate = new Date(request.xata.createdAt);
+          const isPremiumUser = request.applicant[0]?.name === "안채헌" ||
+            request.applicant[0]?.name === "윤석영" ||
+            request.applicant[0]?.name === "정준호";
+
+          // 순자 프리미엄 유저의 경우 당일 00시로 뷰 고정
+          const displayTime = isPremiumUser ?
+            "00:00" :
+            `${String(createdDate.getHours()).padStart(2, '0')}:${String(createdDate.getMinutes()).padStart(2, '0')}`;
+
+          return {
+            id: request.id,
+            ...request,
+            name: request.applicant[0]?.name || "N/A",
+            contact: request.contact || "N/A",
+            count: `${request.applicant.length}명`,
+            time: `${request.time}교시`,
+            reason: request.reason || "",
+            status: request.status || "rejected",
+            isApproved: request.isApproved ?? false,
+            createdTime: displayTime,
+          };
+        })
         .sort((a, b) => {
           const aSpecial = a.name === "안채헌" || a.name === "윤석영" || a.name === "정준호";
           const bSpecial = b.name === "안채헌" || b.name === "윤석영" || b.name === "정준호";
           if (aSpecial && !bSpecial) return -1;
           if (bSpecial && !aSpecial) return 1;
-          return new Date(b.xata.createdAt) - new Date(a.xata.createdAt);
+          return new Date(a.xata.createdAt) - new Date(b.xata.createdAt);
         });
 
       setData(transformedData);
