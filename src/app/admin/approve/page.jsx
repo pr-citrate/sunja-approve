@@ -288,8 +288,12 @@ const handleUpdateStatusConfirmed = async (row, data, setData, isApproved) => {
 };
 
 const handleUpdateStatus = async (row, data, setData, isApproved) => {
-  // 승인하려는 경우에만 우선순위 체크
-  if (isApproved) {
+  // 특수계정은 우선순위 체크 없이 바로 승인
+  const specialNames = ["안채헌", "윤석영", "정준호"];
+  if (
+    isApproved &&
+    !specialNames.includes(row.name)
+  ) {
     // 같은 교시에 먼저 신청한 사람들 중 아직 승인되지 않은 사람들 찾기
     const sameTimeRequests = data.filter(d =>
       d.time === row.time &&
