@@ -14,42 +14,47 @@ export default function HomePage() {
   const [isSaving, setIsSaving] = useState(false);
 
   const handleGetToken = () => {
-    if (typeof window !== "undefined" && "Notification" in window) {
-      if (Notification.permission === "granted") {
-        getToken(messaging, { vapidKey: process.env.NEXT_PUBLIC_VAPID_KEY })
-          .then((currentToken) => {
-            if (currentToken) {
-              console.log("FCM 토큰:", currentToken);
-              setFcmToken(currentToken);
-              saveTokenToPassword(currentToken);
+    if (typeof window !== "undefined") {
+      // eslint-disable-next-line no-undef
+      const globalWindow = window;
+      if ("Notification" in globalWindow) {
+        const notification = globalWindow.Notification;
+        if (notification.permission === "granted") {
+          getToken(messaging, { vapidKey: process.env.NEXT_PUBLIC_VAPID_KEY })
+            .then((currentToken) => {
+              if (currentToken) {
+                console.log("FCM 토큰:", currentToken);
+                setFcmToken(currentToken);
+                saveTokenToPassword(currentToken);
+              } else {
+                console.log("토큰을 가져올 수 없습니다.");
+              }
+            })
+            .catch((err) => {
+              console.error("토큰 가져오기 중 오류 발생:", err);
+            });
+        } else {
+          notification.requestPermission().then((permission) => {
+            console.log("알림 권한 요청 결과:", permission);
+            if (permission === "granted") {
+              getToken(messaging, { vapidKey: process.env.NEXT_PUBLIC_VAPID_KEY })
+                .then((currentToken) => {
+                  if (currentToken) {
+                    console.log("FCM 토큰:", currentToken);
+                    setFcmToken(currentToken);
+                    saveTokenToPassword(currentToken);
+                  } else {
+                    console.log("토큰을 가져올 수 없습니다.");
+                  }
+                })
+                .catch((err) => {
+                  console.error("토큰 가져오기 중 오류 발생:", err);
+                });
             } else {
-              console.log("토큰을 가져올 수 없습니다.");
+              console.log("알림 권한이 거부되었습니다.");
             }
-          })
-          .catch((err) => {
-            console.error("토큰 가져오기 중 오류 발생:", err);
           });
-      } else {
-        Notification.requestPermission().then((permission) => {
-          console.log("알림 권한 요청 결과:", permission);
-          if (permission === "granted") {
-            getToken(messaging, { vapidKey: process.env.NEXT_PUBLIC_VAPID_KEY })
-              .then((currentToken) => {
-                if (currentToken) {
-                  console.log("FCM 토큰:", currentToken);
-                  setFcmToken(currentToken);
-                  saveTokenToPassword(currentToken);
-                } else {
-                  console.log("토큰을 가져올 수 없습니다.");
-                }
-              })
-              .catch((err) => {
-                console.error("토큰 가져오기 중 오류 발생:", err);
-              });
-          } else {
-            console.log("알림 권한이 거부되었습니다.");
-          }
-        });
+        }
       }
     }
   };
@@ -104,3 +109,4 @@ export default function HomePage() {
     </main>
   );
 }
+

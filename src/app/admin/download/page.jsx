@@ -46,30 +46,7 @@ const formatDateParts = (dateStr) => {
   return { month, day };
 };
 
-// ─── 임시 승인/거부, 삭제 처리 함수 ─────────────────────────────
-const handleApprove = (item, data, setData) => {
-  const updatedData = data.map((d) =>
-    d.id === item.id ? { ...d, isApproved: true } : d
-  );
-  setData(updatedData);
-  toast.success(`${item.name} 승인됨`);
-};
-
-const handleReject = (item, data, setData) => {
-  const updatedData = data.map((d) =>
-    d.id === item.id ? { ...d, isApproved: false } : d
-  );
-  setData(updatedData);
-  toast.info(`${item.name} 거부됨`);
-};
-
-const confirmDelete = (item, data, setData) => {
-  if (window.confirm("정말 삭제하시겠습니까?")) {
-    const updatedData = data.filter((d) => d.id !== item.id);
-    setData(updatedData);
-    toast.info(`${item.name} 삭제됨`);
-  }
-};
+// ─── 사용하지 않는 함수들 제거됨 ─────────────────────────────
 
 // ─── 템플릿 PDF에 데이터를 채워 다운로드하는 함수 ─────────────────────────────
 const downloadTemplatePDF = async (rowData) => {
@@ -84,7 +61,8 @@ const downloadTemplatePDF = async (rowData) => {
 
   const pages = pdfDoc.getPages();
   const firstPage = pages[0];
-  const { width, height } = firstPage.getSize();
+  // width 변수 사용하지 않으므로 제거
+  const { height } = firstPage.getSize();
 
   // 한글 텍스트를 출력하기 위해 public 폴더에 위치한 NanumGothic.ttf 파일을 불러와 임베드
   const fontBytes = await fetch("/malgun.ttf").then((res) =>
@@ -94,9 +72,6 @@ const downloadTemplatePDF = async (rowData) => {
 
   // xata.createdAt에서 월, 일을 분리해서 추출
   const { month, day } = formatDateParts(rowData.xata.createdAt);
-
-  // Time: "교시" 문구 제거 (예: "1교시" → "1")
-  const timeText = rowData.time ? rowData.time.replace("교시", "") : "정보 없음";
 
   // 예시: 월과 일을 각각 다른 좌표에 출력 (좌표는 템플릿에 맞게 조정)
   firstPage.drawText(`${month}`, {
@@ -213,7 +188,7 @@ const columnsDesktop = (data, setData, downloadTemplatePDF) => [
 ];
 
 // ─── 모바일용 리스트 뷰 컴포넌트 (한 화면에 3개씩 표시) ─────────────────────────────
-const MobileDataView = ({ data, downloadTemplatePDF, setData, router, pageIndex, totalPages, handleNextPage, handlePreviousPage }) => {
+const MobileDataView = ({ data, downloadTemplatePDF, router, pageIndex, totalPages, handleNextPage, handlePreviousPage }) => {
   // 한 페이지에 mobilePageSize(3)개의 항목만 표시
   const mobilePageSize = 3;
   const itemsToShow = data.slice(pageIndex * mobilePageSize, pageIndex * mobilePageSize + mobilePageSize);
@@ -435,7 +410,6 @@ export default function Homeadmin() {
         <MobileDataView
           data={data}
           downloadTemplatePDF={downloadTemplatePDF}
-          setData={setData}
           router={router}
           pageIndex={mobilePageIndex}
           totalPages={totalMobilePages}

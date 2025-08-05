@@ -109,8 +109,11 @@ export default function Page() {
   // Firebase 푸시 알림 권한 요청 및 토큰 발급 후 상태에 저장
   useEffect(() => {
     if (typeof window !== "undefined") {
-      if ("Notification" in window) {
-        if (Notification.permission === "granted") {
+      // eslint-disable-next-line no-undef
+      const globalWindow = window;
+      if ("Notification" in globalWindow) {
+        const notification = globalWindow.Notification;
+        if (notification.permission === "granted") {
           getToken(messaging, { vapidKey: process.env.NEXT_PUBLIC_VAPID_KEY })
             .then((currentToken) => {
               if (currentToken) {
@@ -124,7 +127,7 @@ export default function Page() {
               console.error("토큰 가져오기 중 오류 발생:", err);
             });
         } else {
-          Notification.requestPermission().then((permission) => {
+          notification.requestPermission().then((permission) => {
             console.log("알림 권한 요청 결과:", permission);
             if (permission === "granted") {
               getToken(messaging, { vapidKey: process.env.NEXT_PUBLIC_VAPID_KEY })
@@ -373,7 +376,13 @@ export default function Page() {
                 </Button>
                 <Button
                   type="button"
-                  onClick={() => window.open("https://open.kakao.com/o/s66ruUkh", "_blank")}
+                  onClick={() => {
+                    if (typeof window !== "undefined") {
+                      // eslint-disable-next-line no-undef
+                      const globalWindow = window;
+                      globalWindow.open("https://open.kakao.com/o/s66ruUkh", "_blank");
+                    }
+                  }}
                   disabled={isSubmitting || isFormDisabled}
                   variant="outline"
                 >
