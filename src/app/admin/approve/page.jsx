@@ -592,9 +592,9 @@ export default function Homeadmin() {
             request.applicant[0]?.name === "윤석영" ||
             request.applicant[0]?.name === "정준호";
 
-          // 순자 프리미엄 유저의 경우 당일 00시로 뷰 고정
+          // 순자 프리미엄 유저의 경우 08:30으로 뷰 고정
           const displayTime = isPremiumUser ?
-            "00:00" :
+            "08:30" :
             `${String(createdDate.getHours()).padStart(2, '0')}:${String(createdDate.getMinutes()).padStart(2, '0')}`;
 
           return {
