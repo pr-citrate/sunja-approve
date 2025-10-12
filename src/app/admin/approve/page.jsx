@@ -1,689 +1,612 @@
-"use client";
+"use client"
 
-import React, { useEffect, useState } from "react";
-import { useForm, FormProvider } from "react-hook-form";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  useCallback,
+  useEffect,
+  useMemo,
+  useOptimistic,
+  useState,
+  useId,
+  useTransition,
+} from "react"
+import { useRouter } from "next/navigation"
+import { useMediaQuery } from "react-responsive"
+import { stringify } from "qs"
+import { useToast } from "@/components/toast/ToastProvider"
+import { REQUEST_STATUS } from "@/lib/constants"
+import { updateRequestStatusAction, deleteRequestAction } from "./actions"
 import {
-  useReactTable,
-  getCoreRowModel,
-  flexRender,
-  getPaginationRowModel,
-} from "@tanstack/react-table";
-import { stringify } from "qs";
-import { useRouter } from "next/navigation";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { useMediaQuery } from "react-responsive";
+  buildDailyQueryString,
+  findEarlierPendingRequests,
+  isPremiumMember,
+  sortRequestsForReview,
+  transformRequest,
+} from "@/lib/admin/requests"
 
-// ─── 삭제 확인 토스트 ─────────────────────────────
-const confirmDelete = (row, data, setData) => {
-  toast(
-    ({ closeToast }) => (
-      <div>
-        <div className="mb-2">정말 삭제하시겠습니까?</div>
-        <div className="flex justify-end space-x-2">
-          <button
-            className="px-3 py-1 bg-green-500 text-white rounded"
-            onClick={() => {
-              closeToast();
-              handleDeleteConfirmed(row, data, setData);
-            }}
-          >
-            확인
-          </button>
-          <button
-            className="px-3 py-1 bg-gray-500 text-white rounded"
-            onClick={closeToast}
-          >
-            취소
-          </button>
-        </div>
-      </div>
-    ),
-    { autoClose: false, position: "top-center" }
-  );
-};
+const HIGHLIGHT_CLASS = "flash-cell"
 
-const handleDeleteConfirmed = async (row, data, setData) => {
-  try {
-    const response = await fetch(`/api/requests?id=${row.id}`, {
-      method: "DELETE",
-    });
-    if (!response.ok) {
-      throw new Error("삭제 실패");
-    }
-    const updatedData = data.filter((d) => d.id !== row.id);
-    setData(updatedData);
-    toast.success("삭제되었습니다.", {
-      autoClose: 500,
-      position: "top-center",
-    });
-  } catch (error) {
-    console.error("삭제 중 오류 발생:", error);
-    toast.error("삭제 중 오류 발생", {
-      autoClose: 500,
-      position: "top-center",
-    });
-  }
-};
+const highlightIfPremium = (name) => (isPremiumMember(name) ? HIGHLIGHT_CLASS : "")
 
-// ─── 데스크톱용 테이블 열 정의 ─────────────────────────────
-const columns = (data, setData) => [
-  {
-    accessorKey: "name",
-    header: "대표자",
-    cell: ({ row }) => {
-      const name = row.getValue("name");
-      const shouldFlash = name === "안채헌" || name === "윤석영" || name === "정준호";
-      return (
-        <div className={shouldFlash ? "flash-cell" : ""}>
-          {name}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "contact",
-    header: "전화번호",
-    cell: ({ row }) => {
-      const shouldFlash =
-        row.original.name === "안채헌" || row.original.name === "윤석영" || row.original.name === "정준호";
-      return (
-        <div className={shouldFlash ? "flash-cell" : ""}>
-          {row.getValue("contact")}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "count",
-    header: "총인원",
-    cell: ({ row }) => {
-      const shouldFlash =
-        row.original.name === "안채헌" || row.original.name === "윤석영" || row.original.name === "정준호";
-      return (
-        <div className={shouldFlash ? "flash-cell" : ""}>
-          {row.original.count}{" "}
-          <span
-            onClick={() => {
-              toast.info(
-                row.original.applicant
-                  .map(
-                    (applicant) =>
-                      `${applicant.name} (${applicant.number})`
-                  )
-                  .join("\n"),
-                { position: "top-center", autoClose: false }
-              );
-            }}
-            className="ml-1 text-sm text-gray-500 underline cursor-pointer"
-          >
-            더보기
-          </span>
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "time",
-    header: "신청교시",
-    cell: ({ row }) => {
-      const shouldFlash =
-        row.original.name === "안채헌" || row.original.name === "윤석영" || row.original.name === "정준호";
-      return (
-        <div className={shouldFlash ? "flash-cell" : ""}>
-          {row.getValue("time")}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "createdTime",
-    header: "신청시간",
-    cell: ({ row }) => {
-      const shouldFlash =
-        row.original.name === "안채헌" || row.original.name === "윤석영" || row.original.name === "정준호";
-      return (
-        <div className={shouldFlash ? "flash-cell" : ""}>
-          {row.getValue("createdTime")}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "reason",
-    header: "사유",
-    cell: ({ row }) => {
-      const shouldFlash =
-        row.original.name === "안채헌" || row.original.name === "윤석영" || row.original.name === "정준호";
-      return (
-        <div className={shouldFlash ? "flash-cell" : ""}>
-          {row.getValue("reason")}
-        </div>
-      );
-    },
-  },
-  {
-    id: "approve",
-    header: "확인",
-    cell: ({ row }) => (
-      <Button
-        onClick={() => {
-          if (row.original.isApproved) {
-            handleReject(row.original, data, setData);
-          } else {
-            handleApprove(row.original, data, setData);
-          }
-        }}
-        className={`w-full ${row.original.isApproved
-          ? "bg-red-500 text-white"
-          : "bg-green-500 text-white"
-          }`}
-      >
-        {row.original.isApproved ? "거부" : "승인"}
-      </Button>
-    ),
-  },
-  {
-    id: "delete",
-    header: "삭제",
-    cell: ({ row }) => (
-      <Button
-        onClick={() => confirmDelete(row.original, data, setData)}
-        className="bg-gray-500 text-white w-full"
-      >
-        삭제
-      </Button>
-    ),
-  },
-];
+function showApplicantToast(toastApi, applicants = []) {
+  if (!applicants.length) return
 
-// ─── 우선순위 확인 토스트 ─────────────────────────────
-const confirmPriorityApproval = (row, data, setData, earlierRequests) => {
-  const earlierNames = earlierRequests.map(req => req.name).join(", ");
-  toast(
-    ({ closeToast }) => (
-      <div>
-        <div className="mb-2">
-          같은 교시({row.time})에 먼저 신청한 사람이 있습니다:<br />
-          <strong>{earlierNames}</strong><br />
-          그래도 이 요청을 승인하시겠습니까?
-        </div>
-        <div className="flex justify-end space-x-2">
-          <button
-            className="px-3 py-1 bg-green-500 text-white rounded"
-            onClick={() => {
-              closeToast();
-              handleUpdateStatusConfirmed(row, data, setData, true);
-            }}
-          >
-            승인
-          </button>
-          <button
-            className="px-3 py-1 bg-gray-500 text-white rounded"
-            onClick={closeToast}
-          >
-            취소
-          </button>
-        </div>
-      </div>
-    ),
-    { autoClose: false, position: "top-center" }
-  );
-};
+  const text = applicants.map((applicant) => `${applicant.name} (${applicant.number})`).join("\n")
 
-// ─── 상태 업데이트 및 알림 전송 ─────────────────────────────
-const handleUpdateStatusConfirmed = async (row, data, setData, isApproved) => {
-  const newStatus = isApproved ? "approved" : "rejected";
-  try {
-    const response = await fetch(`/api/requests?id=${row.id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
+  toastApi.addToast({
+    title: "신청자 목록",
+    content: <p className="whitespace-pre-wrap text-sm leading-snug">{text}</p>,
+    variant: "info",
+    duration: 5000,
+  })
+}
+
+function confirmDeletion(toastApi, _request, onConfirm) {
+  toastApi.addToast({
+    title: "정말 삭제하시겠습니까?",
+    variant: "warning",
+    dismissible: false,
+    duration: 0,
+    actions: [
+      {
+        label: "확인",
+        variant: "btn-primary",
+        onClick: onConfirm,
       },
-      body: JSON.stringify({ status: newStatus, isApproved }),
-    });
-
-    if (!response.ok) {
-      throw new Error("Request update failed");
-    }
-
-    const updatedData = data.map((d) =>
-      d.id === row.id ? { ...d, status: newStatus, isApproved } : d
-    );
-    setData(updatedData);
-
-    toast.success(isApproved ? "승인 되었습니다." : "거부되었습니다.", {
-      autoClose: 500,
-      position: "top-center",
-    });
-
-    const notifyResponse = await fetch("/api/notify-approval", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+      {
+        label: "취소",
+        variant: "btn-ghost",
       },
-      body: JSON.stringify({ id: row.id, isApproved }),
-    });
-    const notifyData = await notifyResponse.json();
-    console.log("알림 전송 결과:", notifyData);
-  } catch (error) {
-    console.error("Error updating status:", error);
-    toast.error("상태 업데이트 중 오류 발생", {
-      autoClose: 500,
-      position: "top-center",
-    });
-  }
-};
+    ],
+  })
+}
 
-const handleUpdateStatus = async (row, data, setData, isApproved) => {
-  // 특수계정은 우선순위 체크 없이 바로 승인
-  const specialNames = ["안채헌", "윤석영", "정준호"];
-  if (
-    isApproved &&
-    !specialNames.includes(row.name)
-  ) {
-    // 같은 교시에 먼저 신청한 사람들 중 아직 승인되지 않은 사람들 찾기
-    const sameTimeRequests = data.filter(d =>
-      d.time === row.time &&
-      d.id !== row.id &&
-      !d.isApproved
-    );
+function confirmPriorityOverride(toastApi, request, earlierRequests, onConfirm) {
+  const names = earlierRequests.map((item) => item.name).join(", ")
+  toastApi.addToast({
+    title: "먼저 신청한 인원이 있습니다",
+    content: (
+      <p className="text-sm leading-snug">
+        같은 교시({request.time})에 먼저 신청한 사람들이 있습니다:
+        <br />
+        <strong>{names}</strong>
+        <br />
+        그래도 이 요청을 승인하시겠습니까?
+      </p>
+    ),
+    variant: "warning",
+    dismissible: false,
+    duration: 0,
+    actions: [
+      {
+        label: "승인",
+        variant: "btn-primary",
+        onClick: onConfirm,
+      },
+      {
+        label: "취소",
+        variant: "btn-ghost",
+      },
+    ],
+  })
+}
 
-    const earlierRequests = sameTimeRequests.filter(d =>
-      new Date(d.xata.createdAt) < new Date(row.xata.createdAt)
-    );
-
-    // 먼저 신청한 사람이 있으면 확인 토스트 띄우기
-    if (earlierRequests.length > 0) {
-      confirmPriorityApproval(row, data, setData, earlierRequests);
-      return;
-    }
-  }
-
-  // 거부하거나 우선순위 문제가 없으면 바로 실행
-  handleUpdateStatusConfirmed(row, data, setData, isApproved);
-};
-
-const handleApprove = (row, data, setData) => {
-  handleUpdateStatus(row, data, setData, true);
-};
-
-const handleReject = (row, data, setData) => {
-  handleUpdateStatus(row, data, setData, false);
-};
-
-// ─── 로그인 전 비밀번호 입력 폼 ─────────────────────────────
-const PasswordForm = ({ handlePasswordSubmit, password, setPassword, router }) => (
-  <Card className="w-96 grid justify-items-center items-center p-8">
-    <form onSubmit={handlePasswordSubmit} className="w-full grid justify-items-center">
-      <Label htmlFor="password" className="text-xl mb-4">
-        비밀번호 입력
-      </Label>
-      <Input
-        id="password"
-        type="password"
-        placeholder="비밀번호를 입력하세요"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        className="mb-4 text-lg w-full"
-      />
-      <Button type="submit" className="text-lg mt-4 w-full">
-        로그인
-      </Button>
-      <Button type="button" onClick={() => router.push("/admin")} className="text-lg mt-4 w-full">
-        뒤로
-      </Button>
-    </form>
-  </Card>
-);
-
-// ─── 데스크톱용 데이터 테이블 ─────────────────────────────
-const DataTable = ({ table, data, isLoading, handlePreviousPage, handleNextPage, router }) => (
-  <Card className="min-w-screen grid justify-items-center items-center p-8 m-12 min-h-96 min-w-96">
-    {isLoading ? (
-      <p>로딩 중...</p>
-    ) : !data || data.length === 0 ? (
-      <p>신청 목록이 없습니다</p>
-    ) : (
-      <>
-        <div className="rounded-md border mb-4 w-full">
-          <Table className="w-full">
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(header.column.columnDef.header, header.getContext())}
-                    </TableHead>
-                  ))}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows.map((row) => (
-                <TableRow key={row.original.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-        <div className="flex justify-between items-center w-full">
-          <Button onClick={handlePreviousPage} disabled={!table.getCanPreviousPage()}>
-            이전
-          </Button>
-          <span>
-            {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
-          </span>
-          <Button onClick={handleNextPage} disabled={!table.getCanNextPage()}>
-            다음
-          </Button>
-        </div>
-        <div className="flex space-x-4 mt-4">
-          <Button className="text-lg mb-4 w-full" onClick={() => router.push("/admin/statusfalse")}>
-            거절 현황
-          </Button>
-          <Button className="text-lg mb-4 w-full" onClick={() => router.push("/admin/download")}>
-            다운로드
-          </Button>
-          <Button className="text-lg mb-4 w-full" onClick={() => router.push("/admin/status")}>
-            승인 현황
-          </Button>
-        </div>
-      </>
-    )}
-  </Card>
-);
-
-// ─── 모바일용 데이터 리스트 ─────────────────────────────
-const MobileDataView = ({ table, data, setData, isLoading, handlePreviousPage, handleNextPage, router }) => {
-  if (isLoading) return <p>로딩 중...</p>;
-
-  const currentPageData = table.getRowModel().rows.map((row) => row.original);
-  if (currentPageData.length === 0) return <p>신청 목록이 없습니다</p>;
-
+function PasswordForm({ password, setPassword, onSubmit, router }) {
+  const passwordInputId = useId()
   return (
-    <div className="w-full p-4">
-      {currentPageData.map((item) => (
-        <Card key={item.id} className="relative p-4 m-2">
-          <span
-            onClick={() => confirmDelete(item, data, setData)}
-            className="absolute top-1 right-1 text-gray-500 cursor-pointer"
-          >
-            X
-          </span>
-          <p>
-            <strong>대표자:</strong>{" "}
-            <span className={item.name === "안채헌" || item.name === "윤석영" || item.name === "정준호" ? "flash-cell" : ""}>
-              {item.name}
-            </span>
+    <div className="card w-full max-w-md bg-base-100 shadow-lg">
+      <div className="card-body space-y-5">
+        <div className="space-y-1 text-center">
+          <h2 className="text-xl font-semibold text-base-content">관리자 로그인</h2>
+          <p className="text-sm text-base-content/60">
+            승인 페이지 접근을 위해 비밀번호를 입력하세요.
           </p>
-          <p>
-            <strong>전화번호:</strong>{" "}
-            <span className={item.name === "안채헌" || item.name === "윤석영" || item.name === "정준호" ? "flash-cell" : ""}>
-              {item.contact}
-            </span>
-          </p>
-          <p>
-            <strong>총인원:</strong>{" "}
-            <span className={item.name === "안채헌" || item.name === "윤석영" || item.name === "정준호" ? "flash-cell" : ""}>
-              {item.count}
-            </span>{" "}
-            <span
-              onClick={() => {
-                toast.info(
-                  item.applicant
-                    .map(
-                      (applicant) =>
-                        `${applicant.name} (${applicant.number})`
-                    )
-                    .join("\n"),
-                  { position: "top-center", autoClose: false }
-                );
-              }}
-              className="ml-1 text-sm text-gray-500 underline cursor-pointer"
-            >
-              더보기
-            </span>
-          </p>
-          <p>
-            <strong>신청교시:</strong>{" "}
-            <span className={item.name === "안채헌" || item.name === "윤석영" || item.name === "정준호" ? "flash-cell" : ""}>
-              {item.time}
-            </span>
-          </p>
-          <p>
-            <strong>신청시간:</strong>{" "}
-            <span className={item.name === "안채헌" || item.name === "윤석영" || item.name === "정준호" ? "flash-cell" : ""}>
-              {item.createdTime}
-            </span>
-          </p>
-          <p>
-            <strong>사유:</strong>{" "}
-            <span className={item.name === "안채헌" || item.name === "윤석영" || item.name === "정준호" ? "flash-cell" : ""}>
-              {item.reason}
-            </span>
-          </p>
-          <div className="mt-2">
-            <Button
-              onClick={() => {
-                if (item.isApproved) {
-                  handleReject(item, data, setData);
-                } else {
-                  handleApprove(item, data, setData);
-                }
-              }}
-              className={`w-full ${item.isApproved ? "bg-red-500 text-white" : "bg-green-500 text-white"}`}
-            >
-              {item.isApproved ? "거부" : "승인"}
-            </Button>
+        </div>
+        <form onSubmit={onSubmit} className="space-y-4">
+          <div className="form-control w-full">
+            <label htmlFor={passwordInputId} className="label">
+              <span className="label-text font-semibold">비밀번호</span>
+            </label>
+            <input
+              id={passwordInputId}
+              type="password"
+              placeholder="비밀번호를 입력하세요"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              className="input input-bordered w-full"
+            />
           </div>
-        </Card>
-      ))}
-      <div className="flex justify-between items-center w-full mt-4">
-        <Button onClick={handlePreviousPage} disabled={!table.getCanPreviousPage()}>
-          이전
-        </Button>
-        <span>
-          {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
-        </span>
-        <Button onClick={handleNextPage} disabled={!table.getCanNextPage()}>
-          다음
-        </Button>
-      </div>
-      <div className="flex space-x-4 mt-4">
-        <Button className="text-lg w-full" onClick={() => router.push("/statusfalse")}>
-          거절 현황
-        </Button>
-        <Button className="text-lg w-full" onClick={() => router.push("/admin/download")}>
-          다운로드
-        </Button>
-        <Button className="text-lg w-full" onClick={() => router.push("/admin/status")}>
-          승인 현황
-        </Button>
+          <div className="grid gap-3">
+            <button type="submit" className="btn btn-soft btn-primary btn-lg">
+              로그인
+            </button>
+            <button type="button" className="btn btn-outline" onClick={() => router.push("/admin")}>
+              뒤로가기
+            </button>
+          </div>
+        </form>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default function Homeadmin() {
-  const router = useRouter();
-  const [password, setPassword] = useState("");
-  const [isPasswordCorrect, setIsPasswordCorrect] = useState(false);
-  const [data, setData] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [pageIndex, setPageIndex] = useState(0);
-  const methods = useForm();
+function DesktopTable({
+  data,
+  pageIndex,
+  pageSize,
+  onNext,
+  onPrevious,
+  onApprove,
+  onReject,
+  onDelete,
+  router,
+  busy,
+  onShowApplicants = () => {},
+}) {
+  const start = pageIndex * pageSize
+  const pageData = data.slice(start, start + pageSize)
+  const pageCount = Math.max(1, Math.ceil(data.length / pageSize))
 
-  const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
-  const pageSize = isMobile ? 3 : 8;
+  return (
+    <div className="space-y-4">
+      <div className="card bg-base-100 shadow-lg">
+        <div className="card-body space-y-4">
+          {data.length === 0 ? (
+            <p className="text-sm text-base-content/70">신청 목록이 없습니다.</p>
+          ) : (
+            <>
+              <div className="overflow-x-auto rounded-xl border border-base-200">
+                <table className="table table-zebra">
+                  <thead className="bg-base-200">
+                    <tr>
+                      <th>대표자</th>
+                      <th>전화번호</th>
+                      <th>총인원</th>
+                      <th>신청교시</th>
+                      <th>신청시간</th>
+                      <th>사유</th>
+                      <th>확인</th>
+                      <th>삭제</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pageData.map((row) => (
+                      <tr key={row.id}>
+                        <td className={`align-top ${highlightIfPremium(row.name)}`}>{row.name}</td>
+                        <td className={`align-top ${highlightIfPremium(row.name)}`}>
+                          {row.contact}
+                        </td>
+                        <td className={`align-top ${highlightIfPremium(row.name)}`}>
+                          {row.count}{" "}
+                          <button
+                            type="button"
+                            className="link link-primary text-xs"
+                            onClick={() => onShowApplicants(row.applicant)}
+                          >
+                            더보기
+                          </button>
+                        </td>
+                        <td className={`align-top ${highlightIfPremium(row.name)}`}>{row.time}</td>
+                        <td className={`align-top ${highlightIfPremium(row.name)}`}>
+                          {row.createdTime}
+                        </td>
+                        <td className={`align-top ${highlightIfPremium(row.name)}`}>
+                          {row.reason}
+                        </td>
+                        <td className="w-32">
+                          <button
+                            type="button"
+                            className={`btn w-full ${
+                              row.isApproved ? "btn-soft btn-error" : "btn-soft btn-success"
+                            }`}
+                            disabled={busy}
+                            onClick={() => (row.isApproved ? onReject(row) : onApprove(row))}
+                          >
+                            {row.isApproved ? "거부" : "승인"}
+                          </button>
+                        </td>
+                        <td className="w-24">
+                          <button
+                            type="button"
+                            className="btn btn-outline btn-error w-full"
+                            disabled={busy}
+                            onClick={() => onDelete(row)}
+                          >
+                            삭제
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  onClick={onPrevious}
+                  disabled={pageIndex === 0}
+                >
+                  이전
+                </button>
+                <span className="text-sm text-base-content/70">
+                  {pageCount === 0 ? 0 : pageIndex + 1} / {pageCount}
+                </span>
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  onClick={onNext}
+                  disabled={pageIndex >= pageCount - 1}
+                >
+                  다음
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
 
-  const table = useReactTable({
-    data,
-    columns: columns(data, setData),
-    pageCount: Math.ceil(data.length / pageSize),
-    state: {
-      pagination: { pageIndex, pageSize },
+      <div className="flex flex-wrap gap-3">
+        <button
+          type="button"
+          className="btn btn-outline flex-1"
+          onClick={() => router.push("/admin/statusfalse")}
+        >
+          거절 현황
+        </button>
+        <button
+          type="button"
+          className="btn btn-outline flex-1"
+          onClick={() => router.push("/admin/download")}
+        >
+          다운로드
+        </button>
+        <button
+          type="button"
+          className="btn btn-outline flex-1"
+          onClick={() => router.push("/admin/status")}
+        >
+          승인 현황
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function MobileCards({
+  data,
+  pageIndex,
+  pageSize,
+  onNext,
+  onPrevious,
+  onApprove,
+  onReject,
+  onDelete,
+  router,
+  busy,
+  onShowApplicants = () => {},
+}) {
+  const start = pageIndex * pageSize
+  const pageCount = Math.max(1, Math.ceil(data.length / pageSize))
+  const pageData = data.slice(start, start + pageSize)
+
+  if (data.length === 0) {
+    return <p className="text-sm text-base-content/70">신청 목록이 없습니다.</p>
+  }
+
+  return (
+    <div className="w-full space-y-4">
+      {pageData.map((item) => (
+        <div key={item.id} className="card bg-base-100 shadow-lg">
+          <div className="card-body space-y-3">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm text-base-content/60">대표자</p>
+                <p className={`text-base font-semibold ${highlightIfPremium(item.name)}`}>
+                  {item.name}
+                </p>
+              </div>
+              <button
+                type="button"
+                className="btn btn-outline btn-error btn-xs"
+                disabled={busy}
+                onClick={() => onDelete(item)}
+              >
+                삭제
+              </button>
+            </div>
+            <div className="grid gap-2 text-sm">
+              <p>
+                <span className="font-semibold">전화번호:</span>{" "}
+                <span className={highlightIfPremium(item.name)}>{item.contact}</span>
+              </p>
+              <p>
+                <span className="font-semibold">총인원:</span>{" "}
+                <span className={highlightIfPremium(item.name)}>{item.count}</span>{" "}
+                <button
+                  type="button"
+                  className="link link-primary text-xs"
+                  onClick={() => onShowApplicants(item.applicant)}
+                >
+                  더보기
+                </button>
+              </p>
+              <p>
+                <span className="font-semibold">신청교시:</span>{" "}
+                <span className={highlightIfPremium(item.name)}>{item.time}</span>
+              </p>
+              <p>
+                <span className="font-semibold">신청시간:</span>{" "}
+                <span className={highlightIfPremium(item.name)}>{item.createdTime}</span>
+              </p>
+              <p>
+                <span className="font-semibold">사유:</span>{" "}
+                <span className={highlightIfPremium(item.name)}>{item.reason}</span>
+              </p>
+            </div>
+            <button
+              type="button"
+              className={`btn w-full ${
+                item.isApproved ? "btn-soft btn-error" : "btn-soft btn-success"
+              }`}
+              disabled={busy}
+              onClick={() => (item.isApproved ? onReject(item) : onApprove(item))}
+            >
+              {item.isApproved ? "거부" : "승인"}
+            </button>
+          </div>
+        </div>
+      ))}
+      <div className="flex items-center justify-between">
+        <button
+          type="button"
+          className="btn btn-outline"
+          onClick={onPrevious}
+          disabled={pageIndex === 0}
+        >
+          이전
+        </button>
+        <span className="text-sm text-base-content/70">
+          {pageCount === 0 ? 0 : pageIndex + 1} / {pageCount}
+        </span>
+        <button
+          type="button"
+          className="btn btn-outline"
+          onClick={onNext}
+          disabled={pageIndex >= pageCount - 1}
+        >
+          다음
+        </button>
+      </div>
+      <div className="flex flex-wrap gap-3">
+        <button
+          type="button"
+          className="btn btn-outline flex-1"
+          onClick={() => router.push("/statusfalse")}
+        >
+          거절 현황
+        </button>
+        <button
+          type="button"
+          className="btn btn-outline flex-1"
+          onClick={() => router.push("/admin/download")}
+        >
+          다운로드
+        </button>
+        <button
+          type="button"
+          className="btn btn-outline flex-1"
+          onClick={() => router.push("/admin/status")}
+        >
+          승인 현황
+        </button>
+      </div>
+    </div>
+  )
+}
+
+export default function ApproveRequestsPage() {
+  const router = useRouter()
+  const isMobile = useMediaQuery({ query: "(max-width: 768px)" })
+  const pageSize = isMobile ? 3 : 8
+
+  const toast = useToast()
+  const [password, setPassword] = useState("")
+  const [isPasswordCorrect, setIsPasswordCorrect] = useState(false)
+  const [requests, setRequests] = useState([])
+  const [optimisticRequests, applyOptimisticRequest] = useOptimistic(
+    requests,
+    (current, action) => {
+      switch (action.type) {
+        case "update-status":
+          return current.map((item) =>
+            item.id === action.id
+              ? {
+                  ...item,
+                  isApproved: action.isApproved,
+                  status: action.isApproved ? REQUEST_STATUS.APPROVED : REQUEST_STATUS.REJECTED,
+                }
+              : item,
+          )
+        case "remove":
+          return current.filter((item) => item.id !== action.id)
+        case "set":
+          return action.requests
+        default:
+          return current
+      }
     },
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-  });
+  )
+  const [pageIndex, setPageIndex] = useState(0)
+  const [isLoading, setIsLoading] = useState(false)
+  const [isPending, startTransition] = useTransition()
 
-  const handlePasswordSubmit = async (e) => {
-    e.preventDefault();
-    const res = await fetch("/api/password", {
-      method: "POST",
-      body: password,
-    });
-    const result = await res.json();
-    if (result.success) {
-      setIsPasswordCorrect(true);
-    } else {
-      toast.error("비밀번호가 틀렸습니다. 다시 시도해주세요.", {
-        autoClose: 500,
-        position: "top-center",
-      });
-    }
-  };
+  const pageCount = useMemo(
+    () => Math.max(1, Math.ceil(optimisticRequests.length / pageSize)),
+    [optimisticRequests.length, pageSize],
+  )
 
-  const fetchData = async () => {
-    setIsLoading(true);
+  const fetchData = useCallback(async () => {
+    setIsLoading(true)
     try {
-      const response = await fetch(
-        "/api/requests?" +
-        stringify({
-          $all: [
-            {
-              "xata.createdAt": {
-                $ge: new Date(new Date().setHours(0, 0, 0, 0)).toISOString(),
-              },
-            },
-            {
-              "xata.createdAt": {
-                $le: new Date(new Date().setHours(23, 59, 59, 999)).toISOString(),
-              },
-            },
-          ],
-        })
-      );
-      const result = await response.json();
-      const transformedData = result.requests
-        .map((request) => {
-          const createdDate = new Date(request.xata.createdAt);
-          const isPremiumUser = request.applicant[0]?.name === "안채헌" ||
-            request.applicant[0]?.name === "윤석영" ||
-            request.applicant[0]?.name === "정준호";
-
-          // 순자 프리미엄 유저의 경우 당일 00시로 뷰 고정
-          const displayTime = isPremiumUser ?
-            "08:30" :
-            `${String(createdDate.getHours()).padStart(2, '0')}:${String(createdDate.getMinutes()).padStart(2, '0')}`;
-
-          return {
-            id: request.id,
-            ...request,
-            name: request.applicant[0]?.name || "N/A",
-            contact: request.contact || "N/A",
-            count: `${request.applicant.length}명`,
-            time: `${request.time}교시`,
-            reason: request.reason || "",
-            status: request.status || "rejected",
-            isApproved: request.isApproved ?? false,
-            createdTime: displayTime,
-          };
-        })
-        .sort((a, b) => {
-          const aSpecial = a.name === "안채헌" || a.name === "윤석영" || a.name === "정준호";
-          const bSpecial = b.name === "안채헌" || b.name === "윤석영" || b.name === "정준호";
-          if (aSpecial && !bSpecial) return -1;
-          if (bSpecial && !aSpecial) return 1;
-          return new Date(a.xata.createdAt) - new Date(b.xata.createdAt);
-        });
-
-      setData(transformedData);
+      const response = await fetch(`/api/requests?${stringify(buildDailyQueryString())}`)
+      const result = await response.json()
+      const transformed = sortRequestsForReview(result.requests.map(transformRequest))
+      setRequests(transformed)
+      startTransition(() => {
+        applyOptimisticRequest({ type: "set", requests: transformed })
+      })
     } catch (error) {
-      console.error("데이터 가져오기 오류:", error);
-      toast.error("데이터 가져오기 중 오류 발생", {
-        autoClose: 500,
-        position: "top-center",
-      });
-      setData([]);
+      console.error("데이터 가져오기 오류:", error)
+      toast.error("데이터 가져오기 중 오류 발생", { duration: 500 })
+      setRequests([])
+      startTransition(() => {
+        applyOptimisticRequest({ type: "set", requests: [] })
+      })
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }, [])
 
   useEffect(() => {
     if (isPasswordCorrect) {
-      fetchData();
+      fetchData()
     }
-  }, [isPasswordCorrect]);
+  }, [isPasswordCorrect, fetchData])
 
-  const handleNextPage = () => {
-    setPageIndex((prev) => Math.min(prev + 1, table.getPageCount() - 1));
-  };
+  const handlePasswordSubmit = async (event) => {
+    event.preventDefault()
+    const res = await fetch("/api/admin/auth", {
+      method: "POST",
+      body: password,
+    })
+    const result = await res.json()
+    if (result.success) {
+      setIsPasswordCorrect(true)
+    } else {
+      toast.error("비밀번호가 틀렸습니다. 다시 시도해주세요.", { duration: 500 })
+    }
+  }
 
-  const handlePreviousPage = () => {
-    setPageIndex((prev) => Math.max(prev - 1, 0));
-  };
+  const removeRequest = (requestId) => {
+    startTransition(() => {
+      applyOptimisticRequest({ type: "remove", id: requestId })
+    })
+    setRequests((prev) => prev.filter((request) => request.id !== requestId))
+  }
+
+  const handleStatusChange = async (request, isApproved) => {
+    const earlierRequests = findEarlierPendingRequests(request, optimisticRequests)
+    const execute = async () => {
+      const previousSnapshot = requests.map((item) => ({ ...item }))
+      startTransition(() => {
+        applyOptimisticRequest({ type: "update-status", id: request.id, isApproved })
+      })
+      const pendingId = toast.info(isApproved ? "승인 처리 중..." : "거부 처리 중...", {
+        duration: 0,
+        dismissible: false,
+      })
+
+      startTransition(async () => {
+        try {
+          const result = await updateRequestStatusAction(request.id, isApproved)
+          const transformed = transformRequest(result.record)
+          toast.dismissToast(pendingId)
+          toast.success(isApproved ? "승인 되었습니다." : "거부되었습니다.")
+          setRequests((prev) =>
+            prev.map((item) => (item.id === transformed.id ? transformed : item)),
+          )
+        } catch (error) {
+          console.error("상태 업데이트 오류:", error)
+          toast.dismissToast(pendingId)
+          toast.error("상태 업데이트 중 오류 발생", { duration: 1000 })
+          setRequests(previousSnapshot)
+          applyOptimisticRequest({ type: "set", requests: previousSnapshot })
+        }
+      })
+    }
+
+    if (isApproved && earlierRequests.length) {
+      confirmPriorityOverride(toast, request, earlierRequests, execute)
+      return
+    }
+
+    execute()
+  }
+
+  const handleDelete = (request) => {
+    confirmDeletion(toast, request, async () => {
+      const previousSnapshot = requests.map((item) => ({ ...item }))
+      removeRequest(request.id)
+      const pendingId = toast.info("삭제 처리 중...", { duration: 0, dismissible: false })
+      startTransition(async () => {
+        try {
+          await deleteRequestAction(request.id)
+          toast.dismissToast(pendingId)
+          toast.success("삭제되었습니다.")
+        } catch (error) {
+          console.error("삭제 오류:", error)
+          toast.dismissToast(pendingId)
+          toast.error("삭제 중 오류 발생")
+          setRequests(previousSnapshot)
+          applyOptimisticRequest({ type: "set", requests: previousSnapshot })
+        }
+      })
+    })
+  }
+
+  const goNext = () => setPageIndex((prev) => Math.min(prev + 1, pageCount - 1))
+  const goPrevious = () => setPageIndex((prev) => Math.max(prev - 1, 0))
 
   return (
-    <FormProvider {...methods}>
-      <main className="flex justify-center items-center w-screen h-screen">
-        {!isPasswordCorrect ? (
-          <PasswordForm
-            handlePasswordSubmit={handlePasswordSubmit}
-            password={password}
-            setPassword={setPassword}
-            router={router}
-          />
-        ) : isMobile ? (
-          <MobileDataView
-            table={table}
-            data={data}
-            setData={setData}
-            isLoading={isLoading}
-            handlePreviousPage={handlePreviousPage}
-            handleNextPage={handleNextPage}
-            router={router}
-          />
-        ) : (
-          <DataTable
-            table={table}
-            data={data}
-            isLoading={isLoading}
-            handlePreviousPage={handlePreviousPage}
-            handleNextPage={handleNextPage}
-            router={router}
-          />
-        )}
+    <>
+      <main className="min-h-screen bg-base-200 py-10">
+        <div className="container mx-auto">
+          {!isPasswordCorrect ? (
+            <div className="flex items-center justify-center">
+              <PasswordForm
+                password={password}
+                setPassword={setPassword}
+                onSubmit={handlePasswordSubmit}
+                router={router}
+              />
+            </div>
+          ) : isLoading ? (
+            <div className="card mx-auto w-full max-w-md bg-base-100 shadow-lg">
+              <div className="card-body flex items-center justify-center py-10">
+                <span className="loading loading-spinner loading-lg text-primary" />
+              </div>
+            </div>
+          ) : isMobile ? (
+            <MobileCards
+              data={optimisticRequests}
+              pageIndex={pageIndex}
+              pageSize={pageSize}
+              onNext={goNext}
+              onPrevious={goPrevious}
+              onApprove={(request) => handleStatusChange(request, true)}
+              onReject={(request) => handleStatusChange(request, false)}
+              onDelete={handleDelete}
+              router={router}
+              busy={isPending}
+              onShowApplicants={(applicants) => showApplicantToast(toast, applicants)}
+            />
+          ) : (
+            <DesktopTable
+              data={optimisticRequests}
+              pageIndex={pageIndex}
+              pageSize={pageSize}
+              onNext={goNext}
+              onPrevious={goPrevious}
+              onApprove={(request) => handleStatusChange(request, true)}
+              onReject={(request) => handleStatusChange(request, false)}
+              onDelete={handleDelete}
+              router={router}
+              busy={isPending}
+              onShowApplicants={(applicants) => showApplicantToast(toast, applicants)}
+            />
+          )}
+        </div>
       </main>
-      <ToastContainer
-        position="top-center"
-        toastStyle={
-          isMobile
-            ? {}
-            : { minHeight: "80px", minWidth: "400px", padding: "20px" }
-        }
-      />
-    </FormProvider>
-  );
+    </>
+  )
 }

@@ -1,0 +1,60 @@
+{
+  "tables": [
+    {
+      "name": "requests",
+      "columns": [
+        {
+          "name": "applicant",
+          "type": "json"
+        },
+        {
+          "name": "contact",
+          "type": "string"
+        },
+        {
+          "name": "reason",
+          "type": "string"
+        },
+        {
+          "name": "time",
+          "type": "string"
+        },
+        {
+          "name": "isApproved",
+          "type": "bool"
+        },
+        {
+          "name": "ip",
+          "type": "text"
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "notNull": true,
+          "defaultValue": "pending"
+        },
+        {
+          "name": "fcm",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "name": "admin_tokens",
+      "columns": [
+        {
+          "name": "token",
+          "type": "text"
+        },
+        {
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "name": "lastValidatedAt",
+          "type": "datetime"
+        }
+      ]
+    }
+  ]
+}

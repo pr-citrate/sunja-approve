@@ -1,19 +1,18 @@
-import { Inter } from "next/font/google";
-import "./globals.css";
-import { ThemeProvider } from "@/components/ui/theme-provider";
-import { Toaster } from "@/components/ui/toaster";
-import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
+import { Inter } from "next/font/google"
+import "./globals.css"
+import ServiceWorkerRegister from "@/components/ServiceWorkerRegister"
+import { ToastProvider } from "@/components/toast/ToastProvider"
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
   title: "순자 신청서",
   description: "순자 신청서",
-};
+}
 
 export default function RootLayout({ children }) {
   return (
-    <html suppressHydrationWarning={true} lang="en">
+    <html suppressHydrationWarning={true} lang="en" data-theme="light">
       <head>
         <link rel="manifest" href="/manifest.json" />
       </head>
@@ -30,18 +29,9 @@ export default function RootLayout({ children }) {
           data-x_margin="18"
           data-y_margin="18"
         />
-        {/* 서비스 워커 등록 */}
         <ServiceWorkerRegister />
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-          <Toaster />
-        </ThemeProvider>
+        <ToastProvider>{children}</ToastProvider>
       </body>
     </html>
-  );
+  )
 }

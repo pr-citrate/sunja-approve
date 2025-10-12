@@ -1,7 +1,7 @@
 // components/ServiceWorkerRegister.jsx
-"use client";
+"use client"
 
-import { useEffect } from "react";
+import { useEffect } from "react"
 
 export default function ServiceWorkerRegister() {
   useEffect(() => {
@@ -10,13 +10,13 @@ export default function ServiceWorkerRegister() {
       navigator.serviceWorker
         .register("/firebase-messaging-sw.js")
         .then((registration) => {
-          console.log("Firebase Service Worker registered with scope:", registration.scope);
+          console.log("Firebase Service Worker registered with scope:", registration.scope)
         })
         .catch((error) => {
-          console.error("Firebase Service Worker registration failed:", error);
-        });
+          console.error("Firebase Service Worker registration failed:", error)
+        })
     }
-  }, []);
+  }, [])
 
-  return null;
+  return null
 }

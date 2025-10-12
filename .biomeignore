@@ -1,0 +1,5 @@
+backups/
+.next/
+node_modules/
+public/
+src/app/admin/download/nanum-gothic-base64.js

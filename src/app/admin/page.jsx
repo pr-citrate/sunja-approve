@@ -1,112 +1,135 @@
-"use client";
+"use client"
 
-import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { useRouter } from "next/navigation";
-import { messaging } from "@/lib/firebaseClient";
-import { getToken } from "firebase/messaging";
+import { useState } from "react"
+import Link from "next/link"
+import { getToken } from "firebase/messaging"
+
+import { messaging } from "@/lib/firebaseClient"
+
+const QUICK_ACTIONS = [
+  {
+    href: "/admin/approve",
+    label: "승인 페이지로 이동",
+    description: "당일 들어온 신청을 확인하고 승인 또는 거절할 수 있습니다.",
+    variant: "btn btn-primary",
+  },
+  {
+    href: "/morepeople",
+    label: "1~20인 신청 열기",
+    description: "추가 인원 수요가 있을 때 바로 사용하세요.",
+    variant: "btn btn-outline",
+  },
+]
 
 export default function HomePage() {
-  const router = useRouter();
-  const [fcmToken, setFcmToken] = useState(null);
-  const [isSaving, setIsSaving] = useState(false);
+  const [fcmToken, setFcmToken] = useState(null)
+  const [isSaving, setIsSaving] = useState(false)
 
-  const handleGetToken = () => {
-    if (typeof window !== "undefined") {
-      // eslint-disable-next-line no-undef
-      const globalWindow = window;
-      if ("Notification" in globalWindow) {
-        const notification = globalWindow.Notification;
-        if (notification.permission === "granted") {
-          getToken(messaging, { vapidKey: process.env.NEXT_PUBLIC_VAPID_KEY })
-            .then((currentToken) => {
-              if (currentToken) {
-                console.log("FCM 토큰:", currentToken);
-                setFcmToken(currentToken);
-                saveTokenToPassword(currentToken);
-              } else {
-                console.log("토큰을 가져올 수 없습니다.");
-              }
-            })
-            .catch((err) => {
-              console.error("토큰 가져오기 중 오류 발생:", err);
-            });
-        } else {
-          notification.requestPermission().then((permission) => {
-            console.log("알림 권한 요청 결과:", permission);
-            if (permission === "granted") {
-              getToken(messaging, { vapidKey: process.env.NEXT_PUBLIC_VAPID_KEY })
-                .then((currentToken) => {
-                  if (currentToken) {
-                    console.log("FCM 토큰:", currentToken);
-                    setFcmToken(currentToken);
-                    saveTokenToPassword(currentToken);
-                  } else {
-                    console.log("토큰을 가져올 수 없습니다.");
-                  }
-                })
-                .catch((err) => {
-                  console.error("토큰 가져오기 중 오류 발생:", err);
-                });
-            } else {
-              console.log("알림 권한이 거부되었습니다.");
-            }
-          });
-        }
-      }
+  const requestPermissionIfNeeded = async () => {
+    if (typeof window === "undefined" || !("Notification" in window)) {
+      throw new Error("브라우저에서 알림을 지원하지 않습니다.")
     }
-  };
 
-  const saveTokenToPassword = async (token) => {
-    setIsSaving(true);
+    if (Notification.permission === "granted") {
+      return true
+    }
+
+    const permission = await Notification.requestPermission()
+    if (permission !== "granted") {
+      throw new Error("알림 권한이 거부되었습니다.")
+    }
+    return true
+  }
+
+  const handleGetToken = async () => {
     try {
-      // password 테이블의 name 필드에 토큰을 저장하는 API 호출
-      const response = await fetch("/api/password", {
+      await requestPermissionIfNeeded()
+      const currentToken = await getToken(messaging, {
+        vapidKey: process.env.NEXT_PUBLIC_VAPID_KEY,
+      })
+
+      if (!currentToken) {
+        console.log("토큰을 가져올 수 없습니다.")
+        return
+      }
+
+      console.log("FCM 토큰:", currentToken)
+      setFcmToken(currentToken)
+      await saveAdminToken(currentToken)
+    } catch (error) {
+      console.error("토큰 등록 중 오류 발생:", error)
+    }
+  }
+
+  const saveAdminToken = async (token) => {
+    setIsSaving(true)
+    try {
+      const response = await fetch("/api/admin/tokens", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: token }),
-      });
+        body: JSON.stringify({ token }),
+      })
+
       if (!response.ok) {
-        throw new Error("요청 저장 실패");
+        throw new Error("요청 저장 실패")
       }
-      console.log("password 테이블에 토큰이 성공적으로 저장되었습니다.");
+
+      console.log("관리자 토큰이 성공적으로 저장되었습니다.")
     } catch (error) {
-      console.error("토큰 저장 중 오류 발생:", error);
+      console.error("토큰 저장 중 오류 발생:", error)
     } finally {
-      setIsSaving(false);
+      setIsSaving(false)
     }
-  };
+  }
 
   return (
-    <main className="flex justify-center items-center w-full h-screen">
-      <Card className="w-96 grid justify-items-center items-center p-8">
-        <Label className="text-xl mb-4">선택하세요</Label>
-        <Button
-          className="text-lg mb-4 w-full"
-          onClick={() => router.push("/admin/approve")}
-        >
-          신청 승인
-        </Button>
-        <Button
-          className="text-lg mb-4 w-full"
-          onClick={handleGetToken}
-          disabled={isSaving}
-        >
-          {isSaving ? "저장 중..." : "알림 받기"}
-        </Button>
-        <Button
-          className="text-lg mb-4 w-full"
-          onClick={() => router.push("/morepeople")}
-        >
-          1~20인 신청
-        </Button>
-        {fcmToken && (
-          <p className="mt-4 break-all">토큰: {fcmToken}</p>
-        )}
-      </Card>
-    </main>
-  );
-}
+    <main className="min-h-screen bg-base-200 py-12">
+      <div className="hero">
+        <div className="hero-content w-full max-w-3xl flex-col gap-6 text-center">
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold text-base-content">관리자 도구</h1>
+            <p className="text-base-content/70">
+              오늘 접수된 신청을 확인하고 승인하거나, 알림을 받아 즉시 대응하세요.
+            </p>
+          </div>
 
+          <div className="grid w-full gap-6 lg:grid-cols-2">
+            {QUICK_ACTIONS.map((action) => (
+              <div key={action.href} className="card bg-base-100 shadow-lg">
+                <div className="card-body space-y-4">
+                  <h2 className="text-lg font-semibold text-base-content">{action.label}</h2>
+                  <p className="text-sm text-base-content/70">{action.description}</p>
+                  <Link href={action.href} className={`${action.variant} w-full`}>
+                    이동하기
+                  </Link>
+                </div>
+              </div>
+            ))}
+
+            <div className="card bg-base-100 shadow-lg">
+              <div className="card-body space-y-4">
+                <h2 className="text-lg font-semibold text-base-content">알림 설정</h2>
+                <p className="text-sm text-base-content/70">
+                  관리자 기기에서 알림을 구독하면 새 신청이 접수될 때 바로 안내해 드립니다.
+                </p>
+                <button
+                  className="btn btn-primary w-full"
+                  onClick={handleGetToken}
+                  disabled={isSaving}
+                >
+                  {isSaving ? "토큰 저장 중..." : "알림 받기"}
+                </button>
+                {fcmToken && (
+                  <div className="space-y-2 rounded-xl bg-base-200 p-3 text-left text-xs text-base-content/70">
+                    <p className="font-semibold text-base-content">FCM 토큰</p>
+                    <code className="block max-h-24 overflow-y-auto break-words">{fcmToken}</code>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  )
+}
