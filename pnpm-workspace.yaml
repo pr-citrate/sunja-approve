@@ -1,2 +1,12 @@
 packages:
   - .
+
+ignoredBuiltDependencies:
+  - '@firebase/util'
+  - '@tailwindcss/oxide'
+  - bcrypt
+  - core-js
+  - protobufjs
+  - re2
+  - sharp
+  - yarn
