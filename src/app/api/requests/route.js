@@ -4,7 +4,9 @@ import { REQUEST_STATUS } from "@/lib/constants"
 import { getFirebaseAdmin } from "@/lib/server/firebaseAdmin"
 import { broadcastAdminRequestNotification } from "@/lib/server/adminNotifications"
 import { runXataOperation } from "@/lib/server/xataClient"
-getFirebaseAdmin()
+
+// Firebase Admin 초기화 (빌드 시에는 null일 수 있음)
+const firebaseAdmin = getFirebaseAdmin()
 
 export async function GET(req) {
   const params = parse(req.nextUrl.search, { ignoreQueryPrefix: true })

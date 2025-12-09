@@ -2,6 +2,12 @@ import { getFirebaseAdmin } from "./firebaseAdmin"
 
 export async function checkTokenValidity(token) {
   const admin = getFirebaseAdmin()
+
+  if (!admin) {
+    console.warn('Firebase Admin not available, skipping token validity check')
+    return { valid: false }
+  }
+
   try {
     await admin.messaging().send(
       {
@@ -24,11 +30,22 @@ export async function checkTokenValidity(token) {
 
 export async function sendNotification({ token, notification, data = {}, webpush }) {
   const admin = getFirebaseAdmin()
+
+  if (!admin) {
+    console.warn('Firebase Admin not available, skipping notification send')
+    return null
+  }
+
   return admin.messaging().send({ token, notification, data, webpush })
 }
 
 export async function sendNotifications(tokens, payloadBuilder) {
   const admin = getFirebaseAdmin()
+
+  if (!admin) {
+    console.warn('Firebase Admin not available, skipping notifications send')
+    return []
+  }
 
   const results = await Promise.all(
     tokens.map(async ({ token, id }) => {

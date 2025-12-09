@@ -32,4 +32,13 @@ jobs:
         run: pnpm lint
 
       - name: Build check
+        env:
+          # 빌드용 더미 환경 변수들 (실제 값은 배포 시에만 필요)
+          FIREBASE_PROJECT_ID: "dummy-project-id"
+          FIREBASE_CLIENT_EMAIL: "dummy@dummy.iam.gserviceaccount.com"  
+          FIREBASE_PRIVATE_KEY: "-----BEGIN PRIVATE KEY-----\nDUMMY_KEY\n-----END PRIVATE KEY-----\n"
+          NEXT_PUBLIC_VAPID_KEY: "dummy-vapid-key"
+          XATA_API_KEY: "dummy-xata-key"
+          XATA_DATABASE_URL: "https://dummy.xata.sh/db/dummy"
+          ADMIN_PASSWORD: "dummy-password"
         run: pnpm build

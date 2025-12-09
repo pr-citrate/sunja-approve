@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server"
 import { getFirebaseAdmin } from "@/lib/server/firebaseAdmin"
 import { sendApprovalNotification } from "@/lib/server/userNotifications"
-getFirebaseAdmin()
+
+// Firebase Admin 초기화 (빌드 시에는 null일 수 있음)
+const firebaseAdmin = getFirebaseAdmin()
 
 export async function POST(req) {
   try {
