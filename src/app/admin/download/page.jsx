@@ -175,7 +175,7 @@ const MobileDataView = ({
   totalPages,
   handleNextPage,
   handlePreviousPage,
-  onShowApplicants = () => {},
+  onShowApplicants = () => { },
 }) => {
   // 한 페이지에 mobilePageSize(3)개의 항목만 표시
   const mobilePageSize = 3
@@ -378,7 +378,7 @@ export default function Homeadmin() {
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [toast.error])
 
   useEffect(() => {
     fetchData()

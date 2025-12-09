@@ -463,7 +463,7 @@ export default function ApproveRequestsPage() {
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [applyOptimisticRequest, toast.error])
 
   useEffect(() => {
     if (isPasswordCorrect) {

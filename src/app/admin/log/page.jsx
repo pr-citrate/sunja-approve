@@ -153,7 +153,7 @@ export default function Homeadmin() {
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [toast.error])
 
   useEffect(() => {
     fetchData()

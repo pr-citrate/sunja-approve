@@ -126,13 +126,14 @@ export default function RequestForm({
       }
       return prev.slice(0, numApplicants)
     })
-  }, [numApplicants, form, generateApplicantId])
+  }, [numApplicants, generateApplicantId, setValue])
 
   const disableInteractions = isSubmitting || isFormDisabled
 
   const timeFieldId = `${formIdPrefix}-time`
   const reasonFieldId = `${formIdPrefix}-reason`
   const contactFieldId = `${formIdPrefix}-contact`
+  const applicantCountFieldId = `${formIdPrefix}-applicant-count`
 
   return (
     <main className="min-h-screen bg-base-200 py-12">
@@ -180,10 +181,11 @@ export default function RequestForm({
                 </div>
 
                 <div className="form-control w-full">
-                  <label className="label">
+                  <label className="label" htmlFor={applicantCountFieldId}>
                     <span className="label-text font-semibold">사용 인원</span>
                   </label>
                   <select
+                    id={applicantCountFieldId}
                     className="select select-bordered w-full"
                     disabled={disableInteractions}
                     value={String(numApplicants)}

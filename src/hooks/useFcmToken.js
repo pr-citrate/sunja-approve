@@ -16,7 +16,7 @@ export function useFcmToken() {
       return
     }
 
-    let unsubscribe = () => {}
+    let unsubscribe = () => { }
 
     const requestToken = async () => {
       try {
@@ -61,7 +61,7 @@ export function useFcmToken() {
     return () => {
       unsubscribe?.()
     }
-  }, [])
+  }, [toast.info])
 
   return fcmToken
 }
