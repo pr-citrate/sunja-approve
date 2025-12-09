@@ -113,6 +113,7 @@ export default function HomePage() {
                   관리자 기기에서 알림을 구독하면 새 신청이 접수될 때 바로 안내해 드립니다.
                 </p>
                 <button
+                  type="button"
                   className="btn btn-primary w-full"
                   onClick={handleGetToken}
                   disabled={isSaving}

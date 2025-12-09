@@ -190,25 +190,23 @@ export default function Homeadmin() {
   }
 
   return (
-    <>
-      <main className="min-h-screen bg-base-200 py-10">
-        <div className="container mx-auto">
-          <div className="mb-6 text-center">
-            <h1 className="text-2xl font-bold text-base-content">신청 전체 로그</h1>
-            <p className="text-sm text-base-content/70">
-              승인 여부와 사유, 접속 IP까지 한 번에 확인할 수 있습니다.
-            </p>
-          </div>
-          <DataTable
-            table={table}
-            data={data}
-            isLoading={isLoading}
-            handlePreviousPage={handlePreviousPage}
-            handleNextPage={handleNextPage}
-            router={router}
-          />
+    <main className="min-h-screen bg-base-200 py-10">
+      <div className="container mx-auto">
+        <div className="mb-6 text-center">
+          <h1 className="text-2xl font-bold text-base-content">신청 전체 로그</h1>
+          <p className="text-sm text-base-content/70">
+            승인 여부와 사유, 접속 IP까지 한 번에 확인할 수 있습니다.
+          </p>
         </div>
-      </main>
-    </>
+        <DataTable
+          table={table}
+          data={data}
+          isLoading={isLoading}
+          handlePreviousPage={handlePreviousPage}
+          handleNextPage={handleNextPage}
+          router={router}
+        />
+      </div>
+    </main>
   )
 }

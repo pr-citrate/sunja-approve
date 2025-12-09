@@ -140,7 +140,7 @@ function DesktopTable({
   onDelete,
   router,
   busy,
-  onShowApplicants = () => {},
+  onShowApplicants = () => { },
 }) {
   const start = pageIndex * pageSize
   const pageData = data.slice(start, start + pageSize)
@@ -195,9 +195,8 @@ function DesktopTable({
                         <td className="w-32">
                           <button
                             type="button"
-                            className={`btn w-full ${
-                              row.isApproved ? "btn-soft btn-error" : "btn-soft btn-success"
-                            }`}
+                            className={`btn w-full ${row.isApproved ? "btn-soft btn-error" : "btn-soft btn-success"
+                              }`}
                             disabled={busy}
                             onClick={() => (row.isApproved ? onReject(row) : onApprove(row))}
                           >
@@ -283,7 +282,7 @@ function MobileCards({
   onDelete,
   router,
   busy,
-  onShowApplicants = () => {},
+  onShowApplicants = () => { },
 }) {
   const start = pageIndex * pageSize
   const pageCount = Math.max(1, Math.ceil(data.length / pageSize))
@@ -345,9 +344,8 @@ function MobileCards({
             </div>
             <button
               type="button"
-              className={`btn w-full ${
-                item.isApproved ? "btn-soft btn-error" : "btn-soft btn-success"
-              }`}
+              className={`btn w-full ${item.isApproved ? "btn-soft btn-error" : "btn-soft btn-success"
+                }`}
               disabled={busy}
               onClick={() => (item.isApproved ? onReject(item) : onApprove(item))}
             >
@@ -421,10 +419,10 @@ export default function ApproveRequestsPage() {
           return current.map((item) =>
             item.id === action.id
               ? {
-                  ...item,
-                  isApproved: action.isApproved,
-                  status: action.isApproved ? REQUEST_STATUS.APPROVED : REQUEST_STATUS.REJECTED,
-                }
+                ...item,
+                isApproved: action.isApproved,
+                status: action.isApproved ? REQUEST_STATUS.APPROVED : REQUEST_STATUS.REJECTED,
+              }
               : item,
           )
         case "remove":
@@ -558,55 +556,53 @@ export default function ApproveRequestsPage() {
   const goPrevious = () => setPageIndex((prev) => Math.max(prev - 1, 0))
 
   return (
-    <>
-      <main className="min-h-screen bg-base-200 py-10">
-        <div className="container mx-auto">
-          {!isPasswordCorrect ? (
-            <div className="flex items-center justify-center">
-              <PasswordForm
-                password={password}
-                setPassword={setPassword}
-                onSubmit={handlePasswordSubmit}
-                router={router}
-              />
-            </div>
-          ) : isLoading ? (
-            <div className="card mx-auto w-full max-w-md bg-base-100 shadow-lg">
-              <div className="card-body flex items-center justify-center py-10">
-                <span className="loading loading-spinner loading-lg text-primary" />
-              </div>
-            </div>
-          ) : isMobile ? (
-            <MobileCards
-              data={optimisticRequests}
-              pageIndex={pageIndex}
-              pageSize={pageSize}
-              onNext={goNext}
-              onPrevious={goPrevious}
-              onApprove={(request) => handleStatusChange(request, true)}
-              onReject={(request) => handleStatusChange(request, false)}
-              onDelete={handleDelete}
+    <main className="min-h-screen bg-base-200 py-10">
+      <div className="container mx-auto">
+        {!isPasswordCorrect ? (
+          <div className="flex items-center justify-center">
+            <PasswordForm
+              password={password}
+              setPassword={setPassword}
+              onSubmit={handlePasswordSubmit}
               router={router}
-              busy={isPending}
-              onShowApplicants={(applicants) => showApplicantToast(toast, applicants)}
             />
-          ) : (
-            <DesktopTable
-              data={optimisticRequests}
-              pageIndex={pageIndex}
-              pageSize={pageSize}
-              onNext={goNext}
-              onPrevious={goPrevious}
-              onApprove={(request) => handleStatusChange(request, true)}
-              onReject={(request) => handleStatusChange(request, false)}
-              onDelete={handleDelete}
-              router={router}
-              busy={isPending}
-              onShowApplicants={(applicants) => showApplicantToast(toast, applicants)}
-            />
-          )}
-        </div>
-      </main>
-    </>
+          </div>
+        ) : isLoading ? (
+          <div className="card mx-auto w-full max-w-md bg-base-100 shadow-lg">
+            <div className="card-body flex items-center justify-center py-10">
+              <span className="loading loading-spinner loading-lg text-primary" />
+            </div>
+          </div>
+        ) : isMobile ? (
+          <MobileCards
+            data={optimisticRequests}
+            pageIndex={pageIndex}
+            pageSize={pageSize}
+            onNext={goNext}
+            onPrevious={goPrevious}
+            onApprove={(request) => handleStatusChange(request, true)}
+            onReject={(request) => handleStatusChange(request, false)}
+            onDelete={handleDelete}
+            router={router}
+            busy={isPending}
+            onShowApplicants={(applicants) => showApplicantToast(toast, applicants)}
+          />
+        ) : (
+          <DesktopTable
+            data={optimisticRequests}
+            pageIndex={pageIndex}
+            pageSize={pageSize}
+            onNext={goNext}
+            onPrevious={goPrevious}
+            onApprove={(request) => handleStatusChange(request, true)}
+            onReject={(request) => handleStatusChange(request, false)}
+            onDelete={handleDelete}
+            router={router}
+            busy={isPending}
+            onShowApplicants={(applicants) => showApplicantToast(toast, applicants)}
+          />
+        )}
+      </div>
+    </main>
   )
 }

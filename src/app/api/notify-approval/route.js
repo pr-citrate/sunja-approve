@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { getFirebaseAdmin } from "@/lib/server/firebaseAdmin"
-import { sendApprovalNotification, updateRequestStatus } from "@/lib/server/userNotifications"
+import { sendApprovalNotification } from "@/lib/server/userNotifications"
 getFirebaseAdmin()
 
 export async function POST(req) {
