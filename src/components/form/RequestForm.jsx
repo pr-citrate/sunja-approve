@@ -66,12 +66,7 @@ export default function RequestForm({
   } = form
 
   const showToast = (message, type) => {
-    const handler =
-      type === "success"
-        ? toast.success
-        : type === "error"
-          ? toast.error
-          : toast.info
+    const handler = type === "success" ? toast.success : type === "error" ? toast.error : toast.info
 
     handler(message, {
       duration: 3000,
