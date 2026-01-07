@@ -3,7 +3,15 @@ import nextPWA from "next-pwa";
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: true,
-    turbopack: {},
+    async redirects() {
+        return [
+            {
+                source: '/',
+                destination: 'https://sunja.vercel.app',
+                permanent: true,
+            },
+        ];
+    },
 };
 
 const withPWA = nextPWA({
