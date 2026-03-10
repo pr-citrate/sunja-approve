@@ -8,6 +8,7 @@ import { STUDY_PERIOD_OPTIONS } from "@/lib/constants"
 const columns = [
   { key: "name", header: "대표자" },
   { key: "count", header: "총인원" },
+  { key: "requestTime", header: "신청 시간" },
 ]
 
 function groupByStudyPeriod(requests) {
@@ -44,11 +45,21 @@ async function fetchDailyRequests(status) {
   const result = await response.json()
   const filtered = result.requests.filter((request) => request.status === status)
 
-  return filtered.map((request) => ({
-    ...request,
-    name: request.applicant?.[0]?.name ?? "N/A",
-    count: `${request.applicant?.length ?? 0}명`,
-  }))
+  return filtered.map((request) => {
+    const createdAt = new Date(request.xata.createdAt)
+    const requestTime = createdAt.toLocaleTimeString("ko-KR", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    })
+
+    return {
+      ...request,
+      name: request.applicant?.[0]?.name ?? "N/A",
+      count: `${request.applicant?.length ?? 0}명`,
+      requestTime,
+    }
+  })
 }
 
 export default function DailyStatusPage({ status, emptyMessage, loadingMessage = "로딩 중..." }) {
